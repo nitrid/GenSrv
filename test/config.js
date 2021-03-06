@@ -4,5 +4,6 @@ export default
 	database: "MikroDB_V16",
 	uid: "beka",
 	pwd: "1122334455",
-	trustedConnection : false
+	trustedConnection : false,
+	test : true
 }

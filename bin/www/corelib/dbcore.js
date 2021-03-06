@@ -1,5 +1,6 @@
 import query from './query.js'
 import dblocal from './local/dblocal.js'
+import './socket.io.min.js'
 
 let instance = null;
 let socket = io(window.location.origin);
@@ -11,7 +12,7 @@ export class dbcore
         this.mode = 'online';
         this.#ioEvents();
         this.dblocal = new dblocal(this)
-        instance = this;                
+        instance = this;      
     }
     get instance()
     {
@@ -40,7 +41,7 @@ export class dbcore
     {
         return new Promise(resolve => 
         {
-            //PARAMETRE UNDEFINED KONTROLÜ
+            //PARAMETRE UNDEFINED CONTROL
             if(typeof(pQuery.value) != 'undefined')
             {
                 for (let i = 0; i < pQuery.value.length; i++) 
