@@ -1,8 +1,8 @@
 export default 
 {
-	server: "192.168.100.12",
-	database: "MikroDB_V16",
-	uid: "beka",
+	server: "DESKTOP-V3597T5",
+	database: "PIQPOS",
+	uid: "piqpos",
 	pwd: "1122334455",
 	trustedConnection : false,
 	test : true
