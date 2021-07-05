@@ -221,6 +221,7 @@ export default class core
         // this.dblocal = new dblocal(this)
         instance = this; 
         //this.#dataset = new dataset();
+        //socket.connect(window.location.origin)
     }
     get instance()
     {

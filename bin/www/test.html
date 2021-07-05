@@ -1,45 +1,45 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
 <script type="module">
-    // import * as core from '../corelib/core.js'
+    import * as core from '../corelib/core.js'
     // import template from '../corelib/template.js'
     
-    // let m = new core.datatable();
+    let m = new core.datatable();
     //x.datatable("DEPOT")[0].NAME = "MAHIR";
     //x.datatable("DEPOT").push({CODE : "0002",NAME : "ATAKENT"})
     //await x.datatable("DEPOT").update();
     // x.DEPOT.refresh();
-    // m.selectCmd = 
-    // {
-    //     query: "SELECT * FROM DEPOT"
-    // }
-    // m.updateCmd =
-    // {
-    //     query: "UPDATE DEPOT SET NAME = @NAME WHERE GUID = @GUID",
-    //     param: ['NAME:string|50','GUID:string|50']
-    // }
-    // m.insertCmd = 
-    // {
-    //     query:  "INSERT INTO [DEPOT] (" +
-    //             " [CUSER] " +
-    //             ",[CDATE] " +
-    //             ",[LUSER] " +
-    //             ",[LDATE] " +
-    //             ",[TYPE] " +
-    //             ",[CODE] " +
-    //             ",[NAME] " +
-    //             ") VALUES ( " +
-    //             "'ADMIN' " +
-    //             ",GETDATE() " + 
-    //             ",'ADMIN' " +
-    //             ",GETDATE() " + 
-    //             ",0 " +
-    //             ",@CODE " +
-    //             ",@NAME " +
-    //             ")",
-    //     param: ['CODE:string|25','NAME:string|50']
-    // }
+    m.selectCmd = 
+    {
+        query: "SELECT * FROM DEPOT"
+    }
+    m.updateCmd =
+    {
+        query: "UPDATE DEPOT SET NAME = @NAME WHERE GUID = @GUID",
+        param: ['NAME:string|50','GUID:string|50']
+    }
+    m.insertCmd = 
+    {
+        query:  "INSERT INTO [DEPOT] (" +
+                " [CUSER] " +
+                ",[CDATE] " +
+                ",[LUSER] " +
+                ",[LDATE] " +
+                ",[TYPE] " +
+                ",[CODE] " +
+                ",[NAME] " +
+                ") VALUES ( " +
+                "'ADMIN' " +
+                ",GETDATE() " + 
+                ",'ADMIN' " +
+                ",GETDATE() " + 
+                ",0 " +
+                ",@CODE " +
+                ",@NAME " +
+                ")",
+        param: ['CODE:string|25','NAME:string|50']
+    }
     
-    // await m.refresh();
+    await m.refresh();
     // console.log(x[0])
     // m[0].NAME = "EKREM";
     // m.push({CODE:"0000011", NAME : "ATAKENT"});
