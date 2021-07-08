@@ -2,7 +2,11 @@
 <script type="module">
     import * as core from '../corelib/core.js'
     // import template from '../corelib/template.js'
-    
+    core.coreobj.socket.emit('print','aaa',(data)=>
+    {
+        console.log(core.coreobj.plugins)
+    })
+
     let m = new core.datatable();
     //x.datatable("DEPOT")[0].NAME = "MAHIR";
     //x.datatable("DEPOT").push({CODE : "0002",NAME : "ATAKENT"})

@@ -2,8 +2,8 @@ import query from './query.js'
 import dblocal from './local/dblocal.js'
 import './socket.io.min.js'
 
-let instance = null;
-let socket = io(window.location.origin);
+//let instance = null;
+//let socket = io(window.location.origin);
 
 export class datatable extends Array
 {
@@ -57,7 +57,7 @@ export class datatable extends Array
         {
             if(typeof this.selectCmd != 'undefined')
             {
-                let TmpData = await instance.sqlExecute(this.selectCmd)
+                let TmpData = await core.instance.sqlExecute(this.selectCmd)
                 if(typeof TmpData.result.err == 'undefined')
                 {
                     for (let i = 0; i < TmpData.result.recordset.length; i++) 
@@ -123,7 +123,7 @@ export class datatable extends Array
             }
             if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
             {
-                let TmpUpdateData = await instance.sqlExecute(this.updateCmd)
+                let TmpUpdateData = await core.instance.sqlExecute(this.updateCmd)
 
                 if(typeof TmpUpdateData.result.err == 'undefined')
                 {
@@ -137,7 +137,7 @@ export class datatable extends Array
             
             if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
             {
-                let TmpInsertData = await instance.sqlExecute(this.insertCmd)
+                let TmpInsertData = await core.instance.sqlExecute(this.insertCmd)
 
                 if(typeof TmpInsertData.result.err == 'undefined')
                 {
@@ -214,22 +214,28 @@ export class dataset
 export default class core
 {    
     #dataset;
+    static instance = null;
+    
     constructor()
     {
         this.mode = 'online';
+        this.socket = io(window.location.origin);
         this.#ioEvents();
-        // this.dblocal = new dblocal(this)
-        instance = this; 
+        this.plugins = {};
+        
+        if(!core.instance)
+        {
+            core.instance = this;
+        }
+
+        import('./plugins/plugins.js').then(module =>
+        {
+            Object.keys(module).forEach(element => 
+            {
+                this.plugins[element] = new module[element];
+            });
+        })
         //this.#dataset = new dataset();
-        //socket.connect(window.location.origin)
-    }
-    get instance()
-    {
-        return instance;
-    }
-    get socket()
-    {
-        return socket;
     }
     get query()
     {
@@ -268,7 +274,7 @@ export default class core
 
             if(this.mode == 'online')
             {
-                socket.emit('sql',pQuery,(data) =>
+                this.socket.emit('sql',pQuery,(data) =>
                 {
                    resolve(data); 
                 });
