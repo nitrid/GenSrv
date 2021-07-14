@@ -1,9 +1,9 @@
 export default 
 {
-	server: "DESKTOP-V3597T5",
-	database: "PIQPOS",
-	uid: "piqpos",
-	pwd: "1122334455",
+	server: "192.168.100.12",
+	database: "portal.tone.ist",
+	uid: "nitrogen",
+	pwd: "lp8462+",
 	trustedConnection : false,
 	test : true
 }
