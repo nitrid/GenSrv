@@ -1,22 +1,12 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
 <script type="module">
     import * as core from '../corelib/core.js'
-    let TmpQuery = 
-    [
-        {
-            query: "INSERT INTO DEPOT(CODE,NAME) VALUES (@CODE,@NAME)",
-            param: ['CODE:string|25','NAME:string|25'],
-            value: ['002','A']
-        },
-        {
-            query: "INSERT INTO DEPOT(CODE,NAME) VALUESS (@CODE,@NAME)",
-            param: ['CODE:string|25','NAME:string|25'],
-            value: ['003','B']
-        }
-    ]
-    let Tmp = await core.coreobj.sqlExecute(TmpQuery)
-    console.log(Tmp)
+    core.coreobj.socket.emit('terminal','-try');
 
+    core.coreobj.socket.on('terminal',(pData) => 
+    {
+        console.log(pData);
+    })
     // import template from '../corelib/template.js'
     // core.coreobj.socket.emit('print','aaa',(data)=>
     // {

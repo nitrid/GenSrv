@@ -235,7 +235,6 @@ export default class core
                 this.plugins[element] = new module[element];
             });
         })
-        //this.#dataset = new dataset();
     }
     get query()
     {
