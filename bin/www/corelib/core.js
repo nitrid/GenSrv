@@ -275,7 +275,17 @@ export default class core
             {
                 this.socket.emit('sql',pQuery,(data) =>
                 {
-                   resolve(data); 
+                    if(typeof data.auth_err != 'undefined')
+                    {
+                        resolve(data); 
+                    }
+                    else
+                    {
+                        //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
+                        console.log(data.auth_err.err);
+                        resolve([]);
+                    }
+                   
                 });
             }
         });

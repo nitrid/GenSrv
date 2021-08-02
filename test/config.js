@@ -1,9 +1,10 @@
 export default 
 {
 	server: "DESKTOP-19L22EL",
-	database: "GENDBS",
+	database: "GENDB",
 	uid: "piqpos",
 	pwd: "1122334455",
 	trustedConnection : false,
-	test : true
+	test : true,
+	debug : false
 }

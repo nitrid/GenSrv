@@ -4,5 +4,6 @@ export default
 	database: "",
 	uid: "",
 	pwd: "",
-	trustedConnection : false
+	trustedConnection : false,
+	debug: false
 }

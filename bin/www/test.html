@@ -1,12 +1,19 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
 <script type="module">
     import * as core from '../corelib/core.js'
-    core.coreobj.socket.emit('terminal','-try');
-
-    core.coreobj.socket.on('terminal',(pData) => 
+    //console.log(await core.coreobj.sqlExecute({query:"SELECT * FROM USERS"}))
+    core.coreobj.socket.emit('login',['Admin','123456'],async (pData) =>
     {
-        console.log(pData);
-    })
+        console.log(pData)
+        // core.coreobj.socket.emit('terminal','-try');
+    
+        core.coreobj.socket.on('terminal',(pData) => 
+        {
+            console.log(core.coreobj.socket)
+            console.log(pData);
+        })
+    });
+    
     // import template from '../corelib/template.js'
     // core.coreobj.socket.emit('print','aaa',(data)=>
     // {
