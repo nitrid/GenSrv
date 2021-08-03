@@ -11,9 +11,29 @@ let rl = readline.createInterface(
 
 rl.on('line', (input) => 
 {
-    socket.emit('terminal',input)
+    if(input.split(' ')[0] == '-login')
+    {
+        let TmpParam = [];
+        if(typeof input.split(' ')[2] == 'undefined')
+            TmpParam.push(input.split(' ')[1])
+        else
+            TmpParam.push(input.split(' ')[1],input.split(' ')[2])
+        
+        socket.emit('login',TmpParam,(pResult) => 
+        {
+            
+        });
+    }
+    else
+    {
+        socket.emit('terminal',input);   
+    }    
 });
 socket.on('terminal',(pData) =>
 {
     console.log(pData)
+})
+socket.on('disconnect',()=>
+{
+    socket.connect();
 })
