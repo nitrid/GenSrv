@@ -1,6 +1,14 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
 <script type="module">
     import * as core from '../corelib/core.js'
+    core.coreobj.socket.on('general',(pData) =>
+    {
+        console.log(pData)
+    })
+    core.coreobj.socket.on('disconnect',(pData) =>
+    {
+        console.log(111)
+    })
     //console.log(await core.coreobj.sqlExecute({query:"SELECT * FROM USERS"}))
     core.coreobj.socket.emit('login',['Admin','123456'],async (pData) =>
     {

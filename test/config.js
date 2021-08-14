@@ -6,5 +6,6 @@ export default
 	pwd: "1122334455",
 	trustedConnection : false,
 	test : true,
-	debug : false
+	debug : false,
+	app: "POS"
 }

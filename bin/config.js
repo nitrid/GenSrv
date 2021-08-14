@@ -5,5 +5,6 @@ export default
 	uid: "",
 	pwd: "",
 	trustedConnection : false,
-	debug: false
+	debug: false,
+	app: ""
 }
