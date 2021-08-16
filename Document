@@ -1,0 +1,1 @@
+npx babel --watch ./bin/react/admin --out-dir ./bin/www/admin --presets react-app/prod

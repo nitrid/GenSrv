@@ -1,6 +1,29 @@
-<script type="module" src="../corelib/core.js"></script>
-<script type="module">
-    import {coreobj} from '../corelib/core.js'
-    console.log(coreobj)  
-    
-</script>
+<html ng-app="app">
+    <head>
+        <link rel="stylesheet" href="../css/bootstrap5.min.css">
+        <link rel="stylesheet" type="text/css" href="../css/dx.light.css" />
+        <!--FOR ELECTRON JS-->
+        <script>
+            if (typeof module === 'object') {window.module = module; module = undefined;}
+        </script>
+        <!------------------->
+        <!--GLOBAL LIBRARY--->
+        <script src="../js/jquery-3.5.1.slim.min.js"></script>
+        <script src="../js/bootstrap5.bundle.min.js"></script>
+        <script src="../js/dx.all.js"></script>
+        <script src="../js/moment.min.js"></script>
+        <script src="../js/moment-with-locales.js"></script>
+        <!------------------->        
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/babel">
+
+        ReactDOM.render(
+            <h1>Hello, world!</h1>,
+            document.getElementById('root')
+        );
+
+        </script>
+    </body>
+</html>

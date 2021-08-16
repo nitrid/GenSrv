@@ -1,6 +1,6 @@
 import query from './query.js'
 import dblocal from './local/dblocal.js'
-import './socket.io.min.js'
+import '../js/socket.io.min.js'
 
 //let instance = null;
 //let socket = io(window.location.origin);
