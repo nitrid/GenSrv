@@ -1,6 +1,6 @@
 import query from './query.js'
-import dblocal from './local/dblocal.js'
-import '../js/socket.io.min.js'
+//import dblocal from './local/dblocal.js'
+// import io from '../js/socket.io.js'
 
 //let instance = null;
 //let socket = io(window.location.origin);
@@ -213,16 +213,17 @@ export class dataset
 }
 export default class core
 {    
-    #dataset;
     static instance = null;
     
     constructor()
     {
+        this.dataset = null;
+        this.listeners = Object();
         this.mode = 'online';
         this.socket = io(window.location.origin);
-        this.#ioEvents();
+        this.ioEvents();
         this.plugins = {};
-        
+
         if(!core.instance)
         {
             core.instance = this;
@@ -240,20 +241,20 @@ export default class core
     {
         return query;
     }
-    get dataset()
-    {
-        return this.#dataset;
-    }
+    // get dataset()
+    // {
+    //     return this.#dataset;
+    // }
     on(pEvt, pCallback) 
     {
-        if (!this.#listeners.hasOwnProperty(pEvt))
-        this.#listeners[pEvt] = Array();
+        if (!this.listeners.hasOwnProperty(pEvt))
+        this.listeners[pEvt] = Array();
 
-        this.#listeners[pEvt].push(pCallback); 
+        this.listeners[pEvt].push(pCallback); 
     }
     emit(pEvt, pParams)
     {
-        return this.#eventTrigger(pEvt,pParams);
+        return this.eventTrigger(pEvt,pParams);
     }
     sqlExecute(pQuery)
     {
@@ -290,28 +291,27 @@ export default class core
             }
         });
     }
-    #ioEvents()
+    ioEvents()
     {
         this.socket.on('connect',() => 
         {
-            this.#eventTrigger('connect',()=>{})
+            this.eventTrigger('connect',()=>{})
         });
         this.socket.on('connect_error',(error) => 
         {
-            this.#eventTrigger('connect_error',()=>{})
+            this.eventTrigger('connect_error',()=>{})
         });
         this.socket.on('error', (error) => 
         {
-            this.#eventTrigger('connect_error',()=>{})
+            this.eventTrigger('connect_error',()=>{})
         });
     }
     //#region  "EVENT"
-    #listeners = Object();
-    #eventTrigger(pEvt, pParams) 
+    eventTrigger(pEvt, pParams) 
     {
-        if (pEvt in this.#listeners) 
+        if (pEvt in this.listeners) 
         {
-            let callbacks = this.#listeners[pEvt];
+            let callbacks = this.listeners[pEvt];
             for (var x in callbacks)
             {
                 callbacks[x](pParams);
