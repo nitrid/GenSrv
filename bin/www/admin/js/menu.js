@@ -7,9 +7,9 @@ import App from './app.js';
 let timeout = null;
 export default class Menu extends React.Component 
 {
-    constructor(probs)
+    constructor()
     {        
-        super(probs);
+        super();
         this.style = 
         {
             div :
@@ -25,7 +25,7 @@ export default class Menu extends React.Component
         this.state = 
         {
             value: 'contains',
-            currentItem: Object.assign({},this.menu_item[0])
+            currentItem: Object.assign({},this.menu_item[0]),
         }
         this.selectItem = this.selectItem.bind(this);
     }
@@ -34,20 +34,19 @@ export default class Menu extends React.Component
         const {currentItem} = this.state;
         return(
             <div style={this.style.div}>
-            <TreeView id="Menu" style={this.style.treeview}
-                items = {this.menu_item}
-                width = {300}
-                height = {'100%'}
-                onItemClick = {this.selectItem}
-                searchMode={this.state.value}
-                searchEnabled={true}                
-                >
-                <SearchEditorOptions height={'fit-content'} />
+                <TreeView id="Menu" style={this.style.treeview}
+                    items = {this.menu_item}
+                    width = {300}
+                    height = {'100%'}
+                    onItemClick = {this.selectItem}
+                    searchMode={this.state.value}
+                    searchEnabled={true}                
+                    >
+                    <SearchEditorOptions height={'fit-content'} />
                 </TreeView>  
             </div>
         )
     }
-    
     selectItem(e) 
     {        
         // DOUBLE CLİCK ICIN YAPILDI
