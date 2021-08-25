@@ -2,8 +2,6 @@ import React from 'react';
 import { Sortable } from 'devextreme-react/sortable';
 import TabPanel from 'devextreme-react/tab-panel';
 
-import {page_list} from './conf/page_list.js'
-
 export class Page extends React.Component
 {
     constructor()
@@ -19,84 +17,117 @@ export class Page extends React.Component
         )
     }
 }
-
-function PagePanel()
+const page_list = [];
+export default class PagePanel extends React.Component
 {
-    const [pages, setPages] = React.useState(page_list.slice(0, 1));
-    const [selectedItem, setSelectedItem] = React.useState(page_list[0]);
-
-    function closeButtonHandler(item) 
+  static instance = null;
+  constructor()
+  {
+    super()
+    
+    this.state =
     {
-      console.log(item)
-      const newPages = [...pages];
-      const index = newPages.indexOf(item);
-  
-      newPages.splice(index, 1);
-      setPages(newPages);
-  
-      if (index >= newPages.length && index > 0) 
+      dataSource : page_list,
+      selectedIndex: 0
+    }
+    this.onSelectionChanged = this.onSelectionChanged.bind(this);
+    this.onTabDrop = this.onTabDrop.bind(this);
+    this.renderTitle = this.renderTitle.bind(this);
+
+    if(!PagePanel.instance)
+    {
+      PagePanel.instance = this;
+    }
+  }
+  addPage(e)
+  {
+    this.setState(
+    {
+      dataSource: [...this.state.dataSource, {title:e.text}],
+      selectedIndex: this.state.dataSource.length
+    });
+  }
+  onTabDragStart(e) 
+  {
+    e.itemData = e.fromData[e.fromIndex];
+  }
+  onTabDrop(e) 
+  {    
+    const newPages = [...this.state.dataSource];
+
+    newPages.splice(e.fromIndex, 1);
+    newPages.splice(e.toIndex, 0, e.itemData);
+
+    this.setState(
+    {
+      dataSource: newPages
+    });
+  }
+  closeButtonHandler(e)
+  {
+    const newPages = [...this.state.dataSource];
+    const index = this.state.selectedIndex;
+
+    newPages.splice(index, 1);
+
+    this.setState(
+    {
+      dataSource: newPages,
+      selectedIndex : 0
+    });
+  }
+  renderTitle(e) 
+  {
+    this.closeButtonHandler = this.closeButtonHandler.bind(this)
+    
+    return (
+      <React.Fragment>
+        <div>
+          <span>
+            {e.title}
+          </span>
+          {<i className="dx-icon dx-icon-close" onClick={this.closeButtonHandler} />}
+        </div>
+      </React.Fragment>
+    );
+  }
+  onSelectionChanged(e)
+  {
+    if(e.name == 'selectedIndex') 
+    {
+      this.setState(
       {
-        setSelectedItem(newPages[index - 1]);
-      }
+        selectedIndex: e.value
+      });
     }
-    function renderTitle(data) 
-    {
-      function closeHandler() 
-      {
-        closeButtonHandler(data);
-      }
-      return (
-        <React.Fragment>
-          <div>
-            <span>
-              {data.title}
-            </span>
-            {<i className="dx-icon dx-icon-close" onClick={closeHandler} />}
-          </div>
-        </React.Fragment>
-      );
-    }
-    function onSelectionChanged(args) 
-    {
-      setSelectedItem(args.addedItems[0]);
-    }
-    function onTabDragStart(e) 
-    {
-      e.itemData = e.fromData[e.fromIndex];
-    }
-    function onTabDrop(e) 
-    {
-      const newPages = [...pages];
-  
-      newPages.splice(e.fromIndex, 1);
-      newPages.splice(e.toIndex, 0, e.itemData);
-
-      setPages(newPages);
-    }
-
+  }
+  render()
+  {
+    const { dataSource, selectedIndex } = this.state;
+    
     return (
       <React.Fragment>
         <Sortable
           filter=".dx-tab"
-          data={page_list}
+          data={dataSource}
           itemOrientation="horizontal"
           dragDirection="horizontal"
-          onDragStart={onTabDragStart}
-          onReorder={onTabDrop}
+          onDragStart={this.onTabDragStart}
+          onReorder={this.onTabDrop}
         >
-          <TabPanel
-            dataSource={page_list}
+          <TabPanel id="test"
+            dataSource={dataSource}
             height = {'100%'}
-            itemTitleRender={renderTitle}
+            itemTitleRender={this.renderTitle}
             deferRendering={false}
             showNavButtons={true}
-            selectedItem={selectedItem}
+            selectedIndex={selectedIndex}
             repaintChangesOnly={true}
-            onSelectionChanged={onSelectionChanged}
+            onOptionChanged={this.onSelectionChanged}
             itemComponent={Page}
           />
         </Sortable>
       </React.Fragment>
     );
+  }
 }
-export default PagePanel;

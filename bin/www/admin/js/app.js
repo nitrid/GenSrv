@@ -12,6 +12,8 @@ import PagePanel from './page_panel.js'
 
 export default class App extends React.Component
 {
+    static instance = null;
+
     constructor()
     {
         super();
@@ -29,6 +31,16 @@ export default class App extends React.Component
                 onClick : () => this.setState({ opened: !this.state.opened })
             }
         }];
+
+        if(!App.instance)
+        {
+            App.instance = this;
+        }
+    }
+    menuClick(data)
+    {
+        PagePanel.instance.addPage(data);
+        //console.log(PagePanel().page_list)
     }
     render() 
     {

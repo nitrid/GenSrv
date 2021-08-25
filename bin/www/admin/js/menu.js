@@ -1,11 +1,14 @@
 import React from 'react';
 import {TreeView,SearchEditorOptions} from 'devextreme-react/tree-view';
 import {menu_list} from './conf/menu_list.js'
+import App from './app.js';
 
+// DOUBLE CLİCK ICIN YAPILDI
+let timeout = null;
 export default class Menu extends React.Component 
 {
     constructor(probs)
-    {
+    {        
         super(probs);
         this.style = 
         {
@@ -24,7 +27,7 @@ export default class Menu extends React.Component
             value: 'contains',
             currentItem: Object.assign({},this.menu_item[0])
         }
-        //this.selectItem = this.selectItem.bind(this);
+        this.selectItem = this.selectItem.bind(this);
     }
     render()
     {
@@ -35,6 +38,7 @@ export default class Menu extends React.Component
                 items = {this.menu_item}
                 width = {300}
                 height = {'100%'}
+                onItemClick = {this.selectItem}
                 searchMode={this.state.value}
                 searchEnabled={true}                
                 >
@@ -42,5 +46,26 @@ export default class Menu extends React.Component
                 </TreeView>  
             </div>
         )
+    }
+    
+    selectItem(e) 
+    {        
+        // DOUBLE CLİCK ICIN YAPILDI
+        if (!timeout) 
+        {  
+            timeout = setTimeout(function () 
+            {  
+                timeout = null;  
+            }, 300);  
+        } 
+        else 
+        {  
+            App.instance.menuClick(e.itemData)
+            this.setState(
+            {
+                currentItem: Object.assign({}, e.itemData)
+            });
+        }  
+        
     }
 } 
