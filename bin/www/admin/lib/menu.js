@@ -1,4 +1,4 @@
-export const menu_list = 
+export const menu = 
 [
     {
         id: '1',
@@ -8,11 +8,8 @@ export const menu_list =
         [
             {
                 id: '1_1',
-                text: 'Terminal'
-            },
-            {
-                id: '1_2',
-                text: 'Terminal'
+                text: 'Terminal',
+                path: '../pages/terminal.js'
             }
         ]
     },

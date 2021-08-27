@@ -1,11 +1,11 @@
 import React from 'react';
 import {TreeView,SearchEditorOptions} from 'devextreme-react/tree-view';
-import {menu_list} from './conf/menu_list.js'
+import {menu} from './menu.js'
 import App from './app.js';
 
 // DOUBLE CLİCK ICIN YAPILDI
 let timeout = null;
-export default class Menu extends React.Component 
+export default class Navigation extends React.Component 
 {
     constructor()
     {        
@@ -21,11 +21,11 @@ export default class Menu extends React.Component
                 padding:'8px'
             }
         }
-        this.menu_item = menu_list;
+        this.menu = menu;
         this.state = 
         {
             value: 'contains',
-            currentItem: Object.assign({},this.menu_item[0]),
+            currentItem: Object.assign({},this.menu[0]),
         }
         this.selectItem = this.selectItem.bind(this);
     }
@@ -35,7 +35,7 @@ export default class Menu extends React.Component
         return(
             <div style={this.style.div}>
                 <TreeView id="Menu" style={this.style.treeview}
-                    items = {this.menu_item}
+                    items = {this.menu}
                     width = {300}
                     height = {'100%'}
                     onItemClick = {this.selectItem}
