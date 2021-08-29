@@ -21,13 +21,14 @@ export default class Login extends React.Component
                 margin:'auto',
                 top: '30%',
                 width: '400px',
-                height: '200px',
+                height: 'fit-content',
             }
         }  
         this.state = 
         {
             kullanici: '',
-            sifre: ''
+            sifre: '',
+            alert: ''
         }  
         this.core = App.instance.core;    
 
@@ -60,7 +61,7 @@ export default class Login extends React.Component
             }
             else
             {
-                console.log('Kullanıcı yada şifre yanlış')
+                this.setState({alert:'Kullanıcı yada şifre geçersiz !'})
             }
         });
     }
@@ -71,6 +72,11 @@ export default class Login extends React.Component
                 <div className="card" style={this.style.login_box}>
                    <div className="card-header">Login</div>
                    <div className="card-body">
+                        <div className="row">
+                            <div className="col-12 pb-2">
+                                <h6 className="text-center" style={{color:'#ff7675'}}>{this.state.alert}</h6>
+                            </div>
+                        </div>
                         <div className="dx-field">
                             <div className="dx-field-label">Kullanıcı Adı</div>
                             <div className="dx-field-value">

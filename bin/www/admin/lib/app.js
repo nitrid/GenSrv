@@ -7,9 +7,9 @@ import Toolbar from 'devextreme-react/toolbar';
 
 import HTMLReactParser from 'html-react-parser';
 
-import Login from './login.js'
 import Navigation from './navigation.js'
 import Panel from './panel.js'
+import Login from './login.js'
 
 export default class App extends React.Component
 {
@@ -43,6 +43,7 @@ export default class App extends React.Component
 
         this.core.socket.on('connect',() => 
         {
+            //SUNUCUYA BAĞLANDIKDAN SONRA AUTH ILE LOGIN DENETLENIYOR
             this.core.socket.emit('login',[window.sessionStorage.getItem('auth')],async (data) =>
             {
                 if(data.length > 0)
@@ -69,8 +70,6 @@ export default class App extends React.Component
         {
             this.setState({connected:false});
         });
-
-
     }
     menuClick(data)
     {
