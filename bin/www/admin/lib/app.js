@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import * as Core from '../../corelib/core.js'
+import * as Core from '../../core/core.js'
 
 import Drawer from 'devextreme-react/drawer';
 import Toolbar from 'devextreme-react/toolbar';
@@ -31,7 +31,7 @@ export default class App extends React.Component
             options : 
             {
                 icon : 'menu',
-                onClick : () => this.setState({ opened: !this.state.opened })
+                onClick : () => this.setState({opened: !this.state.opened})
             }
         }];
         this.core = Core.coreobj;
@@ -41,35 +41,42 @@ export default class App extends React.Component
             App.instance = this;
         }
 
-        this.core.socket.on('connect',() => 
+        this.core.socket.on('connect',async () => 
         {
-            //SUNUCUYA BAĞLANDIKDAN SONRA AUTH ILE LOGIN DENETLENIYOR
-            this.core.socket.emit('login',[window.sessionStorage.getItem('auth')],async (data) =>
+            if((await this.core.sql.try()) == 1)
             {
-                if(data.length > 0)
+                console.log('Sql sunucuya bağlanılamıyor.')
+            }
+            else if((await this.core.sql.try()) == 2)
+            {
+                console.log('Veritabanı yok. Oluşturmak istermisiniz.')
+            }
+            //SUNUCUYA BAĞLANDIKDAN SONRA AUTH ILE LOGIN DENETLENIYOR
+            if((await this.core.auth.login(window.sessionStorage.getItem('auth'))))
+            {
+                //ADMIN PANELINE YANLIZCA ADMINISTRATOR ROLUNDEKİ KULLANICILAR GİREBİLİR...
+                if(this.core.auth.data.ROLE == 'Administrator')
                 {
-                    window.sessionStorage.setItem('auth',data[0].SHA)
-                    App.instance.setState(
-                    {
-                        logined:true,
-                        connected:true
-                    });
+                    App.instance.setState({logined:true,connected:true});
                 }
                 else
                 {
-                    window.sessionStorage.removeItem('auth')
-                    App.instance.setState(
-                    {
-                        logined:false,
-                        connected:true
-                    });
+                    App.instance.setState({logined:false,connected:true});
                 }
-            });
-        });
+            }
+            else
+            {
+                App.instance.setState({logined:false,connected:true});
+            }
+        })
         this.core.socket.on('connect_error',(error) => 
         {
             this.setState({connected:false});
-        });
+        })
+        this.core.socket.on('disconnect',async () => 
+        {
+            App.instance.setState({connected:false});
+        })
     }
     menuClick(data)
     {

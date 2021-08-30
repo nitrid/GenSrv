@@ -1,10 +1,3 @@
-import query from './query.js'
-//import dblocal from './local/dblocal.js'
-// import io from '../js/socket.io.js'
-
-//let instance = null;
-//let socket = io(window.location.origin);
-
 export class datatable extends Array
 {
     constructor(pName)
@@ -57,7 +50,7 @@ export class datatable extends Array
         {
             if(typeof this.selectCmd != 'undefined')
             {
-                let TmpData = await core.instance.sqlExecute(this.selectCmd)
+                let TmpData = await core.instance.sql.execute(this.selectCmd)
                 if(typeof TmpData.result.err == 'undefined')
                 {
                     for (let i = 0; i < TmpData.result.recordset.length; i++) 
@@ -123,7 +116,7 @@ export class datatable extends Array
             }
             if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
             {
-                let TmpUpdateData = await core.instance.sqlExecute(this.updateCmd)
+                let TmpUpdateData = await core.instance.sql.execute(this.updateCmd)
 
                 if(typeof TmpUpdateData.result.err == 'undefined')
                 {
@@ -137,7 +130,7 @@ export class datatable extends Array
             
             if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
             {
-                let TmpInsertData = await core.instance.sqlExecute(this.insertCmd)
+                let TmpInsertData = await core.instance.sql.execute(this.insertCmd)
 
                 if(typeof TmpInsertData.result.err == 'undefined')
                 {
@@ -219,8 +212,10 @@ export default class core
     {
         this.dataset = null;
         this.listeners = Object();
-        this.mode = 'online';
         this.socket = io(window.location.origin);
+        this.sql = new sql();
+        this.auth = new auth();
+
         this.ioEvents();
         this.plugins = {};
 
@@ -237,14 +232,6 @@ export default class core
             });
         })
     }
-    get query()
-    {
-        return query;
-    }
-    // get dataset()
-    // {
-    //     return this.#dataset;
-    // }
     on(pEvt, pCallback) 
     {
         if (!this.listeners.hasOwnProperty(pEvt))
@@ -255,41 +242,6 @@ export default class core
     emit(pEvt, pParams)
     {
         return this.eventTrigger(pEvt,pParams);
-    }
-    sqlExecute(pQuery)
-    {
-        return new Promise(resolve => 
-        {
-            //PARAMETRE UNDEFINED CONTROL
-            if(typeof(pQuery.value) != 'undefined')
-            {
-                for (let i = 0; i < pQuery.value.length; i++) 
-                {
-                    if(typeof pQuery.value[i] == 'undefined')
-                    {
-                        resolve({result : {err: "Parametre değerlerinde problem oluştu ! "}})
-                    }
-                }
-            }
-
-            if(this.mode == 'online')
-            {
-                this.socket.emit('sql',pQuery,(data) =>
-                {
-                    if(typeof data.auth_err != 'undefined')
-                    {
-                        resolve(data); 
-                    }
-                    else
-                    {
-                        //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
-                        console.log(data.auth_err.err);
-                        resolve([]);
-                    }
-                   
-                });
-            }
-        });
     }
     ioEvents()
     {
@@ -319,5 +271,104 @@ export default class core
         } 
     }
     //#endregion
+}
+export class sql 
+{
+    constructor()
+    {
+        this.query = "";
+    }
+    try()
+    {
+        return new Promise(resolve => 
+        {
+            core.instance.socket.emit('terminal','-try',(pResult) => 
+            {
+                resolve(pResult);
+            });
+        });
+    }
+    execute()
+    {    
+        return new Promise(resolve => 
+        {
+            let TmpQuery = ""
+            if(typeof arguments[0] == 'undefined')
+            {
+                TmpQuery = this.query
+            }
+            else
+            {
+                TmpQuery = arguments[0];
+            }
+            //PARAMETRE UNDEFINED CONTROL
+            if(typeof(TmpQuery.value) != 'undefined')
+            {
+                for (let i = 0; i < TmpQuery.value.length; i++) 
+                {
+                    if(typeof TmpQuery.value[i] == 'undefined')
+                    {
+                        resolve({result : {err: "Parametre değerlerinde problem oluştu ! "}})
+                    }
+                }
+            }
+
+            core.instance.socket.emit('sql',TmpQuery,(data) =>
+            {
+                if(typeof data.auth_err != 'undefined')
+                {
+                    resolve(data); 
+                }
+                else
+                {
+                    //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
+                    console.log(data.auth_err.err);
+                    resolve([]);
+                }
+            });
+        });
+    }
+}
+export class auth 
+{
+    constructor()
+    {
+        this.data = null
+    }
+    login()
+    {
+        return new Promise(resolve => 
+        {
+            let TmpData = []
+            if(arguments.length == 1)
+            {
+                TmpData.push(arguments[0])
+            }
+            else if(arguments.length == 2)
+            {
+                TmpData.push(arguments[0],arguments[1])
+            }
+
+            core.instance.socket.emit('login',TmpData,async (data) =>
+            {
+                if(data.length > 0)
+                {
+                    this.data = data[0]
+                    window.sessionStorage.setItem('auth',data[0].SHA)
+                    resolve(true)
+                }
+                else
+                {
+                    window.sessionStorage.removeItem('auth')
+                    this.data = null
+                    resolve(false)
+                }
+            });
+        })
+    }
+    logout()
+    {
+        window.sessionStorage.removeItem('auth');
+    }
 }
 export const coreobj = new core();

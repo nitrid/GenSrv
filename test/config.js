@@ -5,7 +5,7 @@ export default
 	uid: "piqpos",
 	pwd: "1122334455",
 	trustedConnection : false,
-	test : true,
+	test : false,
 	debug : false,
 	app: "POS"
 }

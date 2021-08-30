@@ -46,24 +46,28 @@ export default class Login extends React.Component
             this.setState({sifre: e.value});
         }
     }
-    onLoginClick(e)
+    async onLoginClick(e)
     {
         if(this.state.kullanici == '' && this.state.sifre == '')
         {
             return;
         }
-        this.core.socket.emit('login',[this.state.kullanici,this.state.sifre],async (data) =>
+        if((await this.core.auth.login(this.state.kullanici,this.state.sifre)))
         {
-            if(data.length > 0)
+            //ADMIN PANELINE YANLIZCA ADMINISTRATOR ROLUNDEKİ KULLANICILAR GİREBİLİR...
+            if(this.core.auth.data.ROLE == 'Administrator')
             {
-                window.sessionStorage.setItem('auth',data[0].SHA)
                 App.instance.setState({logined:true});
             }
             else
             {
-                this.setState({alert:'Kullanıcı yada şifre geçersiz !'})
+                App.instance.setState({logined:false});
             }
-        });
+        }
+        else
+        {
+            this.setState({logined:false,alert:'Kullanıcı yada şifre geçersiz !'})
+        }
     }
     render()
     {
