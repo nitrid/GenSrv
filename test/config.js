@@ -5,7 +5,8 @@ export default
 	uid: "piqpos",
 	pwd: "1122334455",
 	trustedConnection : false,
-	test : false,
+	test : true,
 	debug : false,
-	app: "POS"
+	app: "POS",
+	db_path: "C:\\Data"
 }

@@ -1,13 +1,12 @@
-export class datatable extends Array
+export class datatable
 {
     constructor(pName)
     {        
-        super()
         this.selectCmd;
         this.insertCmd;
         this.updateCmd;
         this.deleteCmd;
-
+        
         if(typeof pName != 'undefined')
         {
             this.name = pName;
@@ -215,7 +214,6 @@ export default class core
         this.socket = io(window.location.origin);
         this.sql = new sql();
         this.auth = new auth();
-
         this.ioEvents();
         this.plugins = {};
 
@@ -288,6 +286,16 @@ export class sql
             });
         });
     }
+    createDb()
+    {
+        return new Promise(resolve => 
+        {
+            core.instance.socket.emit('terminal','-createDb ' + arguments[0],(pResult) => 
+            {
+                resolve(pResult);
+            });
+        });        
+    }
     execute()
     {    
         return new Promise(resolve => 
@@ -315,14 +323,14 @@ export class sql
 
             core.instance.socket.emit('sql',TmpQuery,(data) =>
             {
-                if(typeof data.auth_err != 'undefined')
+                if(typeof data.auth_err == 'undefined')
                 {
                     resolve(data); 
                 }
                 else
                 {
                     //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
-                    console.log(data.auth_err.err);
+                    console.log(data.auth_err);
                     resolve([]);
                 }
             });
@@ -372,3 +380,5 @@ export class auth
     }
 }
 export const coreobj = new core();
+
+Object.setPrototypeOf(datatable.prototype,Array.prototype);

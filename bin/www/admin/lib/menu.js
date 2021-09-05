@@ -7,7 +7,7 @@ export const menu =
         items: 
         [
             {
-                id: '1_1',
+                id: 'P0001',
                 text: 'Terminal',
                 path: '../pages/terminal.js'
             }
@@ -20,11 +20,12 @@ export const menu =
         items: 
         [
             {
-                id: '2_1',
-                text: 'Kullanıcı Listesi'
+                id: 'P0002',
+                text: 'Kullanıcı Listesi',
+                path: '../pages/test.js'
             },
             {
-                id: '2_2',
+                id: 'P0003',
                 text: 'Kullanıcı Ekle'
             }
         ]

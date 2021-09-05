@@ -1,26 +1,41 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
 <script type="module">
-    import * as core from '../corelib/core.js'
-    core.coreobj.socket.on('general',(pData) =>
-    {
-        console.log(pData)
-    })
-    core.coreobj.socket.on('disconnect',(pData) =>
-    {
-        console.log(111)
-    })
-    //console.log(await core.coreobj.sqlExecute({query:"SELECT * FROM USERS"}))
+    import * as core from '../core/core.js'
+    // core.coreobj.socket.on('general',(pData) =>
+    // {
+    //     console.log(pData)
+    // })
+    // core.coreobj.socket.on('disconnect',(pData) =>
+    // {
+    //     console.log(111)
+    // })
+    // //console.log(await core.coreobj.sqlExecute({query:"SELECT * FROM USERS"}))
     core.coreobj.socket.emit('login',['Admin','123456'],async (pData) =>
     {
         console.log(pData)
+        let m = new core.datatable();
+        m.selectCmd = 
+        {
+            query: "SELECT * FROM PARAM"
+        }
+        m.updateCmd = 
+        {
+            query: "UPDATE PARAM SET NAME = @NAME WHERE GUID = @GUID",
+            param: ['NAME:string|50','GUID:string|50']
+        }
+        await m.refresh();
+        console.log(m[0].NAME)
+        m[0].NAME = "ALI"
+        await m.update();
+        console.log(m)
         // core.coreobj.socket.emit('terminal','-try');
     
-        core.coreobj.socket.on('terminal',(pData) => 
-        {
-            console.log(core.coreobj.socket)
-            console.log(pData);
-        })
+        // core.coreobj.socket.on('terminal',(pData) => 
+        // {
+        //     console.log(core.coreobj.socket)
+        //     console.log(pData);
+        // })
     });
     
     // import template from '../corelib/template.js'
@@ -29,15 +44,15 @@
     //     console.log(core.coreobj.plugins)
     // })
 
-    //let m = new core.datatable();
+    // let m = new core.datatable();
     //x.datatable("DEPOT")[0].NAME = "MAHIR";
     //x.datatable("DEPOT").push({CODE : "0002",NAME : "ATAKENT"})
     //await x.datatable("DEPOT").update();
-    // x.DEPOT.refresh();
+    //x.DEPOT.refresh();
 
     // m.selectCmd = 
     // {
-    //     query: "SELECT * FROM DEPOT"
+    //     query: "SELECT * FROM PARAM"
     // }
     // m.updateCmd =
     // {
@@ -67,7 +82,8 @@
     // }
     
     // await m.refresh();
-
+    
+    // console.log(m)
 
     // console.log(x[0])
     // m[0].NAME = "EKREM";

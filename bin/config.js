@@ -6,5 +6,6 @@ export default
 	pwd: "",
 	trustedConnection : false,
 	debug: false,
-	app: ""
+	app: "",
+	db_path: "C:\\Data"
 }

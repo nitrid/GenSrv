@@ -39,7 +39,6 @@ export default class Terminal extends React.Component
     {
         this.core.socket.emit('terminal',this.state.command); 
 
-        console.log(this.state.command)
         this.setState(
             {
                 console : this.state.console + this.state.command + '\n',
