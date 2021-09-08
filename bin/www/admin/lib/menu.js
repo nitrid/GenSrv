@@ -1,7 +1,7 @@
 export const menu = 
 [
     {
-        id: '1',
+        id: 'srv',
         text: 'Servis',
         expanded: false,
         items: 
@@ -14,7 +14,7 @@ export const menu =
         ]
     },
     {
-        id: '2',
+        id: 'usr',
         text: 'Kullanıcı',
         expanded: false,
         items: 
@@ -31,16 +31,15 @@ export const menu =
         ]
     },
     {
-        id: '3',
+        id: 'prm',
         text: 'Parametre',
         expanded: false,
-        items: 
-        [
-            {
-                id: '3_1',
-                text: 'Parametre Ekle'
-            }
-            
-        ]
+        items: []
+    },
+    {
+        id: 'acs',
+        text: 'Yetkilendirme',
+        expanded: false,
+        items: []
     }
 ]

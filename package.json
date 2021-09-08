@@ -1,6 +1,6 @@
 {
   "name": "gensrv",
-  "version": "1.0.44",
+  "version": "1.0.49",
   "description": "Nitrogen Service",
   "main": "index.js",
   "type": "module",

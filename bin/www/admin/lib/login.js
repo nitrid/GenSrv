@@ -52,7 +52,8 @@ export default class Login extends React.Component
         {
             return;
         }
-        if((await this.core.auth.login(this.state.kullanici,this.state.sifre)))
+        
+        if((await this.core.auth.login(this.state.kullanici,this.state.sifre,'ADMIN')))
         {
             //ADMIN PANELINE YANLIZCA ADMINISTRATOR ROLUNDEKİ KULLANICILAR GİREBİLİR...
             if(this.core.auth.data.ROLE == 'Administrator')
@@ -61,7 +62,7 @@ export default class Login extends React.Component
             }
             else
             {
-                App.instance.setState({logined:false});
+                this.setState({logined:false,alert:'Kullanıcının giriş yetkisi yok !'})
             }
         }
         else

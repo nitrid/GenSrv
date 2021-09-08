@@ -7,6 +7,5 @@ export default
 	trustedConnection : false,
 	test : true,
 	debug : false,
-	app: "POS",
 	db_path: "C:\\Data"
 }

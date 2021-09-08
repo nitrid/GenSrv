@@ -229,18 +229,7 @@ export default class core
                 this.plugins[element] = new module[element];
             });
         })
-    }
-    on(pEvt, pCallback) 
-    {
-        if (!this.listeners.hasOwnProperty(pEvt))
-        this.listeners[pEvt] = Array();
-
-        this.listeners[pEvt].push(pCallback); 
-    }
-    emit(pEvt, pParams)
-    {
-        return this.eventTrigger(pEvt,pParams);
-    }
+    }    
     ioEvents()
     {
         this.socket.on('connect',() => 
@@ -256,7 +245,28 @@ export default class core
             this.eventTrigger('connect_error',()=>{})
         });
     }
+    folder_list(pFolderName)
+    {
+        return new Promise(resolve => 
+        {
+            this.socket.emit('folder_list',pFolderName,(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
     //#region  "EVENT"
+    on(pEvt, pCallback) 
+    {
+        if (!this.listeners.hasOwnProperty(pEvt))
+        this.listeners[pEvt] = Array();
+
+        this.listeners[pEvt].push(pCallback); 
+    }
+    emit(pEvt, pParams)
+    {
+        return this.eventTrigger(pEvt,pParams);
+    }
     eventTrigger(pEvt, pParams) 
     {
         if (pEvt in this.listeners) 
@@ -348,13 +358,13 @@ export class auth
         return new Promise(resolve => 
         {
             let TmpData = []
-            if(arguments.length == 1)
-            {
-                TmpData.push(arguments[0])
-            }
-            else if(arguments.length == 2)
+            if(arguments.length == 2)
             {
                 TmpData.push(arguments[0],arguments[1])
+            }
+            else if(arguments.length == 3)
+            {
+                TmpData.push(arguments[0],arguments[1],arguments[2])
             }
 
             core.instance.socket.emit('login',TmpData,async (data) =>

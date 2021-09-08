@@ -1,6 +1,7 @@
 import React from 'react';
 import {TreeView,SearchEditorOptions} from 'devextreme-react/tree-view';
 import {menu} from './menu.js'
+//import { plugin_menu } from '../../plugins/admin/licence/menu.js';
 import App from './app.js';
 
 // DOUBLE CLİCK ICIN YAPILDI
@@ -10,6 +11,10 @@ export default class Navigation extends React.Component
     constructor()
     {        
         super();
+        this.init();
+    }
+    async init()
+    {
         this.style = 
         {
             div :
@@ -21,31 +26,118 @@ export default class Navigation extends React.Component
                 padding:'8px'
             }
         }
-        this.menu = menu;
+        this.menu = menu;        
+        //PLUGIN MENU EKLEME İŞLEMİ ***************/
+        // for (let i = 0; i < plugin_menu.length; i++) 
+        // {
+        //     this.menu.push(plugin_menu[i])
+        // }
+        //*****************************************/
         this.state = 
         {
+            loading: true,
             value: 'contains',
             currentItem: Object.assign({},this.menu[0]),
         }
         this.selectItem = this.selectItem.bind(this);
     }
+    async pluginMenu()
+    {
+        return new Promise(async resolve => 
+        {
+            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin');
+            for (let i = 0; i < tmpFolders.length; i++) 
+            {
+                let tmpMenu = (await import('../../plugins/admin/' + tmpFolders[i] + '/menu.js')).menu
+                for (let x = 0; x < tmpMenu.length; x++) 
+                {
+                    this.menu.push(tmpMenu[x])
+                }
+            }
+            resolve()
+        });
+    }
+    async pluginMenu()
+    {
+        return new Promise(async resolve => 
+        {
+            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin');
+            for (let i = 0; i < tmpFolders.length; i++) 
+            {
+                let tmpMenu = (await import('../../plugins/admin/' + tmpFolders[i] + '/menu.js')).menu
+                for (let x = 0; x < tmpMenu.length; x++) 
+                {
+                    this.menu.push(tmpMenu[x])
+                }
+            }
+            resolve()
+        });
+    }
+    async paramMenu()
+    {
+        return new Promise(async resolve => 
+        {
+            let tmpFolders = await App.instance.core.folder_list('./www/plugins/param');
+            for (let i = 0; i < tmpFolders.length; i++) 
+            {
+                let tmpMenu = (await import('../../plugins/param/' + tmpFolders[i] + '/menu.js')).menu
+                for (let x = 0; x < tmpMenu.length; x++) 
+                {
+                    this.menu.find(m => m.id === 'prm').items.push(tmpMenu[x])
+                }
+            }
+            resolve()
+        });
+    }
+    async accessMenu()
+    {
+        return new Promise(async resolve => 
+        {
+            let tmpFolders = await App.instance.core.folder_list('./www/plugins/access');
+            for (let i = 0; i < tmpFolders.length; i++) 
+            {
+                let tmpMenu = (await import('../../plugins/access/' + tmpFolders[i] + '/menu.js')).menu
+                for (let x = 0; x < tmpMenu.length; x++) 
+                {
+                    this.menu.find(m => m.id === 'acs').items.push(tmpMenu[x])
+                }
+            }
+            resolve()
+        });
+    }
+    async componentDidMount()
+    {
+        await this.pluginMenu()
+        await this.paramMenu()
+        await this.accessMenu()
+
+        this.setState({loading:false})
+    }
     render()
     {
-        const {currentItem} = this.state;
-        return(
-            <div style={this.style.div}>
-                <TreeView id="Menu" style={this.style.treeview}
-                    items = {this.menu}
-                    width = {300}
-                    height = {'100%'}
-                    onItemClick = {this.selectItem}
-                    searchMode={this.state.value}
-                    searchEnabled={true}                
-                    >
-                    <SearchEditorOptions height={'fit-content'} />
-                </TreeView>  
-            </div>
-        )
+        const {currentItem,loading} = this.state;
+        if(loading)
+        {
+            return <div style={{width:300}}>...</div>
+        }
+        else
+        {
+            return(
+                <div style={this.style.div}>
+                    <TreeView id="Menu" style={this.style.treeview}
+                        items = {this.menu}
+                        width = {300}
+                        height = {'100%'}
+                        onItemClick = {this.selectItem}
+                        searchMode={this.state.value}
+                        searchEnabled={true}                
+                        >
+                        <SearchEditorOptions height={'fit-content'} />
+                    </TreeView>  
+                </div>
+            )
+        }
+        
     }
     selectItem(e) 
     {        
