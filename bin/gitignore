@@ -1,4 +1,8 @@
 config.js
+gitignore
+server.js
+terminal.js
+setup/
 node_modules/
 www/admin/
 www/core

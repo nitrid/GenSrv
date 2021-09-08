@@ -57,22 +57,6 @@ export default class Navigation extends React.Component
             resolve()
         });
     }
-    async pluginMenu()
-    {
-        return new Promise(async resolve => 
-        {
-            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin');
-            for (let i = 0; i < tmpFolders.length; i++) 
-            {
-                let tmpMenu = (await import('../../plugins/admin/' + tmpFolders[i] + '/menu.js')).menu
-                for (let x = 0; x < tmpMenu.length; x++) 
-                {
-                    this.menu.push(tmpMenu[x])
-                }
-            }
-            resolve()
-        });
-    }
     async paramMenu()
     {
         return new Promise(async resolve => 

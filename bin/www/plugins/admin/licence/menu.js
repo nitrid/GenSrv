@@ -12,8 +12,8 @@ export const menu =
         [
             {
                 id: 'lic_01',
-                text: 'Lisans Ekle',
-                path: '../pages/terminal.js'
+                text: 'Lisans Listesi',
+                path: '../../plugins/admin/licence/licence_list.js'
             }
         ]
     },

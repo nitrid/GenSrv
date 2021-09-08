@@ -15,7 +15,23 @@ class licence
         this.path = path.resolve(path.dirname('')) + "\\plugins\\licence\\"
         this.data = [];
         this.status = false;
-        this.host = 'http://172.16.97.250:8080'           
+        this.host = 'http://172.16.97.250:8080'   
+        
+        this.core.io_manager.io.on('connection',(pSocket) =>
+        {
+            pSocket.on('lic',(pParam,pCallback) =>
+            {
+                let tmpCmd = pParam.cmd
+                if(tmpCmd == 'get_macid')
+                {
+                    pCallback(this.macid);
+                }
+                else if(tmpCmd == 'get_lic')
+                {
+                    pCallback(this.data);
+                }
+            })
+        })
     }
     get()
     {
