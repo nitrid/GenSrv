@@ -16,7 +16,10 @@ export default class LicenceList extends React.Component
             setup_popup : false,
             setup_msg : ''
         }
+        this.selectedRow = null;
         this.onItemClick = this.onItemClick.bind(this)
+        this.onSelectionChanged = this.onSelectionChanged.bind(this)
+
         App.instance.core.socket.emit('lic',{cmd:'get_macid'},(pData) =>
         {
             this.setState({macid:pData})
@@ -30,20 +33,27 @@ export default class LicenceList extends React.Component
     {
         if(e.itemData == "Setup")
         {
-            this.setState({setup_popup:true,setup_msg:'Uygulama yükleniyor. Lütfen bekleyin...'})
-            
-            App.instance.core.socket.emit('lic',{cmd:'git_download',prm:'github:nitrid/piqpos#main'},(pData) =>
+            if(this.selectedRow != null)
             {
-                if(pData == 'success')
+                this.setState({setup_popup:true,setup_msg:'Uygulama yükleniyor. Lütfen bekleyin...'})
+            
+                App.instance.core.socket.emit('lic',{cmd:'git_download',prm:this.selectedRow.APP_URL},(pData) =>
                 {
-                    this.setState({setup_msg:'Uygulama kurulumu tamamlandı.Lütfen sunucuyu yeniden başlatın.'})
-                }
-                else
-                {
-                    this.setState({setup_msg:'Hata : ' + pData})
-                }
-            })
+                    if(pData == 'success')
+                    {
+                        this.setState({setup_msg:'Uygulama kurulumu tamamlandı.Lütfen sunucuyu yeniden başlatın.'})
+                    }
+                    else
+                    {
+                        this.setState({setup_msg:'Hata : ' + pData})
+                    }
+                })
+            }
         }
+    }
+    onSelectionChanged({ selectedRowsData }) 
+    {
+        this.selectedRow = selectedRowsData[0];
     }
     render()
     {
@@ -84,7 +94,8 @@ export default class LicenceList extends React.Component
                             showRowLines={true}
                             showBorders={true}
                             allowColumnReordering={true}
-                            height={'100%'}>
+                            height={'100%'}
+                            onSelectionChanged={this.onSelectionChanged} >
           
                             <Column caption="UYGULAMA" dataField="APP" dataType="string" width={100} />
                             <Column caption="KULLANICI SAYISI" dataField="USER_COUNT" dataType="string" width={150} />

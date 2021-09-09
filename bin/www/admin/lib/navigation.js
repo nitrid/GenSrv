@@ -61,10 +61,10 @@ export default class Navigation extends React.Component
     {
         return new Promise(async resolve => 
         {
-            let tmpFolders = await App.instance.core.folder_list('./www/plugins/param');
+            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin/param');
             for (let i = 0; i < tmpFolders.length; i++) 
             {
-                let tmpMenu = (await import('../../plugins/param/' + tmpFolders[i] + '/menu.js')).menu
+                let tmpMenu = (await import('../../plugins/admin/param/' + tmpFolders[i] + '/menu.js')).menu
                 for (let x = 0; x < tmpMenu.length; x++) 
                 {
                     this.menu.find(m => m.id === 'prm').items.push(tmpMenu[x])
@@ -77,10 +77,10 @@ export default class Navigation extends React.Component
     {
         return new Promise(async resolve => 
         {
-            let tmpFolders = await App.instance.core.folder_list('./www/plugins/access');
+            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin/access');
             for (let i = 0; i < tmpFolders.length; i++) 
             {
-                let tmpMenu = (await import('../../plugins/access/' + tmpFolders[i] + '/menu.js')).menu
+                let tmpMenu = (await import('../../plugins/admin/access/' + tmpFolders[i] + '/menu.js')).menu
                 for (let x = 0; x < tmpMenu.length; x++) 
                 {
                     this.menu.find(m => m.id === 'acs').items.push(tmpMenu[x])

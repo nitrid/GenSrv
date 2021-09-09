@@ -1,4 +1,4 @@
-import core from 'gensrv'
+import core from '../../index.js'
 import macid from 'node-machine-id'
 import client from 'socket.io-client';
 import moment from 'moment'
@@ -116,11 +116,7 @@ class licence
                 }
 
                 let tmpRoot = null;
-                fs.copy('./tmp/setup','./setup', (err)=>
-                {
-                    if(err != null)
-                        console.log(err)
-                });   
+                await fs.copySync('./tmp/setup','./setup');   
 
                 if(fs.existsSync('./tmp/www') && fs.existsSync('./www'))
                 {
@@ -129,11 +125,7 @@ class licence
                     {
                         if(tmpRoot[i] != 'plugins')
                         {
-                            fs.copy('./tmp/www/' + tmpRoot[i],'./www/' + tmpRoot[i], (err)=>
-                            {
-                                if(err != null)
-                                    console.log(err)
-                            }); 
+                            await fs.copySync('./tmp/www/' + tmpRoot[i],'./www/' + tmpRoot[i]); 
                         }
                     }
                 }
@@ -142,51 +134,43 @@ class licence
                     tmpRoot = await fs.readdirSync('./tmp/plugins')
                     for (let i = 0; i < tmpRoot.length; i++) 
                     {
-                        fs.copy('./tmp/plugins/' + tmpRoot[i],'./plugins/' + tmpRoot[i], (err)=>
+                        if(tmpRoot[i] != 'admin')
                         {
-                            if(err != null)
-                                console.log(err)
-                        });                  
+                            await fs.copySync('./tmp/plugins/' + tmpRoot[i],'./plugins/' + tmpRoot[i]);                  
+                        }
                     }
                 }
-                if(fs.existsSync('./tmp/www/plugins/access') && fs.existsSync('./www/plugins/access'))
+                if(fs.existsSync('./tmp/plugins/admin') && fs.existsSync('./plugins/admin'))
                 {
-                    tmpRoot = await fs.readdirSync('./tmp/www/plugins/access')
+                    tmpRoot = await fs.readdirSync('./tmp/plugins/admin')
                     for (let i = 0; i < tmpRoot.length; i++) 
                     {
-                        fs.copy('./tmp/www/plugins/access/' + tmpRoot[i],'./www/plugins/access/' + tmpRoot[i], (err)=>
+                        if(tmpRoot[i] != 'access' || tmpRoot[i] != 'param')
                         {
-                            if(err != null)
-                                console.log(err)
-                        });                  
+                            await fs.copySync('./tmp/plugins/admin/' + tmpRoot[i],'./plugins/admin/' + tmpRoot[i]);                  
+                        }
                     }
                 }
-                if(fs.existsSync('./tmp/www/plugins/param') && fs.existsSync('./www/plugins/param'))
+                if(fs.existsSync('./tmp/www/plugins/admin/access') && fs.existsSync('./www/plugins/admin/access'))
                 {
-                    tmpRoot = await fs.readdirSync('./tmp/www/plugins/param')
+                    tmpRoot = await fs.readdirSync('./tmp/www/plugins/admin/access')
                     for (let i = 0; i < tmpRoot.length; i++) 
                     {
-                        fs.copy('./tmp/www/plugins/param/' + tmpRoot[i],'./www/plugins/param/' + tmpRoot[i], (err)=>
-                        {
-                            if(err != null)
-                                console.log(err)
-                        });                  
+                        await fs.copySync('./tmp/www/plugins/admin/access/' + tmpRoot[i],'./www/plugins/admin/access/' + tmpRoot[i]);                  
                     }
                 }
-                if(fs.existsSync('./tmp/www/plugins/admin'))
+                if(fs.existsSync('./tmp/www/plugins/admin/param') && fs.existsSync('./www/plugins/admin/param'))
                 {
-                    fs.copy('./tmp/www/plugins/admin','./www/plugins/admin', (err)=>
+                    tmpRoot = await fs.readdirSync('./tmp/www/plugins/admin/param')
+                    for (let i = 0; i < tmpRoot.length; i++) 
                     {
-                        if(err != null)
-                            console.log(err)
-                    }); 
+                        await fs.copySync('./tmp/www/plugins/admin/param/' + tmpRoot[i],'./www/plugins/admin/param/' + tmpRoot[i]);                  
+                    }
                 }
+                await fs.copySync('./tmp/package.json', './package.json');
+
+                fs.rmdir('./tmp',{recursive:true})
                 
-                fs.copy('./tmp/package.json', './package.json', (err)=>
-                {
-                    if(err != null)
-                        console.log(err)
-                });
                 resolve('success')
             });
             
