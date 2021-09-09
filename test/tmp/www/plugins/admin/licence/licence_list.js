@@ -2,7 +2,6 @@ import React from 'react';
 import App from '../../../admin/lib/app.js';
 import DataGrid, {Column,Grouping,GroupPanel,Pager,Paging,SearchPanel} from 'devextreme-react/data-grid';
 import DropDownButton from 'devextreme-react/drop-down-button';
-import { Popup, Position, ToolbarItem } from 'devextreme-react/popup';
 
 export default class LicenceList extends React.Component
 {
@@ -12,56 +11,23 @@ export default class LicenceList extends React.Component
         this.state = 
         {
             macid : '',
-            data : [],
-            setup_popup : false,
-            setup_msg : ''
+            data : []
         }
-        this.onItemClick = this.onItemClick.bind(this)
-        App.instance.core.socket.emit('lic',{cmd:'get_macid'},(pData) =>
+
+        App.instance.core.socket.emit('lic',{cmd:"get_macid"},(pData) =>
         {
             this.setState({macid:pData})
         })
-        App.instance.core.socket.emit('lic',{cmd:'get_lic'},(pData) =>
+        App.instance.core.socket.emit('lic',{cmd:"get_lic"},(pData) =>
         {
+            console.log(pData)
             this.setState({data:pData})
         })
-    }
-    onItemClick(e)
-    {
-        if(e.itemData == "Setup")
-        {
-            this.setState({setup_popup:true,setup_msg:'Uygulama yükleniyor. Lütfen bekleyin...'})
-            
-            App.instance.core.socket.emit('lic',{cmd:'git_download',prm:'github:nitrid/piqpos#main'},(pData) =>
-            {
-                if(pData == 'success')
-                {
-                    this.setState({setup_msg:'Uygulama kurulumu tamamlandı.Lütfen sunucuyu yeniden başlatın.'})
-                }
-                else
-                {
-                    this.setState({setup_msg:'Hata : ' + pData})
-                }
-            })
-        }
     }
     render()
     {
         return(
-            <div id="container" style={{padding:'10px',height:'100%'}}>
-                <Popup
-                    visible={this.state.setup_popup}
-                    dragEnabled={false}
-                    closeOnOutsideClick={true}
-                    showCloseButton={false}
-                    showTitle={true}
-                    title="Setup"
-                    container="#container"
-                    width={500}
-                    height={120} >
-                    <Position at="center" my="center" of="#container"/>
-                    <div>{this.state.setup_msg}</div>
-                </Popup>
+            <div style={{padding:'10px',height:'100%'}}>
                 <div className='row pb-2' style={{height:'5%'}}>
                     <div className='col-6'>
                         Macid : {this.state.macid}
@@ -69,9 +35,10 @@ export default class LicenceList extends React.Component
                     <div className='col-6'>
                         <DropDownButton className='float-end'
                             text="İşlemler"
-                            dropDownOptions={{width: '150'}}
-                            items={['Setup']}
-                            onItemClick={this.onItemClick} />
+                            dropDownOptions={{ width: '200' }}
+                            items={['Lisans Ekle','Lisans Sil']}
+                            // onItemClick={this.onItemClick}
+                        />
                     </div>
                 </div>
                 <div className='row' style={{height:'95%'}}>

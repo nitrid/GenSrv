@@ -2,6 +2,9 @@ import core from 'gensrv'
 import macid from 'node-machine-id'
 import client from 'socket.io-client';
 import moment from 'moment'
+import path from 'path'
+import download from 'download-git-repo'
+import fs from 'fs-extra'
 
 class licence
 {
@@ -10,75 +13,58 @@ class licence
         this.socket = null;
         this.core = core.default.instance;
         this.macid = macid.machineIdSync();
-        this.lic_data = [];
-        this.user_count = 0;
+        this.path = path.resolve(path.dirname('')) + "\\plugins\\"
+        this.data = [];
         this.status = false;
-        this.host = 'http://172.16.97.250:8080'           
+        this.host = 'http://172.16.97.250:8080'   
+        
+        this.io_connection = this.io_connection.bind(this)
+        this.core.io_manager.io.on('connection',this.io_connection)
     }
-    check()
+    io_connection(pSocket)
+    {
+        pSocket.on('lic',async (pParam,pCallback) =>
+        {
+            let tmpCmd = pParam.cmd
+            if(tmpCmd == 'get_macid')
+            {
+                pCallback(this.macid);
+            }
+            else if(tmpCmd == 'get_lic')
+            {
+                pCallback(this.data);
+            }
+            else if(tmpCmd == 'git_download')
+            {
+                pCallback(await this.setup(pParam.prm))
+            }
+        })
+    }
+    get()
     {
         return new Promise(resolve =>
         {
-            this.socket = new client(this.host,{'timeout':2000})
+            this.socket = new client(this.host,{'timeout':2000, 'connect timeout': 2000})
             this.socket.on('connect', () => 
             {
                 this.socket.emit('licence_check',{MacId:this.macid},async (pData) =>
-                {    
-                    if(typeof pData.result.err == 'undefined' && pData.result.recordset.length > 0)
+                {
+                    if(pData.length > 0)
                     {
-                        let TmpQuery = 
-                        {
-                            query: "DELETE FROM LICENCE WHERE MACID = @MACID AND APP = @APP",
-                            param: ['MACID:string|100','APP:string|50'],
-                            value: [this.macid,this.app]
-                        }
-                        
-                        await this.core.sql.execute(TmpQuery);
-
-                        for (let i = 0; i < pData.result.recordset.length; i++) 
-                        {
-                            let TmpData = pData.result.recordset[i]
-                            TmpQuery = 
-                            {
-                                query:  "EXEC [dbo].[PRD_LICENCE_INSERT] " + 
-                                        "@MACID = @PMACID, " + 
-                                        "@USER_COUNT = @PUSER_COUNT, " + 
-                                        "@CREATE_DATE = @PCREATE_DATE, " + 
-                                        "@START_DATE = @PSTART_DATE, " + 
-                                        "@FINISH_DATE = @PFINISH_DATE, " + 
-                                        "@HIRE = @PHIRE, " + 
-                                        "@APP = @PAPP, " + 
-                                        "@PACKAGE = @PPACKAGE, " + 
-                                        "@PACKAGE_ID = @PPACKAGE_ID, " + 
-                                        "@PACKAGE_NAME = @PPACKAGE_NAME, " + 
-                                        "@PAGE_ID = @PPAGE_ID, " + 
-                                        "@PAGE_NAME = @PPAGE_NAME, " + 
-                                        "@CONTENT_ELEMENT = @PCONTENT_ELEMENT, " + 
-                                        "@CONTENT_SPECIAL = @PCONTENT_SPECIAL " ,
-                                param:  ['PMACID:string|100','PUSER_COUNT:int','PCREATE_DATE:date','PSTART_DATE:date','PFINISH_DATE:date','PHIRE:bit',
-                                        'PAPP:string|50','PPACKAGE:string|50','PPACKAGE_ID:string|50','PPACKAGE_NAME:string|100','PPAGE_ID:string|25','PPAGE_NAME:string|200',
-                                        'PCONTENT_ELEMENT:string|250','PCONTENT_SPECIAL:string|max'],
-                                value:  [TmpData.MACID,TmpData.USER_COUNT,TmpData.CREATE_DATE,TmpData.START_DATE,TmpData.FINISH_DATE,TmpData.HIRE,TmpData.APP,
-                                        TmpData.PACKAGE,TmpData.PACKAGE_ID,TmpData.PACKAGE_NAME,TmpData.PAGE_ID,TmpData.PAGE_NAME,TmpData.CONTENT_ELEMENT,TmpData.CONTENT_SPECIAL]
-                            }
-                            await this.core.sql.execute(TmpQuery);
-                        }
-                        
-                        this.lic_data = pData.result.recordset;
-                        this.user_count = this.lic_data[0].USER_COUNT;
-                        this.status = true;
-                        resolve(true);
+                        this.data = pData
+                        this.status = true
+                        fs.writeFileSync(this.path + "lic",JSON.stringify(pData))
+                        resolve(true)
                         return;
                     }
                     else
                     {
-                        this.lic_data = [];
-                        this.user_count = 0;
-                        this.status = false;
-                        resolve(false);
+                        this.data = pData
+                        this.status = false
+                        resolve(false)
                         return;
                     }
-                })
+                });
             });
             //EĞER LİSANS SUNUCUYA BAĞLANAMIYORSA 
             setTimeout(async ()=>
@@ -87,66 +73,148 @@ class licence
                 {
                     return;
                 }
-                
-                let TmpQuery = 
-                {
-                    query: "SELECT * FROM LICENCE WHERE MACID = @MACID AND APP = @APP",
-                    param: ['MACID:string|100','APP:string|50'],
-                    value: [this.macid,this.app]
-                }
 
-                let TmpData = await this.core.sql.execute(TmpQuery);
-                
-                if(typeof TmpData.result.err == 'undefined' && TmpData.result.recordset.length > 0)
+                try
                 {
-                    let TmpDiffDay = moment(new Date()).diff(moment(TmpData.result.recordset[0].DATE),'days');
-                    if(TmpDiffDay > 15)
-                    {
-                        core.instance.log.msg('Please connect to the license server !','Licence')
-                        this.lic_data = [];
-                        this.user_count = 0;
-                        this.status = false;
-                        resolve(false);
-                        return;
-                    }
-                    else
-                    {
-                        this.lic_data = TmpData.result.recordset;
-                        this.user_count = this.lic_data[0].USER_COUNT;
-                        this.status = true;
-                        resolve(true);
-                        return;
-                    }
+                    let tmpData = fs.readFileSync(this.path + "lic",{encoding:'utf8'});
+                    this.data = JSON.parse(tmpData)
+                    this.status = true;
+                    resolve(true);
+                    return;
                 }
-                else
+                catch (err) 
                 {
-                    this.lic_data = [];
-                    this.user_count = 0;
+                    this.data = [];
                     this.status = false;
                     resolve(false);
                     return;
                 }
-            },5000)
+            },5000);
         });
+    }
+    getUserCount()
+    {
+        if(this.data.length > 0)
+        {
+            if(typeof this.data.find(x => x.APP === arguments[0]) != 'undefined')
+            {
+                return this.data.find(x => x.APP === arguments[0]).USER_COUNT;
+            }
+        }
+
+        return 0;
+    }
+    setup(pPath)
+    {
+        return new Promise(resolve =>
+        {
+            download(pPath, 'tmp', async function (err) 
+            {
+                if(err != null || typeof err != 'undefined')
+                {
+                    resolve(err);
+                }
+
+                let tmpRoot = null;
+                fs.copy('./tmp/setup','./setup', (err)=>
+                {
+                    if(err != null)
+                        console.log(err)
+                });   
+
+                if(fs.existsSync('./tmp/www') && fs.existsSync('./www'))
+                {
+                    tmpRoot = await fs.readdirSync('./tmp/www')
+                    for (let i = 0; i < tmpRoot.length; i++) 
+                    {
+                        if(tmpRoot[i] != 'plugins')
+                        {
+                            fs.copy('./tmp/www/' + tmpRoot[i],'./www/' + tmpRoot[i], (err)=>
+                            {
+                                if(err != null)
+                                    console.log(err)
+                            }); 
+                        }
+                    }
+                }
+                if(fs.existsSync('./tmp/plugins') && fs.existsSync('./plugins'))
+                {
+                    tmpRoot = await fs.readdirSync('./tmp/plugins')
+                    for (let i = 0; i < tmpRoot.length; i++) 
+                    {
+                        fs.copy('./tmp/plugins/' + tmpRoot[i],'./plugins/' + tmpRoot[i], (err)=>
+                        {
+                            if(err != null)
+                                console.log(err)
+                        });                  
+                    }
+                }
+                if(fs.existsSync('./tmp/www/plugins/access') && fs.existsSync('./www/plugins/access'))
+                {
+                    tmpRoot = await fs.readdirSync('./tmp/www/plugins/access')
+                    for (let i = 0; i < tmpRoot.length; i++) 
+                    {
+                        fs.copy('./tmp/www/plugins/access/' + tmpRoot[i],'./www/plugins/access/' + tmpRoot[i], (err)=>
+                        {
+                            if(err != null)
+                                console.log(err)
+                        });                  
+                    }
+                }
+                if(fs.existsSync('./tmp/www/plugins/param') && fs.existsSync('./www/plugins/param'))
+                {
+                    tmpRoot = await fs.readdirSync('./tmp/www/plugins/param')
+                    for (let i = 0; i < tmpRoot.length; i++) 
+                    {
+                        fs.copy('./tmp/www/plugins/param/' + tmpRoot[i],'./www/plugins/param/' + tmpRoot[i], (err)=>
+                        {
+                            if(err != null)
+                                console.log(err)
+                        });                  
+                    }
+                }
+                if(fs.existsSync('./tmp/www/plugins/admin'))
+                {
+                    fs.copy('./tmp/www/plugins/admin','./www/plugins/admin', (err)=>
+                    {
+                        if(err != null)
+                            console.log(err)
+                    }); 
+                }
+                
+                fs.copy('./tmp/package.json', './package.json', (err)=>
+                {
+                    if(err != null)
+                        console.log(err)
+                });
+                resolve('success')
+            });
+            
+        })
     }
 }
 async function main()
 {
     let tmpLic = new licence()
-    let stat = await tmpLic.check();
+    //let stat = await tmpLic.check();
+    await tmpLic.get()
     
-    tmpLic.core.on('Login',(pResult)=>
+    tmpLic.core.on('Logined',(pResult)=>
     {
+        if(typeof pResult.socket.userInfo == 'undefined' || pResult.socket.userInfo.APP == 'ADMIN')
+        {
+            return;
+        }
         //LISANS KONTROL EDILIYOR EĞER PROBLEM VARSA KULLANICI DISCONNECT EDİLİYOR.
         if(pResult.result.length > 0)
         {
             if(tmpLic.status)
             {
-                if(tmpLic.user_count < tmpLic.core.io_manager.clients(pResult.socket.userInfo.APP).length)
+                if(tmpLic.getUserCount(pResult.socket.userInfo.APP) < tmpLic.core.io_manager.clients(pResult.socket.userInfo.APP).length)
                 {
                     tmpLic.core.log.msg('Licensed user limit exceeded','Licence');
                     pResult.socket.emit('general',{id:"M001",data:"Licensed user limit exceeded"});
-                    pResult.socket.disconnect();
+                    //pResult.socket.disconnect();
                     return;
                 }
                 else
@@ -158,7 +226,7 @@ async function main()
             {
                 tmpLic.core.log.msg('Waiting for response from license server','Licence');
                 pResult.socket.emit('general',{id:"M001",data:"Waiting for response from license server"});
-                pResult.socket.disconnect();
+                //pResult.socket.disconnect();
                 return;
             }
         }

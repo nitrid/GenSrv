@@ -2,8 +2,6 @@ config.js
 gitignore
 server.js
 terminal.js
-plugins/lic
-tmp/
 setup/
 node_modules/
 www/admin/
