@@ -28,7 +28,7 @@ export const menu =
 ÖRNEK ACCESS.JS
 ***********************************************************************
 import React from 'react';
-import App from '../../../admin/lib/app.js';
+import App from '../../../../admin/lib/app.js';
 
 export default class Access extends React.Component
 {

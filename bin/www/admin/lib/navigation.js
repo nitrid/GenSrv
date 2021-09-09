@@ -1,7 +1,6 @@
 import React from 'react';
 import {TreeView,SearchEditorOptions} from 'devextreme-react/tree-view';
 import {menu} from './menu.js'
-//import { plugin_menu } from '../../plugins/admin/licence/menu.js';
 import App from './app.js';
 
 // DOUBLE CLİCK ICIN YAPILDI
@@ -48,10 +47,13 @@ export default class Navigation extends React.Component
             let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin');
             for (let i = 0; i < tmpFolders.length; i++) 
             {
-                let tmpMenu = (await import('../../plugins/admin/' + tmpFolders[i] + '/menu.js')).menu
-                for (let x = 0; x < tmpMenu.length; x++) 
+                if(tmpFolders[i] != 'access' && tmpFolders[i] != 'param')
                 {
-                    this.menu.push(tmpMenu[x])
+                    let tmpMenu = (await import('../../plugins/admin/' + tmpFolders[i] + '/menu.js')).menu
+                    for (let x = 0; x < tmpMenu.length; x++) 
+                    {
+                        this.menu.push(tmpMenu[x])
+                    }
                 }
             }
             resolve()
