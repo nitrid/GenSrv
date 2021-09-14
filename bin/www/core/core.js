@@ -215,20 +215,11 @@ export default class core
         this.sql = new sql();
         this.auth = new auth();
         this.ioEvents();
-        this.plugins = {};
 
         if(!core.instance)
         {
             core.instance = this;
         }
-
-        import('./plugins/plugins.js').then(module =>
-        {
-            Object.keys(module).forEach(element => 
-            {
-                this.plugins[element] = new module[element];
-            });
-        })
     }    
     ioEvents()
     {

@@ -2,6 +2,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
 <script type="module">
     import * as core from '../core/core.js'
+    core.coreobj.socket.emit('test',{method:'get_folder'},async (pData) =>
+    {
+
+    });
     // core.coreobj.socket.on('general',(pData) =>
     // {
     //     console.log(pData)
@@ -11,32 +15,32 @@
     //     console.log(111)
     // })
     // //console.log(await core.coreobj.sqlExecute({query:"SELECT * FROM USERS"}))
-    core.coreobj.socket.emit('login',['Admin','123456'],async (pData) =>
-    {
-        console.log(pData)
-        let m = new core.datatable();
-        m.selectCmd = 
-        {
-            query: "SELECT * FROM PARAM"
-        }
-        m.updateCmd = 
-        {
-            query: "UPDATE PARAM SET NAME = @NAME WHERE GUID = @GUID",
-            param: ['NAME:string|50','GUID:string|50']
-        }
-        await m.refresh();
-        console.log(m[0].NAME)
-        m[0].NAME = "ALI"
-        await m.update();
-        console.log(m)
-        // core.coreobj.socket.emit('terminal','-try');
+    // core.coreobj.socket.emit('login',['Admin','123456'],async (pData) =>
+    // {
+    //     console.log(pData)
+    //     let m = new core.datatable();
+    //     m.selectCmd = 
+    //     {
+    //         query: "SELECT * FROM PARAM"
+    //     }
+    //     m.updateCmd = 
+    //     {
+    //         query: "UPDATE PARAM SET NAME = @NAME WHERE GUID = @GUID",
+    //         param: ['NAME:string|50','GUID:string|50']
+    //     }
+    //     await m.refresh();
+    //     console.log(m[0].NAME)
+    //     m[0].NAME = "ALI"
+    //     await m.update();
+    //     console.log(m)
+    //     // core.coreobj.socket.emit('terminal','-try');
     
-        // core.coreobj.socket.on('terminal',(pData) => 
-        // {
-        //     console.log(core.coreobj.socket)
-        //     console.log(pData);
-        // })
-    });
+    //     // core.coreobj.socket.on('terminal',(pData) => 
+    //     // {
+    //     //     console.log(core.coreobj.socket)
+    //     //     console.log(pData);
+    //     // })
+    // });
     
     // import template from '../corelib/template.js'
     // core.coreobj.socket.emit('print','aaa',(data)=>
