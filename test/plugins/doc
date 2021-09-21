@@ -1,5 +1,12 @@
-Plugins - 05.07.2021 - Ali Kemal KARACA
-Example
+*********************************************************************
+SERVER PLUGIN YAPISI - 05.07.2021 - ALI KEMAL KARACA
+- EĞER GENSRV E DAHİL OLMAYAN BİR KÜTÜPHANE KULLANMAK İSTENİYORSA 
+  PROJENİZİN İÇERİSİNDEKİ PACKAGE.JSON DEPENDENCIES İÇERİSİNE EKLEYİN.
+- MASTER JS HARİCİNDE FARKLI JS DOSYALARINIZ VARSA BUNLARI KLASÖR 
+  İÇERİSİNE ALIN.
+*********************************************************************
+ÖRNEK JS
+*********************************************************************
 import core from 'gensrv' (TEST İÇİN '../../index.js')
 
 class plugins 
@@ -10,7 +17,4 @@ class plugins
     }    
 }
 export const _plugins = new plugins()
-
-* EĞER GENSRV E DAHİL OLMAYAN BİR KÜTÜPHANE KULLANMAK İSTENİYORSA PROJENİZİN İÇERİSİNDEKİ 
-PACKAGE.JSON DEPENDENCIES İÇERİSİNE EKLEYİN.
-* MASTER JS HARİCİNDE FARKLI JS DOSYALARINIZ VARSA BUNLARI KLASÖR İÇERİSİNE ALIN.
+**********************************************************************
