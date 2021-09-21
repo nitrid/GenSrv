@@ -1,11 +1,11 @@
 export default 
 {
-	server: "DESKTOP-19L22EL",
+	server: "192.168.100.12",
 	database: "GENDB",
-	uid: "piqpos",
+	uid: "beka",
 	pwd: "1122334455",
 	trustedConnection : false,
 	test : true,
-	debug : false,
+	debug: false,
 	db_path: "C:\\Data"
 }

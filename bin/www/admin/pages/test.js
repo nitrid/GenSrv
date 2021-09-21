@@ -1,5 +1,5 @@
 import React from 'react';
-import NdTextBox from '../../core/react/textbox.js';
+import NdTextBox from '../../core/react/devex/textbox.js';
 import App from '../lib/app.js';
 
 export default class Test extends React.Component
@@ -20,8 +20,8 @@ export default class Test extends React.Component
             <div>
                 <div className="row">
                     <div className="col-4">
-                        <NdTextBox id="txtSeri" parent={this} title={"Seri : "} user={this.user}
-                        lang={"tr"} param={this.param} auth={""} data={""}/>
+                        <NdTextBox id="txtSeri" parent={this} title={"Seri : "} 
+                        lang={"tr"} param={this.param} auth={""} data={""} />
                     </div>
                     <div className="col-4">
                         <NdTextBox id="txtSira" parent={this} title={"Sıra : "} />

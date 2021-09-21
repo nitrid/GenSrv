@@ -33,7 +33,7 @@ export default class Page extends React.Component
       <React.Fragment>
         <React.Suspense fallback={<div style={{position: 'relative',margin:'auto',top: '40%',left:'50%'}}><LoadIndicator height={40} width={40} /></div>}>
           <div>
-            <this.page data={this.props} />
+            <this.page data={this.props.data} />
           </div>
         </React.Suspense>
       </React.Fragment>
