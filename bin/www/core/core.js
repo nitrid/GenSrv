@@ -227,15 +227,15 @@ export default class core
     {
         this.socket.on('connect',() => 
         {
-            this.eventTrigger('connect',()=>{})
+            this.emit('connect',()=>{})
         });
         this.socket.on('connect_error',(error) => 
         {
-            this.eventTrigger('connect_error',()=>{})
+            this.emit('connect_error',()=>{})
         });
         this.socket.on('error', (error) => 
         {
-            this.eventTrigger('connect_error',()=>{})
+            this.emit('connect_error',()=>{})
         });
     }
     //#region  "EVENT"
@@ -247,10 +247,6 @@ export default class core
         this.listeners[pEvt].push(pCallback); 
     }
     emit(pEvt, pParams)
-    {
-        return this.eventTrigger(pEvt,pParams);
-    }
-    eventTrigger(pEvt, pParams) 
     {
         if (pEvt in this.listeners) 
         {

@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import download from 'download-git-repo'
 let gensrv = new server.default(config);
-gensrv.listen(80);
+gensrv.listen(config.port);
 //PLUGIN YAPISI ******************************/
 fs.readdirSync('./plugins').forEach(async file => 
 {
