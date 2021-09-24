@@ -1,3 +1,69 @@
+Nodejs Download : https://nodejs.org/dist/v14.17.6/node-v14.17.6-x64.msi
+npm i gensrv
+
+# Server API
+	~ Core
+		- listen(port) 
+			- Bu fonksiyonun içerisinde http portu,socket portu dinlemeye geçer ve açar.
+				- import server from 'gensrv'
+				  import config from 'config'
+				  let gensrv = new server.default(config)
+                  gensrv.listen(config.port);
+			- log,sql,auth,terminal,util bu objeleri coreun ağacına ekler.
+		- event yapısı
+                (Coredeki event yapısı diğer classlarla durum tetikleyicisidir. Örn: login işlemi gerçekleştiğinde durumu tetikler farklı objelerden bu login durumu dinlenir.)
+			- emit(eventname, params)
+			  - Dinletilmek istenilen eventın adı verildir. Params parametresiyle bu tetikleyeciye geriye gönderilecek data gönderilir.
+				- emit('logined',{status:true});
+			- on(eventname, callback)
+			  - Dinlemek istenilen eventın adı verilir. Callback parametresiylede tetikliyiciden gelen data dinlenir. 
+				- on('logined',(pData) =>{console.log(pData.status)}); -- true
+
+		- socket() 
+			socket.io nun kalıtım alınmış halidir.Bu kalıtım sonucu socket ta kendisi socket objesi olmuş olur.Socketin içerisinde connection dinleyicisi vardır.
+			Bu dinleyici şuan için sadece disconnect durumunu denetlenir.Socket nesnesi diğer nesneler tarafından socketin on ve emit durumları aktif şekilde kullanır.
+				- core.instance.socket.emit('util',{cmd:'folder_list',prm:'/config.js'});
+				  core.instance.socket.on('util',function(pData){console.log(pData)}); -- config.js listeleniyor.
+			- clients() 
+			  Sockete bağlı kullanıcıları liste şeklinde geri döndürüyor.İstenirse cliente application parametresi gönderilebilir bu durumda sadece applicationa bağlanmış
+			  kullanıcıların listesini döndürür.
+				- core.instance.socket.clients();
+				  core.instance.socket.clients('ADMIN');
+		      Login olmamış clientın id ve socketini gönderir.
+			  Login olmuş kullanıcının ise {id:'',username:'',sha:'',role:'',app:'',socket:socket} döndürür.
+			  Sunucu tarafından client tarafına bir çok emir gönderilebilir.
+				- core.instance.socket.clients().find(x => x.username == 'Admin').socket.emit('msg',{msg:'selam'});
+			- geUser()
+			   Paremetre olarak userin sha veya username alır.Geriye user listesini döndürü bu liste üzerinden server tarafından client tarafına emir gönderilebilir.
+			   - core.instance.socket.getUser('Admin')[0].socket.emit('msg',{msg:'selam'});
+			   
+			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 npm publish --access public
 --------------------------------------------------------------------------------------------------------
 # GENEL
