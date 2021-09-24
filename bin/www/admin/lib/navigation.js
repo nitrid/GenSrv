@@ -10,6 +10,7 @@ export default class Navigation extends React.Component
     constructor()
     {        
         super();
+        this.core = App.instance.core;
         this.init();
     }
     async init()
@@ -44,7 +45,7 @@ export default class Navigation extends React.Component
     {
         return new Promise(async resolve => 
         {
-            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin');
+            let tmpFolders = await this.core.util.folder_list('./www/plugins/admin');
             for (let i = 0; i < tmpFolders.length; i++) 
             {
                 if(tmpFolders[i] != 'access' && tmpFolders[i] != 'param')
@@ -63,7 +64,7 @@ export default class Navigation extends React.Component
     {
         return new Promise(async resolve => 
         {
-            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin/param');
+            let tmpFolders = await this.core.util.folder_list('./www/plugins/admin/param');
             for (let i = 0; i < tmpFolders.length; i++) 
             {
                 let tmpMenu = (await import('../../plugins/admin/param/' + tmpFolders[i] + '/menu.js')).menu
@@ -79,7 +80,7 @@ export default class Navigation extends React.Component
     {
         return new Promise(async resolve => 
         {
-            let tmpFolders = await App.instance.core.folder_list('./www/plugins/admin/access');
+            let tmpFolders = await this.core.util.folder_list('./www/plugins/admin/access');
             for (let i = 0; i < tmpFolders.length; i++) 
             {
                 let tmpMenu = (await import('../../plugins/admin/access/' + tmpFolders[i] + '/menu.js')).menu

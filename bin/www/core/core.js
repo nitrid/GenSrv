@@ -209,17 +209,19 @@ export default class core
     
     constructor()
     {
+        if(!core.instance)
+        {
+            core.instance = this;
+        }
+
         this.dataset = null;
         this.listeners = Object();
         this.socket = io(window.location.origin);
         this.sql = new sql();
         this.auth = new auth();
-        this.ioEvents();
+        this.util = new util();
 
-        if(!core.instance)
-        {
-            core.instance = this;
-        }
+        this.ioEvents();        
     }    
     ioEvents()
     {
@@ -234,16 +236,6 @@ export default class core
         this.socket.on('error', (error) => 
         {
             this.eventTrigger('connect_error',()=>{})
-        });
-    }
-    folder_list(pFolderName)
-    {
-        return new Promise(resolve => 
-        {
-            this.socket.emit('folder_list',pFolderName,(data) =>
-            {
-                resolve(data)
-            });
         });
     }
     //#region  "EVENT"
@@ -380,6 +372,95 @@ export class auth
         window.sessionStorage.removeItem('auth');
     }
 }
+export class util
+{
+    constructor()
+    {
+        this.core = core.instance;        
+    }
+    folder_list(pPath)
+    {
+        return new Promise(resolve => 
+        {
+            this.core.socket.emit('util',{cmd:'folder_list',prm: pPath},(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
+    readFile(pPath)
+    {
+        return new Promise(resolve => 
+        {
+            this.core.socket.emit('util',{cmd:'read_file',prm: pPath},(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
+    writeFile(pPath,pData)
+    {
+        return new Promise(resolve => 
+        {
+            this.core.socket.emit('util',{cmd:'write_file',prm: {path:pPath,data:pData}},(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
+}
 export const coreobj = new core();
 
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
+//* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
+Number.prototype.rateInc = function(pRate,pDigit)
+{
+    if(typeof pRate != 'undefined')
+    {
+        if(typeof pDigit != 'undefined')
+            return (this * (pRate / 100)).toFixed(pDigit)
+        else
+            return this * (pRate / 100)
+    }
+    return 0
+}
+//* SAYI İÇERİSİNDEKİ DAHİLİ ORANI. ÖRN: 10 SAYISININ YÜZDE 18 İN DAHİLİ SONUCU 11.8. */
+Number.prototype.rateExc = function(pRate,pDigit)
+{
+    if(typeof pRate != 'undefined')
+    {
+        if(typeof pDigit != 'undefined')
+            return (this * ((pRate / 100) + 1)).toFixed(pDigit)
+        else
+            return this * ((pRate / 100) + 1)
+    }
+    return 0
+}
+//* SAYI İÇERİSİNDEKİ ORANIN ÇIKARILMIŞ SONUCU. ÖRN: 11.8 SAYISININ YÜZDE 18 ÇIKARILMIŞ SONUCU 10. */
+Number.prototype.rateInNum = function(pRate,pDigit)
+{
+    if(typeof pRate != 'undefined')
+    {
+        if(typeof pDigit != 'undefined')
+            return (this / ((pRate / 100) + 1)).toFixed(pDigit)
+        else
+            return this / ((pRate / 100) + 1)
+    }
+    return 0
+}
+//* B SAYISININ A SAYISINA ORANI ÖRN: 1.8 SAYISININ, 11.8 SAYISIN İÇERİSİNDEKİ ORANI %18 */
+Number.prototype.rate2Num = function(pNum,pDigit)
+{
+    if(typeof pNum != 'undefined')
+    {
+        if(typeof pDigit != 'undefined')
+        {
+            return ((pNum / (this - pNum)) * 100).toFixed(pDigit)
+        }
+        else
+        {
+            return (pNum / (this - pNum)) * 100
+        }                 
+    }
+    return 0
+}
