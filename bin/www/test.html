@@ -1,21 +1,27 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script> -->
+
 <script type="module">
-    import * as core from '../core/core.js'
-    core.coreobj.socket.on('msg',(pData) =>
-    {
-        console.log(pData)
-    })
+    //import * as core from '../core/core.js'
+    import './js/socket.io.js';
+    import './js/jsstore.js';
     
-    console.log((await core.coreobj.auth.login('Admin','123456','ADMIN')));
-    console.log((await core.coreobj.util.readFile('/config.js')));
+    //let socket = io('http://localhost')
+    console.log(window)
+    // core.coreobj.socket.on('msg',(pData) =>
+    // {
+    //     console.log(pData)
+    // })
+
+    // console.log((await core.coreobj.auth.login('Admin','123456','ADMIN')));
+    // console.log((await core.coreobj.util.readFile('/config.js')));
 
     
     // core.coreobj.socket.on('disconnect',(pData) =>
     // {
     //     console.log(111)
     // })
-    console.log(await core.coreobj.sql.execute({query:"SELECT * FROM USERS"}))
+    //console.log(await core.coreobj.sql.execute({query:"SELECT * FROM USERS"}))
     // core.coreobj.socket.emit('login',['Admin','123456'],async (pData) =>
     // {
     //     console.log(pData)
