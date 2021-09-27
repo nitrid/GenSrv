@@ -1,5 +1,8 @@
+import '../js/socket.io.js';
+
 export default class core
 {    
+    
     static instance = null;
     
     constructor()

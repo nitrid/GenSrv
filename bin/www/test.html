@@ -1,20 +1,19 @@
 <!-- <script type="module" src="../corelib/dataset.js"></script> -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script> -->
-
+<!-- <script src="js/jsstore.js"></script> -->
 <script type="module">
-    //import * as core from '../core/core.js'
-    import './js/socket.io.js';
-    import './js/jsstore.js';
+    import * as core from '../core/core.js'
+    import * as JsStore from './js/jsstore.js'
+    console.log(JsStore);
     
     //let socket = io('http://localhost')
-    console.log(window)
-    // core.coreobj.socket.on('msg',(pData) =>
-    // {
-    //     console.log(pData)
-    // })
+    core.coreobj.socket.on('msg',(pData) =>
+    {
+        console.log(pData)
+    })
 
-    // console.log((await core.coreobj.auth.login('Admin','123456','ADMIN')));
-    // console.log((await core.coreobj.util.readFile('/config.js')));
+    console.log((await core.coreobj.auth.login('Admin','123456','ADMIN')));
+    console.log((await core.coreobj.util.readFile('/config.js')));
 
     
     // core.coreobj.socket.on('disconnect',(pData) =>
