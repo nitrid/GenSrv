@@ -1,5 +1,3 @@
-import '../js/socket.io.js';
-
 export default class core
 {    
     

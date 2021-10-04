@@ -1,4 +1,4 @@
-import core from '../../index.js'
+import core from 'gensrv'
 import macid from 'node-machine-id'
 import client from 'socket.io-client';
 import moment from 'moment'
