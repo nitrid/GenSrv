@@ -34,8 +34,30 @@ npm i gensrv
 			  Sunucu tarafından client tarafına bir çok emir gönderilebilir.
 				- core.instance.socket.clients().find(x => x.username == 'Admin').socket.emit('msg',{msg:'selam'});
 			- geUser()
-			   Paremetre olarak userin sha veya username alır.Geriye user listesini döndürü bu liste üzerinden server tarafından client tarafına emir gönderilebilir.
+			   Paremetre olarak userin sha veya username alır.Geriye user listesini döndürür bu liste üzerinden server tarafından client tarafına emir gönderilebilir.
 			   - core.instance.socket.getUser('Admin')[0].socket.emit('msg',{msg:'selam'});
+		
+		- sql()
+			Sunucu tarafında mssql veri tabanına bağlanır ve bu class ile sql işlemleri gerçekleştirilir.
+			- connEvt(pSocket)
+			  socketden gelen çağrıların cevap verildiği yerdir.'sql' tagı ile buraya çağrı yapılabilir.(İçerisinde auth state durumu kontrol edilir.)
+			- connection(pConfig)
+			  sql serverin bağlanıcağı bağlantı bilgilerini geriye döndürür.Parametre gönderilmezse config.js deki bağlantı bilgilerini kullanır.
+			  - Config Örneği : {server:"",database:"",user:"",password:"",trustedConnection:false} 
+			- try()
+			 Bağlantı deneme işlemini gerçekleştirilir.(Sorgu doğru olup olmadığı, bağlantının olup olmadığı)
+			 Öncesinde sql serverin olup olmadığını kontrol eder sonrasında veritabanının olup olmadığını kontrol eder.
+			- execute()
+			 Sql sorgularını çalışmaya yarar.İki modda çalışır transition ve nonquery. Parametre olarak bir obje alır objenin içeriği;
+			 transition : [{db: {server:"",database:"",uid:"",pwd:"",trustedConnection:true},query:"SELECT * FROM USERS WHERE NAME = @NAME",param:["NAME"],type:["string|25"]},
+			 			   {db: {server:"",database:"",uid:"",pwd:"",trustedConnection:true},query:"SELECT * FROM USERS WHERE NAME = @NAME",param:["NAME"],type:["string|25"]}]  
+			 nonquery : {db: {server:"",database:"",uid:"",pwd:"",trustedConnection:true},query:"SELECT * FROM USERS WHERE NAME = @NAME",param:["NAME"],type:["string|25"],value:["ADMIN"]}  
+			- createDB(pDbName)
+			 Database oluşturma işlemi database adı verilerek database oluşturma işlemi gerçekleştirilir."setup/dbscr/CONTENT.sql" okuyarak sql ve tablo kurulumu gerçekleştirilir.
+			 Config.js deki db_path yoluna bakarak databaseyi oluşturur.
+			 - core.instance.sql.createDB('GENDB');
+		    
+			
 			   
 			
 
