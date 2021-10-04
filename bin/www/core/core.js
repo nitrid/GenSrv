@@ -1,3 +1,208 @@
+import '../js/socket.io.js';
+
+export default class core
+{    
+    
+    static instance = null;
+    
+    constructor()
+    {
+        if(!core.instance)
+        {
+            core.instance = this;
+        }
+        
+        this.dataset = null;
+        this.listeners = Object();
+        this.socket = io(window.location.origin);
+        this.sql = new sql();
+        this.auth = new auth();
+        this.util = new util();
+
+        this.ioEvents();        
+    }    
+    ioEvents()
+    {
+        this.socket.on('connect',() => 
+        {
+            this.emit('connect',()=>{})
+        });
+        this.socket.on('connect_error',(error) => 
+        {
+            this.emit('connect_error',()=>{})
+        });
+        this.socket.on('error', (error) => 
+        {
+            this.emit('connect_error',()=>{})
+        });
+    }
+    //#region  "EVENT"
+    on(pEvt, pCallback) 
+    {
+        if (!this.listeners.hasOwnProperty(pEvt))
+        this.listeners[pEvt] = Array();
+
+        this.listeners[pEvt].push(pCallback); 
+    }
+    emit(pEvt, pParams)
+    {
+        if (pEvt in this.listeners) 
+        {
+            let callbacks = this.listeners[pEvt];
+            for (var x in callbacks)
+            {
+                callbacks[x](pParams);
+            }
+        } 
+    }
+    //#endregion
+}
+export class sql 
+{
+    constructor()
+    {
+        this.query = "";
+    }
+    try()
+    {
+        return new Promise(resolve => 
+        {
+            core.instance.socket.emit('terminal','-try',(pResult) => 
+            {
+                resolve(pResult);
+            });
+        });
+    }
+    createDb()
+    {
+        return new Promise(resolve => 
+        {
+            core.instance.socket.emit('terminal','-createDb ' + arguments[0],(pResult) => 
+            {
+                resolve(pResult);
+            });
+        });        
+    }
+    execute()
+    {    
+        return new Promise(resolve => 
+        {
+            let TmpQuery = ""
+            if(typeof arguments[0] == 'undefined')
+            {
+                TmpQuery = this.query
+            }
+            else
+            {
+                TmpQuery = arguments[0];
+            }
+            //PARAMETRE UNDEFINED CONTROL
+            if(typeof(TmpQuery.value) != 'undefined')
+            {
+                for (let i = 0; i < TmpQuery.value.length; i++) 
+                {
+                    if(typeof TmpQuery.value[i] == 'undefined')
+                    {
+                        resolve({result : {err: "Parametre değerlerinde problem oluştu ! "}})
+                    }
+                }
+            }
+
+            core.instance.socket.emit('sql',TmpQuery,(data) =>
+            {
+                if(typeof data.auth_err == 'undefined')
+                {
+                    resolve(data); 
+                }
+                else
+                {
+                    //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
+                    console.log(data.auth_err);
+                    resolve([]);
+                }
+            });
+        });
+    }
+}
+export class auth 
+{
+    constructor()
+    {
+        this.data = null
+    }
+    login()
+    {
+        return new Promise(resolve => 
+        {
+            let TmpData = []
+            if(arguments.length == 2)
+            {
+                TmpData.push(arguments[0],arguments[1])
+            }
+            else if(arguments.length == 3)
+            {
+                TmpData.push(arguments[0],arguments[1],arguments[2])
+            }
+
+            core.instance.socket.emit('login',TmpData,async (data) =>
+            {
+                if(data.length > 0)
+                {
+                    this.data = data[0]
+                    window.sessionStorage.setItem('auth',data[0].SHA)
+                    resolve(true)
+                }
+                else
+                {
+                    window.sessionStorage.removeItem('auth')
+                    this.data = null
+                    resolve(false)
+                }
+            });
+        })
+    }
+    logout()
+    {
+        window.sessionStorage.removeItem('auth');
+    }
+}
+export class util
+{
+    constructor()
+    {
+        this.core = core.instance;        
+    }
+    folder_list(pPath)
+    {
+        return new Promise(resolve => 
+        {
+            this.core.socket.emit('util',{cmd:'folder_list',prm: pPath},(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
+    readFile(pPath)
+    {
+        return new Promise(resolve => 
+        {
+            this.core.socket.emit('util',{cmd:'read_file',prm: pPath},(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
+    writeFile(pPath,pData)
+    {
+        return new Promise(resolve => 
+        {
+            this.core.socket.emit('util',{cmd:'write_file',prm: {path:pPath,data:pData}},(data) =>
+            {
+                resolve(data)
+            });
+        });
+    }
+}
 export class datatable
 {
     constructor(pName)
@@ -201,208 +406,6 @@ export class dataset
             TmpTbl.insertCmd = pObj[i].insertCmd;
             TmpTbl.updateCmd = pObj[i].updateCmd;
         }
-    }
-}
-export default class core
-{    
-    static instance = null;
-    
-    constructor()
-    {
-        if(!core.instance)
-        {
-            core.instance = this;
-        }
-
-        this.dataset = null;
-        this.listeners = Object();
-        this.socket = io(window.location.origin);
-        this.sql = new sql();
-        this.auth = new auth();
-        this.util = new util();
-
-        this.ioEvents();        
-    }    
-    ioEvents()
-    {
-        this.socket.on('connect',() => 
-        {
-            this.emit('connect',()=>{})
-        });
-        this.socket.on('connect_error',(error) => 
-        {
-            this.emit('connect_error',()=>{})
-        });
-        this.socket.on('error', (error) => 
-        {
-            this.emit('connect_error',()=>{})
-        });
-    }
-    //#region  "EVENT"
-    on(pEvt, pCallback) 
-    {
-        if (!this.listeners.hasOwnProperty(pEvt))
-        this.listeners[pEvt] = Array();
-
-        this.listeners[pEvt].push(pCallback); 
-    }
-    emit(pEvt, pParams)
-    {
-        if (pEvt in this.listeners) 
-        {
-            let callbacks = this.listeners[pEvt];
-            for (var x in callbacks)
-            {
-                callbacks[x](pParams);
-            }
-        } 
-    }
-    //#endregion
-}
-export class sql 
-{
-    constructor()
-    {
-        this.query = "";
-    }
-    try()
-    {
-        return new Promise(resolve => 
-        {
-            core.instance.socket.emit('terminal','-try',(pResult) => 
-            {
-                resolve(pResult);
-            });
-        });
-    }
-    createDb()
-    {
-        return new Promise(resolve => 
-        {
-            core.instance.socket.emit('terminal','-createDb ' + arguments[0],(pResult) => 
-            {
-                resolve(pResult);
-            });
-        });        
-    }
-    execute()
-    {    
-        return new Promise(resolve => 
-        {
-            let TmpQuery = ""
-            if(typeof arguments[0] == 'undefined')
-            {
-                TmpQuery = this.query
-            }
-            else
-            {
-                TmpQuery = arguments[0];
-            }
-            //PARAMETRE UNDEFINED CONTROL
-            if(typeof(TmpQuery.value) != 'undefined')
-            {
-                for (let i = 0; i < TmpQuery.value.length; i++) 
-                {
-                    if(typeof TmpQuery.value[i] == 'undefined')
-                    {
-                        resolve({result : {err: "Parametre değerlerinde problem oluştu ! "}})
-                    }
-                }
-            }
-
-            core.instance.socket.emit('sql',TmpQuery,(data) =>
-            {
-                if(typeof data.auth_err == 'undefined')
-                {
-                    resolve(data); 
-                }
-                else
-                {
-                    //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
-                    console.log(data.auth_err);
-                    resolve([]);
-                }
-            });
-        });
-    }
-}
-export class auth 
-{
-    constructor()
-    {
-        this.data = null
-    }
-    login()
-    {
-        return new Promise(resolve => 
-        {
-            let TmpData = []
-            if(arguments.length == 2)
-            {
-                TmpData.push(arguments[0],arguments[1])
-            }
-            else if(arguments.length == 3)
-            {
-                TmpData.push(arguments[0],arguments[1],arguments[2])
-            }
-
-            core.instance.socket.emit('login',TmpData,async (data) =>
-            {
-                if(data.length > 0)
-                {
-                    this.data = data[0]
-                    window.sessionStorage.setItem('auth',data[0].SHA)
-                    resolve(true)
-                }
-                else
-                {
-                    window.sessionStorage.removeItem('auth')
-                    this.data = null
-                    resolve(false)
-                }
-            });
-        })
-    }
-    logout()
-    {
-        window.sessionStorage.removeItem('auth');
-    }
-}
-export class util
-{
-    constructor()
-    {
-        this.core = core.instance;        
-    }
-    folder_list(pPath)
-    {
-        return new Promise(resolve => 
-        {
-            this.core.socket.emit('util',{cmd:'folder_list',prm: pPath},(data) =>
-            {
-                resolve(data)
-            });
-        });
-    }
-    readFile(pPath)
-    {
-        return new Promise(resolve => 
-        {
-            this.core.socket.emit('util',{cmd:'read_file',prm: pPath},(data) =>
-            {
-                resolve(data)
-            });
-        });
-    }
-    writeFile(pPath,pData)
-    {
-        return new Promise(resolve => 
-        {
-            this.core.socket.emit('util',{cmd:'write_file',prm: {path:pPath,data:pData}},(data) =>
-            {
-                resolve(data)
-            });
-        });
     }
 }
 export const coreobj = new core();
