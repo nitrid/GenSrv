@@ -1,18 +1,38 @@
-export default class core
-{    
-    
+export class core
+{        
     static instance = null;
-    
-    constructor()
-    {
+    constructor(pUrl)
+    {        
         if(!core.instance)
         {
             core.instance = this;
         }
         
+        if(typeof pUrl == 'object')
+        {
+            try
+            {
+                this.socket = pUrl;
+            }
+            catch (error) {}
+        }
+        else if(typeof pUrl == 'string')
+        {
+            try
+            {
+                this.socket = io(pUrl);
+            }
+            catch (error) {}
+        }
+
+        if(typeof this.socket == 'undefined')
+        {
+            console.log("socket not defined")
+            return;
+        }
+
         this.dataset = null;
-        this.listeners = Object();
-        this.socket = io(window.location.origin);
+        this.listeners = Object();        
         this.sql = new sql();
         this.auth = new auth();
         this.util = new util();
@@ -406,8 +426,6 @@ export class dataset
         }
     }
 }
-export const coreobj = new core();
-
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
 //* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
 Number.prototype.rateInc = function(pRate,pDigit)

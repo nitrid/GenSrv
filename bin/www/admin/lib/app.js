@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import * as Core from '../../core/core.js'
+import {core} from '../../core/core.js'
 
 import Drawer from 'devextreme-react/drawer';
 import Toolbar from 'devextreme-react/toolbar';
@@ -60,7 +60,7 @@ export default class App extends React.Component
             }
         }];
         
-        this.core = Core.coreobj;
+        this.core = new core(window.location.origin);
         this.textValueChanged = this.textValueChanged.bind(this)
         this.onDbClick = this.onDbClick.bind(this)
 

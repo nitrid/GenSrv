@@ -1,4 +1,4 @@
-import core from '../../index.js'
+import {core} from '../../index.js'
 import macid from 'node-machine-id'
 import client from 'socket.io-client';
 import moment from 'moment'
@@ -11,7 +11,7 @@ class licence
     constructor()
     {
         this.socket = null;
-        this.core = core.default.instance;
+        this.core = core.instance;
         this.macid = macid.machineIdSync();
         this.path = path.resolve(path.dirname('')) + "\\plugins\\"
         this.data = [];

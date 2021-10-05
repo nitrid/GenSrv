@@ -1,3 +1,1 @@
-import * as core from './lib/core.js'
-
-export default core
+export {core} from './lib/core.js'

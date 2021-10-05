@@ -1,9 +1,5 @@
 import io from 'socket.io-client';
-let x = new io('http://localhost')
-x.emit('sql',
-{
-    query : 'SELECT DB_kod AS FIRM FROM VERI_TABANLARI'
-},(data)=>
-{
-    console.log(data);
-})
+import { core } from '../bin/www/core/core.js';
+
+let x = new core(io('http://localhost'))
+//console.log(x)
