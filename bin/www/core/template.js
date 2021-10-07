@@ -2,6 +2,7 @@ export default
 [
     {
         name : "DEPOT",
+        jsstore: true,
         selectCmd : 
         {
             query : "SELECT * FROM DEPOT"

@@ -1,8 +1,9 @@
 export class core
 {        
     static instance = null;
+
     constructor(pUrl)
-    {        
+    {   
         if(!core.instance)
         {
             core.instance = this;
@@ -24,7 +25,6 @@ export class core
             }
             catch (error) {}
         }
-
         if(typeof this.socket == 'undefined')
         {
             console.log("socket not defined")
@@ -221,8 +221,71 @@ export class util
         });
     }
 }
+export class dataset
+{    
+    constructor(pName)
+    {
+        if(typeof pName == 'undefined')
+            this.name = pName;
+        else
+            this.name = 'dataset'
+        
+        this.datatables = [];
+    }
+    async add(pTable)
+    {
+        if(typeof pTable != 'undefined')
+        {
+            if(typeof pTable == 'string')
+            {
+                this.datatables.push(new datatable(pTable))    
+            }
+            else if(typeof pTable == 'object')
+            {
+                this.datatables.push(pTable)
+            }
+        }
+    }
+    datatable(pName)
+    {
+        if(typeof pName != 'undefined')
+        {
+            for (let i = 0; i < this.datatables.length; i++) 
+            {
+                if(this.datatables[i].name == pName)
+                {
+                    return this.datatables[i];
+                }
+            }
+        }
+    }
+    remove(pName)
+    {
+        if(typeof pName != 'undefined')
+        {
+            for (let i = 0; i < this.datatables.length; i++) 
+            {
+                if(this.datatables[i].name == pName)
+                {
+                    this.splice(i,1);
+                }
+            }
+        }
+    }
+    addTemplate(pObj)
+    {
+        for (let i = 0; i < pObj.length; i++) 
+        {
+            this.add(pObj[i].name);
+            let TmpTbl = this.datatable(pObj[i].name);
+            TmpTbl.selectCmd = pObj[i].selectCmd;
+            TmpTbl.insertCmd = pObj[i].insertCmd;
+            TmpTbl.updateCmd = pObj[i].updateCmd;
+        }
+    }
+}
 export class datatable
-{
+{    
     constructor(pName)
     {        
         this.selectCmd;
@@ -231,10 +294,8 @@ export class datatable
         this.deleteCmd;
         
         if(typeof pName != 'undefined')
-        {
             this.name = pName;
-        }
-    }
+    }     
     push(pItem,pIsNew)
     {     
         pItem = new Proxy(pItem, 
@@ -367,63 +428,20 @@ export class datatable
             resolve();
         });
     }
-}
-export class dataset
-{    
-    constructor()
+    getSchema()
     {
-        this.datatables = [];
-    }
-    add(pTable)
-    {
-        if(typeof pTable != 'undefined')
+        let tmpObj = {}
+        if(this.length > 0)
         {
-            if(typeof pTable == 'string')
+            for (let i = 0; i < Object.keys(this[0]).length; i++) 
             {
-                this.datatables.push(new datatable(pTable))    
+                let tmp = new Object(); 
+                tmp[Object.keys(this[0])[i]] = {notNull:false};
+                Object.assign(tmpObj,tmp)
             }
-            else if(typeof pTable == 'object')
-            {
-                this.datatables.push(pTable)
-            }
+
         }
-    }
-    datatable(pName)
-    {
-        if(typeof pName != 'undefined')
-        {
-            for (let i = 0; i < this.datatables.length; i++) 
-            {
-                if(this.datatables[i].name == pName)
-                {
-                    return this.datatables[i];
-                }
-            }
-        }
-    }
-    remove(pName)
-    {
-        if(typeof pName != 'undefined')
-        {
-            for (let i = 0; i < this.datatables.length; i++) 
-            {
-                if(this.datatables[i].name == pName)
-                {
-                    this.splice(i,1);
-                }
-            }
-        }
-    }
-    addTemplate(pObj)
-    {
-        for (let i = 0; i < pObj.length; i++) 
-        {
-            this.add(pObj[i].name);
-            let TmpTbl = this.datatable(pObj[i].name);
-            TmpTbl.selectCmd = pObj[i].selectCmd;
-            TmpTbl.insertCmd = pObj[i].insertCmd;
-            TmpTbl.updateCmd = pObj[i].updateCmd;
-        }
+        return tmpObj;
     }
 }
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
