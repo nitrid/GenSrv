@@ -71,7 +71,7 @@ export default class App extends React.Component
 
         this.core.socket.on('connect',async () => 
         {
-            if((await this.core.sql.try()) == 1)
+            if((await this.core.sql.try()).status == 1)
             {
                 let tmpSplash = 
                 {
@@ -81,7 +81,7 @@ export default class App extends React.Component
                 }
                 App.instance.setState({logined:false,connected:false,splash:tmpSplash});
             }
-            else if((await this.core.sql.try()) == 2)
+            else if((await this.core.sql.try()).status == 2)
             {
                 let tmpSplash = 
                 {
