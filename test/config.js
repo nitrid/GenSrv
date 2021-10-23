@@ -1,8 +1,8 @@
 export default 
 {
-	server: "192.168.100.12",
+	server: "BILGISAYAR",
 	database: "GENDB",
-	uid: "beka",
+	uid: "piqpos",
 	pwd: "1122334455",
 	trustedConnection : false,
 	test : true,

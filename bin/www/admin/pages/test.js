@@ -20,14 +20,14 @@ export default class Test extends React.Component
             <div>
                 <div className="row">
                     <div className="col-4">
-                        <NdTextBox id="txtSeri" parent={this} title={"Seri : "} 
-                        lang={"tr"} param={this.param} auth={""} data={""} />
+                        <NdTextBox id="txtSeri" parent={this} option={{title:"Seri :",titleAlign:"top"}}
+                        lang={"tr"} param={this.param} auth={""} />
                     </div>
                     <div className="col-4">
-                        <NdTextBox id="txtSira" parent={this} title={"Sıra : "} />
+                        <NdTextBox id="txtSira" parent={this}/>
                     </div>
                     <div className="col-4">
-                        <NdTextBox id="txtBelgeNo" parent={this} title={"Belge No : "} />
+                        <NdTextBox id="txtBelgeNo" parent={this} />
                     </div>
                 </div>
             </div>
