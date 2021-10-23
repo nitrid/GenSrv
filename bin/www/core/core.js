@@ -231,6 +231,17 @@ export class dataset
             this.name = 'dataset'
         
         this.datatables = [];
+        //this.initJsDb();
+    }
+    async initJsDb()
+    {
+        if(typeof JsStore != 'undefined')
+        {
+            this.jsCon = new JsStore.Connection();
+            this.jsCon.db = await this.jsCon.openDb(this.name);
+            console.log(this.jsCon.db)
+            //await this.jsCon.initDb({name:this.name,tables: []})
+        }
     }
     async add(pTable)
     {
@@ -244,6 +255,23 @@ export class dataset
             {
                 this.datatables.push(pTable)
             }
+            
+            if(typeof JsStore != 'undefined')
+            {
+                this.jsCon = new JsStore.Connection();
+                this.jsCon.db = await this.jsCon.openDb(this.name);
+            }
+            this.jsCon.db.tables.push()
+            console.log(this.jsCon.db)
+//             await this.jsCon.initDb({name:this.name,tables: 
+//             [{
+//                 name: this.datatables[this.datatables.length - 1].name,
+//                 columns: this.datatables[this.datatables.length - 1].getSchema()
+//             }]})
+//             this.jsCon.insert({
+//     into: this.datatables[this.datatables.length - 1].name,
+//     values: [1,'001']
+// });
         }
     }
     datatable(pName)
