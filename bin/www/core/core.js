@@ -323,6 +323,8 @@ export class datatable
         
         if(typeof pName != 'undefined')
             this.name = pName;
+        
+        this.sql = core.instance.sql;
     }     
     push(pItem,pIsNew)
     {     
@@ -361,13 +363,16 @@ export class datatable
         {
             if(typeof this.selectCmd != 'undefined')
             {
-                let TmpData = await core.instance.sql.execute(this.selectCmd)
-                if(typeof TmpData.result.err == 'undefined')
+                let TmpData = await this.sql.execute(this.selectCmd)
+                if(typeof TmpData.result.err == 'undefined') 
                 {
-                    for (let i = 0; i < TmpData.result.recordset.length; i++) 
-                    {                    
-                        this.push(TmpData.result.recordset[i],false)   
-                    }                    
+                    if(typeof TmpData.result.recordset != 'undefined')
+                    {
+                        for (let i = 0; i < TmpData.result.recordset.length; i++) 
+                        {                    
+                            this.push(TmpData.result.recordset[i],false)   
+                        }                    
+                    }
                 }
                 else
                 {
@@ -427,7 +432,7 @@ export class datatable
             }
             if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
             {
-                let TmpUpdateData = await core.instance.sql.execute(this.updateCmd)
+                let TmpUpdateData = await this.sql.execute(this.updateCmd)
 
                 if(typeof TmpUpdateData.result.err == 'undefined')
                 {
@@ -441,7 +446,7 @@ export class datatable
             
             if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
             {
-                let TmpInsertData = await core.instance.sql.execute(this.insertCmd)
+                let TmpInsertData = await this.sql.execute(this.insertCmd)
 
                 if(typeof TmpInsertData.result.err == 'undefined')
                 {
@@ -455,6 +460,16 @@ export class datatable
                
             resolve();
         });
+    }
+    toArray()
+    {
+        let tmpArr = [];
+        for (let i = 0; i < this.length; i++) 
+        {
+            tmpArr.push(this[i])                                    
+        }
+
+        return tmpArr;
     }
     getSchema()
     {

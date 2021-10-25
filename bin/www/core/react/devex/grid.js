@@ -11,11 +11,15 @@ import DataGrid, {
 import { datatable } from '../../core.js';
 import CustomStore from 'devextreme/data/custom_store';
 
+export {Column}
+
 export default class NdGrid extends React.Component
 {
     constructor(props)
     {
         super(props);
+
+        this.devGrid = null;
         this.state = 
         {            
             showBorders : typeof props.showBorders == 'undefined' ? false : props.showBorders,
@@ -34,51 +38,68 @@ export default class NdGrid extends React.Component
             editing : typeof props.editing == 'undefined' ? {} : props.editing
         }
 
+        this.onInitialized = this.onInitialized.bind(this);
+        this.onSelectionChanged = this.onSelectionChanged.bind(this);
+
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
             this.props.parent[this.props.id] = this
+        }        
+    }
+    onInitialized(e) 
+    {
+        this.devGrid = e.component;
+    }
+    onSelectionChanged(e) 
+    {
+        if(typeof this.props.onSelectionChanged != 'undefined')
+        {
+            this.props.onSelectionChanged(e);
         }
     }
     componentDidMount() 
     {
-        this.refresh(this.state.dataSource)
+        this.refresh(this.state.dataSource)  
     }
-    refresh(pDs)
+    refresh(e)
     {
-        if(typeof pDs != 'undefined' && Array.isArray(pDs))
+        if(typeof e != 'undefined' && Array.isArray(e))
         {
             this.setState(
             { 
-                dataSource : pDs,
+                dataSource : e,
                 store : new CustomStore(
                 {
                     load: function()
                     {
                         return new Promise(resolve => 
                         {
-                            resolve({data: pDs});
+                            resolve({data: e});
                         });
                     }
                 })
             });
         }
-        else if (typeof pDs != 'undefined' && typeof pDs == 'object')
+        else if (typeof e != 'undefined' && typeof e == 'object')
         {
+            let tmpThis = this;
             this.setState(
             { 
-                dataSource : pDs,
+                dataSource : e,
                 store : new CustomStore(
                 {
                     load: function()
-                    {
+                    {                        
                         return new Promise(async resolve => 
                         {
-                            console.log(pDs)
-                            if(typeof pDs.core != 'undefined')
+                            if(typeof tmpThis.props.core != 'undefined' && typeof e.query != 'undefined')
                             {
-                                
+                                let tmpDt = new datatable('');
+                                tmpDt.sql = tmpThis.props.core.sql
+                                tmpDt.selectCmd = e.query;
+                                await tmpDt.refresh()
+                                resolve({data: tmpDt.toArray()});
                             }
-                            resolve({data: pDs});
                         });
                     }
                 })
@@ -89,9 +110,10 @@ export default class NdGrid extends React.Component
     {
         return (
             <React.Fragment>
-                <DataGrid dataSource={this.state.store} showBorders={this.state.showBorders} 
+                <DataGrid id={this.props.id} dataSource={this.state.store} showBorders={this.state.showBorders} 
                     columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
-                    allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}>
+                    allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
+                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged}>
                     <FilterRow visible={typeof this.state.filterRow.visible == 'undefined' ? false : this.state.filterRow.visible} />
                     <HeaderFilter visible={typeof this.state.headerFilter.visible == 'undefined' ? false : this.state.headerFilter.visible} />
                     <Selection mode={typeof this.state.selection.mode == 'undefined' ? undefined :  this.state.selection.mode} 
@@ -112,6 +134,9 @@ export default class NdGrid extends React.Component
                         allowDeleting={typeof this.state.editing.allowDeleting == 'undefined' ? undefined : this.state.editing.allowDeleting}
                         selectTextOnEditStart={typeof this.state.editing.selectTextOnEditStart == 'undefined' ? undefined : this.state.editing.selectTextOnEditStart}
                         startEditAction={typeof this.state.editing.startEditAction == 'undefined' ? undefined : this.state.editing.startEditAction} />
+
+                    {this.props.children}
+                    
                 </DataGrid>
             </React.Fragment>
         )
