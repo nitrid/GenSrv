@@ -5,9 +5,9 @@ npm i gensrv
 	~ Core
 		- listen(port) 
 			- Bu fonksiyonun içerisinde http portu,socket portu dinlemeye geçer ve açar.
-				- import server from 'gensrv'
+				- import {core} from 'gensrv'
 				  import config from 'config'
-				  let gensrv = new server.default(config)
+				  let gensrv = new core(config)
                   gensrv.listen(config.port);
 			- log,sql,auth,terminal,util bu objeleri coreun ağacına ekler.
 		- event yapısı
@@ -56,6 +56,11 @@ npm i gensrv
 			 Database oluşturma işlemi database adı verilerek database oluşturma işlemi gerçekleştirilir."setup/dbscr/CONTENT.sql" okuyarak sql ve tablo kurulumu gerçekleştirilir.
 			 Config.js deki db_path yoluna bakarak databaseyi oluşturur.
 			 - core.instance.sql.createDB('GENDB');
+		- auth()
+		  Sistemin erişim yetki kütüphanesidir. Login işlemlerini kapsar, Auth nesnesi client socket tarafından gelen çağrılara cevap verir bu çağrılardan birtanesi
+		  - Login Örneği : await core.instance.socket.emit('login',TmpData,async (data) =>{});
+		  - login()
+		    
 		    
 			
 			   
