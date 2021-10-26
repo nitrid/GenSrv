@@ -26,7 +26,7 @@ export default class Test extends React.Component
             }
         )
         this.test.refresh({query : {query:"SELECT * FROM USERS "}})
-        console.log(this.test.devGrid.columnOption(0))
+        // console.log(this.test.devGrid.columnOption(0))
     }
     onSelectionChanged(e)
     {
@@ -38,6 +38,17 @@ export default class Test extends React.Component
     cellRender(data) 
     {
         return <div>{data.value} Allll</div>
+    }
+    onRowRender(e)
+    {
+        return (
+            <tbody className="dx-row">
+            <tr className="main-row">
+                <td>{e.data.CODE}</td>
+                <td>{e.data.NAME}</td>
+            </tr>
+            </tbody>
+        )
     }
     render()
     {
@@ -57,7 +68,7 @@ export default class Test extends React.Component
                 </div>
                 <div className="row">
                     <div className="col-12">
-                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core}> 
+                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core} onRowRender={this.onRowRender}> 
                             <Column
                             dataField="CODE"
                             dataType="string"

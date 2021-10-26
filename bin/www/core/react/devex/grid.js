@@ -40,6 +40,7 @@ export default class NdGrid extends React.Component
 
         this.onInitialized = this.onInitialized.bind(this);
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
+        this.onRowRender = this.onRowRender.bind(this);
 
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
@@ -55,6 +56,16 @@ export default class NdGrid extends React.Component
         if(typeof this.props.onSelectionChanged != 'undefined')
         {
             this.props.onSelectionChanged(e);
+        }
+    }
+    onRowRender(e)
+    {
+        console.log(1)
+        console.log(this.props)
+        if(typeof this.props.onRowRender != 'undefined')
+        {
+            console.log(2)
+            return this.props.onRowRender(e);
         }
     }
     componentDidMount() 
@@ -113,7 +124,7 @@ export default class NdGrid extends React.Component
                 <DataGrid id={this.props.id} dataSource={this.state.store} showBorders={this.state.showBorders} 
                     columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
                     allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
-                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged}>
+                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged} onRowRender={this.onRowRender}>
                     <FilterRow visible={typeof this.state.filterRow.visible == 'undefined' ? false : this.state.filterRow.visible} />
                     <HeaderFilter visible={typeof this.state.headerFilter.visible == 'undefined' ? false : this.state.headerFilter.visible} />
                     <Selection mode={typeof this.state.selection.mode == 'undefined' ? undefined :  this.state.selection.mode} 
@@ -136,7 +147,7 @@ export default class NdGrid extends React.Component
                         startEditAction={typeof this.state.editing.startEditAction == 'undefined' ? undefined : this.state.editing.startEditAction} />
 
                     {this.props.children}
-                    
+
                 </DataGrid>
             </React.Fragment>
         )
