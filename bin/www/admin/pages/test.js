@@ -3,7 +3,6 @@ import NdTextBox from '../../core/react/devex/textbox.js';
 import NdPopUp from '../../core/react/devex/popup.js';
 import NdGrid,{Column} from '../../core/react/devex/grid.js';
 import App from '../lib/app.js';
-import { datatable } from '../../core/core.js';
 export default class Test extends React.Component
 {
     constructor(props)
@@ -26,7 +25,6 @@ export default class Test extends React.Component
             }
         )
         this.test.refresh({query : {query:"SELECT * FROM USERS "}})
-        // console.log(this.test.devGrid.columnOption(0))
     }
     onSelectionChanged(e)
     {
@@ -39,7 +37,7 @@ export default class Test extends React.Component
     {
         return <div>{data.value} Allll</div>
     }
-    onRowRender(e)
+    rowRender(e)
     {
         return (
             <tbody className="dx-row">
@@ -68,7 +66,7 @@ export default class Test extends React.Component
                 </div>
                 <div className="row">
                     <div className="col-12">
-                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core} onRowRender={this.onRowRender}> 
+                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core} rowRender={this.rowRender}> 
                             <Column
                             dataField="CODE"
                             dataType="string"

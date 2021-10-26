@@ -40,7 +40,7 @@ export default class NdGrid extends React.Component
 
         this.onInitialized = this.onInitialized.bind(this);
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
-        this.onRowRender = this.onRowRender.bind(this);
+        this.rowRender = this.rowRender.bind(this);
 
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
@@ -58,14 +58,14 @@ export default class NdGrid extends React.Component
             this.props.onSelectionChanged(e);
         }
     }
-    onRowRender(e)
+    rowRender(e)
     {
         console.log(1)
         console.log(this.props)
-        if(typeof this.props.onRowRender != 'undefined')
+        if(typeof this.props.rowRender != 'undefined')
         {
             console.log(2)
-            return this.props.onRowRender(e);
+            return this.props.rowRender(e);
         }
     }
     componentDidMount() 
@@ -124,7 +124,7 @@ export default class NdGrid extends React.Component
                 <DataGrid id={this.props.id} dataSource={this.state.store} showBorders={this.state.showBorders} 
                     columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
                     allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
-                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged} onRowRender={this.onRowRender}>
+                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged} rowRender={this.rowRender}>
                     <FilterRow visible={typeof this.state.filterRow.visible == 'undefined' ? false : this.state.filterRow.visible} />
                     <HeaderFilter visible={typeof this.state.headerFilter.visible == 'undefined' ? false : this.state.headerFilter.visible} />
                     <Selection mode={typeof this.state.selection.mode == 'undefined' ? undefined :  this.state.selection.mode} 
