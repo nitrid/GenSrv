@@ -1,7 +1,8 @@
 import React from 'react';
 import NdTextBox from '../../core/react/devex/textbox.js';
 import NdPopUp from '../../core/react/devex/popup.js';
-import NdGrid,{Column} from '../../core/react/devex/grid.js';
+//import NdGrid,{Column} from '../../core/react/devex/grid.js';
+import NdSelectBox from '../../core/react/devex/selectbox.js';
 import App from '../lib/app.js';
 export default class Test extends React.Component
 {
@@ -16,15 +17,15 @@ export default class Test extends React.Component
         //this.txtSeri.value = "aa"
         this.txtSira.value = "100"
         //this.pop.show()
-        this.test.setState(
-            {
-                showBorders : false,
-                width : '100%',
-                height : '100%',
-                selection : {mode:"multiple"}
-            }
-        )
-        this.test.refresh({query : {query:"SELECT * FROM USERS "}})
+        // this.test.setState(
+        //     {
+        //         showBorders : false,
+        //         width : '100%',
+        //         height : '100%',
+        //         selection : {mode:"multiple"}
+        //     }
+        // )
+        // this.test.refresh({query : {query:"SELECT * FROM USERS "}})
     }
     onSelectionChanged(e)
     {
@@ -53,6 +54,9 @@ export default class Test extends React.Component
         return (
             <div>
                 <div className="row">
+                    <div className = "col-1">
+                        <label>DENEME</label>
+                    </div>
                     <div className="col-3">
                         <NdTextBox id="txtSeri" parent={this} option={{title:"Seri :",titleAlign:"left"}}
                             lang={"tr"} param={this.param} auth={""} />
@@ -65,6 +69,17 @@ export default class Test extends React.Component
                     </div>
                 </div>
                 <div className="row">
+                    <div className="col-4">
+                        <NdSelectBox 
+                        id = "sbDepo"             //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
+                        displayExpr = "NAME"      //KEY
+                        valueExpr = "ID"          //VALUE
+                        defaultValue = "003"      //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
+                        items = {this.items} 
+                        option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
+                    </div>
+                </div>
+                {/* <div className="row">
                     <div className="col-12">
                         <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core} rowRender={this.rowRender}> 
                             <Column
@@ -80,12 +95,13 @@ export default class Test extends React.Component
                             />
                         </NdGrid>
                     </div>
-                </div>
+                </div> */}
                 <div>
                     <NdPopUp id="pop" parent={this} showTitle={true} container={".dx-multiview-wrapper"} of={"#page"} width={'90%'} height={'90%'} title={'Bilgi'} showCloseButton={true}>
                     
                     </NdPopUp>
                 </div>
+          
             </div>
         )
     }
