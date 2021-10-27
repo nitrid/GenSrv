@@ -30,6 +30,7 @@ export default class NdGrid extends React.Component
             allowColumnResizing : typeof props.allowColumnResizing == 'undefined' ? false : props.allowColumnResizing,
             width : typeof props.width == 'undefined' ? undefined : props.width,
             height : typeof props.height == 'undefined' ? undefined : props.height,
+            columns : typeof props.columns == 'undefined' ? undefined : props.columns,
             filterRow : typeof props.filterRow == 'undefined' ? {} : props.filterRow,
             headerFilter : typeof props.headerFilter == 'undefined' ? {} : props.headerFilter,
             selection : typeof props.selection == 'undefined' ? {} : props.selection,
@@ -61,7 +62,7 @@ export default class NdGrid extends React.Component
     rowRender(e)
     {
         console.log(1)
-        console.log(this.props)
+        console.log(e)
         if(typeof this.props.rowRender != 'undefined')
         {
             console.log(2)
@@ -124,29 +125,15 @@ export default class NdGrid extends React.Component
                 <DataGrid id={this.props.id} dataSource={this.state.store} showBorders={this.state.showBorders} 
                     columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
                     allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
-                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged} rowRender={this.rowRender}>
-                    <FilterRow visible={typeof this.state.filterRow.visible == 'undefined' ? false : this.state.filterRow.visible} />
-                    <HeaderFilter visible={typeof this.state.headerFilter.visible == 'undefined' ? false : this.state.headerFilter.visible} />
-                    <Selection mode={typeof this.state.selection.mode == 'undefined' ? undefined :  this.state.selection.mode} 
-                        selectAllMode={typeof this.state.selection.selectAllMode == 'undefined' ? undefined : this.state.selection.selectAllMode} 
-                        showCheckBoxesMode={typeof this.state.selection.showCheckBoxesMode == 'undefined' ? undefined : this.state.selection.showCheckBoxesMode}/>
-                    <Paging defaultPageSize={typeof this.state.paging.defaultPageSize == 'undefined' ? undefined : this.state.paging.defaultPageSize} />
-                    <Pager
-                        visible={typeof this.state.pager.visible == '' ? undefined : this.state.pager.visible}
-                        allowedPageSizes={typeof this.state.pager.allowedPageSizes == 'undefined' ? undefined : this.state.pager.allowedPageSizes}
-                        displayMode={typeof this.state.pager.displayMode == 'undefined' ? undefined : this.state.pager.displayMode}
-                        showPageSizeSelector={typeof this.state.pager.showPageSizeSelector == 'undefined' ? undefined : this.state.pager.showPageSizeSelector}
-                        showInfo={typeof this.state.pager.showInfo == 'undefined' ? undefined : this.state.pager.showInfo}
-                        showNavigationButtons={typeof this.state.pager.showNavigationButtons == 'undefined' ? undefined : this.state.pager.showNavigationButtons} />
-                    <Editing
-                        mode={typeof this.state.editing.mode == 'undefined' ? undefined : this.state.editing.mode}
-                        allowUpdating={typeof this.state.editing.allowUpdating == 'undefined' ? undefined : this.state.editing.allowUpdating}
-                        allowAdding={typeof this.state.editing.allowAdding == 'undefined' ? undefined : this.state.editing.allowAdding}
-                        allowDeleting={typeof this.state.editing.allowDeleting == 'undefined' ? undefined : this.state.editing.allowDeleting}
-                        selectTextOnEditStart={typeof this.state.editing.selectTextOnEditStart == 'undefined' ? undefined : this.state.editing.selectTextOnEditStart}
-                        startEditAction={typeof this.state.editing.startEditAction == 'undefined' ? undefined : this.state.editing.startEditAction} />
-
-                    {this.props.children}
+                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged}
+                    columns={this.state.columns}
+                    filterRow={this.state.filterRow}
+                    headerFilter={this.state.headerFilter}
+                    selection={this.state.selection}
+                    paging={this.state.paging}
+                    pager={this.state.pager}
+                    editing={this.state.editing}
+                    >
 
                 </DataGrid>
             </React.Fragment>

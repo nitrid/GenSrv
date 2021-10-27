@@ -41,12 +41,12 @@ export default class Test extends React.Component
     rowRender(e)
     {
         return (
-            <tbody className="dx-row">
-            <tr className="main-row">
-                <td>{e.data.CODE}</td>
-                <td>{e.data.NAME}</td>
-            </tr>
-            </tbody>
+            // <tbody className="dx-row">
+                <tr className="main-row">
+                    <td>{e.data.CODE}</td>
+                    <td>{e.data.NAME}</td>
+                </tr>
+            // </tbody>
         )
     }
     render()
@@ -82,17 +82,6 @@ export default class Test extends React.Component
                 {/* <div className="row">
                     <div className="col-12">
                         <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core} rowRender={this.rowRender}> 
-                            <Column
-                            dataField="CODE"
-                            dataType="string"
-                            cellRender={this.cellRender}
-                            name="GRD001"
-                            />
-                            <Column
-                            dataField="NAME"
-                            dataType="string"
-                            name="GRD002"
-                            />
                         </NdGrid>
                     </div>
                 </div> */}
