@@ -1,7 +1,7 @@
 import React from 'react';
 import NdTextBox from '../../core/react/devex/textbox.js';
 import NdPopUp from '../../core/react/devex/popup.js';
-//import NdGrid,{Column} from '../../core/react/devex/grid.js';
+import NdGrid from '../../core/react/devex/grid.js';
 import NdSelectBox from '../../core/react/devex/selectbox.js';
 import App from '../lib/app.js';
 export default class Test extends React.Component
@@ -17,15 +17,16 @@ export default class Test extends React.Component
         //this.txtSeri.value = "aa"
         this.txtSira.value = "100"
         //this.pop.show()
-        // this.test.setState(
-        //     {
-        //         showBorders : false,
-        //         width : '100%',
-        //         height : '100%',
-        //         selection : {mode:"multiple"}
-        //     }
-        // )
-        // this.test.refresh({query : {query:"SELECT * FROM USERS "}})
+        this.test.setState(
+            {
+                showBorders : true,
+                width : '100%',
+                height : '100%',
+                selection : {mode:"multiple"}
+            }
+        )
+        this.test.refresh({query : {query:"SELECT * FROM USERS "}});
+        //this.test.props.
     }
     onSelectionChanged(e)
     {
@@ -37,17 +38,6 @@ export default class Test extends React.Component
     cellRender(data) 
     {
         return <div>{data.value} Allll</div>
-    }
-    rowRender(e)
-    {
-        return (
-            // <tbody className="dx-row">
-                <tr className="main-row">
-                    <td>{e.data.CODE}</td>
-                    <td>{e.data.NAME}</td>
-                </tr>
-            // </tbody>
-        )
     }
     render()
     {
@@ -79,12 +69,14 @@ export default class Test extends React.Component
                         option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
                     </div>
                 </div>
-                {/* <div className="row">
+                <div className="row">
                     <div className="col-12">
-                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core} rowRender={this.rowRender}> 
+                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core}
+                           
+                        > 
                         </NdGrid>
                     </div>
-                </div> */}
+                </div>
                 <div>
                     <NdPopUp id="pop" parent={this} showTitle={true} container={".dx-multiview-wrapper"} of={"#page"} width={'90%'} height={'90%'} title={'Bilgi'} showCloseButton={true}>
                     
