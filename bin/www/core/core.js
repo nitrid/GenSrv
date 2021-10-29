@@ -21,7 +21,7 @@ export class core
         {
             try
             {
-                this.socket = io(pUrl);
+                this.socket = io(pUrl,{timeout:100000});
             }
             catch (error) {}
         }
@@ -470,6 +470,13 @@ export class datatable
         }
 
         return tmpArr;
+    }
+    import(pData)
+    {
+        for (let i = 0; i < pData.length; i++) 
+        {
+            this.push(pData[i],false);
+        }
     }
     getSchema()
     {
