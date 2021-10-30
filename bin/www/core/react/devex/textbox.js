@@ -11,6 +11,7 @@ export default class NdTextBox extends React.Component
         {
             value : ''
         }
+        
         if(typeof props.param != 'undefined' && props.param.length > 0 && typeof props.id != 'undefined')
         {
             let tmp = props.param.filter(x => x.ELEMENT_ID === props.id)

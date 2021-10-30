@@ -8,6 +8,7 @@ export default class Test extends React.Component
     {
         super(props)
         this.core = App.instance.core;
+        console.log(this.param)
     }
     componentDidMount() 
     {
@@ -21,7 +22,7 @@ export default class Test extends React.Component
                 <div className="row">
                     <div className="col-4">
                         <NdTextBox id="txtSeri" parent={this} title={"Seri : "} 
-                        lang={"tr"} param={this.param} auth={""} data={""} />
+                        lang={"tr"} param={this.param} auth={""} />
                     </div>
                     <div className="col-4">
                         <NdTextBox id="txtSira" parent={this} title={"Sıra : "} />
