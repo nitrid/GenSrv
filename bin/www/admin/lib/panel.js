@@ -79,7 +79,7 @@ export default class Panel extends React.Component
     
     return (
       <React.Fragment>
-        <TabPanel
+        <TabPanel id="page"
           dataSource={dataSource}
           height = {'100%'}
           itemTitleRender={this.renderTitle}

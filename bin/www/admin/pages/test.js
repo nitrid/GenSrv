@@ -1,6 +1,10 @@
 import React from 'react';
 import NdTextBox from '../../core/react/devex/textbox.js';
+import NdPopUp from '../../core/react/devex/popup.js';
+import NdGrid from '../../core/react/devex/grid.js';
+import NdSelectBox from '../../core/react/devex/selectbox.js';
 import App from '../lib/app.js';
+import { datatable } from '../../core/core.js';
 
 export default class Test extends React.Component
 {
@@ -8,29 +12,92 @@ export default class Test extends React.Component
     {
         super(props)
         this.core = App.instance.core;
-        console.log(this.param)
+        this.onSelectionChanged = this.onSelectionChanged.bind(this);
     }
-    componentDidMount() 
+    async componentDidMount() 
     {
         //this.txtSeri.value = "aa"
         this.txtSira.value = "100"
+        //this.pop.show()
+        // this.test.setState(
+        //     {
+        //         showBorders : true,
+        //         width : '100%',
+        //         height : '100%',
+        //         selection : {mode:"multiple"}
+        //     }
+        // )
+        let tmpTable = new datatable();
+        tmpTable.sql = this.core.sql;
+        tmpTable.selectCmd = 
+        {
+            query : "SELECT CODE,NAME FROM USERS "
+        }
+        
+        let source = 
+        {
+            source : 
+            {
+                select : 
+                {
+                    query : "SELECT CODE,NAME FROM USERS ",
+                },
+                sql : this.core.sql
+            }
+        }
+        await this.test.dataRefresh(source);
+    }
+    onSelectionChanged(e)
+    {
+        if(e.selectedRowsData.length > 0)
+        {
+            this.txtSira.value = e.selectedRowsData[0].ROLE
+        }
     }
     render()
     {
         return (
             <div>
                 <div className="row">
-                    <div className="col-4">
-                        <NdTextBox id="txtSeri" parent={this} title={"Seri : "} 
-                        lang={"tr"} param={this.param} auth={""} />
+                    <div className = "col-1">
+                        <label>DENEME</label>
                     </div>
-                    <div className="col-4">
-                        <NdTextBox id="txtSira" parent={this} title={"Sıra : "} />
+                    <div className="col-3">
+                        <NdTextBox id="txtSeri" parent={this} option={{title:"Seri :",titleAlign:"left"}}
+                            lang={"tr"} param={this.param} auth={""} />
                     </div>
-                    <div className="col-4">
-                        <NdTextBox id="txtBelgeNo" parent={this} title={"Belge No : "} />
+                    <div className="col-3">
+                        <NdTextBox id="txtSira" parent={this}/>
+                    </div>
+                    <div className="col-3">
+                        
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col-4">
+                        <NdSelectBox 
+                        id = "sbDepo"             //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
+                        displayExpr = "NAME"      //KEY
+                        valueExpr = "ID"          //VALUE
+                        defaultValue = "003"      //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
+                        items = {this.items} 
+                        option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-12">
+                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
+                           selection={{mode:"multiple"}} //data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
+                        > 
+                        </NdGrid>
+                    </div>
+                </div>
+                <div>
+                    <NdPopUp id="pop" parent={this} showTitle={true} container={".dx-multiview-wrapper"} of={"#page"} width={'90%'} height={'90%'} title={'Bilgi'} showCloseButton={true}>
+                    
+                    </NdPopUp>
+                </div>
+                <div>ALI KEMAL</div>
             </div>
         )
     }

@@ -21,7 +21,7 @@ export class core
         {
             try
             {
-                this.socket = io(pUrl);
+                this.socket = io(pUrl,{timeout:100000});
             }
             catch (error) {}
         }
@@ -231,6 +231,17 @@ export class dataset
             this.name = 'dataset'
         
         this.datatables = [];
+        //this.initJsDb();
+    }
+    async initJsDb()
+    {
+        if(typeof JsStore != 'undefined')
+        {
+            this.jsCon = new JsStore.Connection();
+            this.jsCon.db = await this.jsCon.openDb(this.name);
+            console.log(this.jsCon.db)
+            //await this.jsCon.initDb({name:this.name,tables: []})
+        }
     }
     async add(pTable)
     {
@@ -244,6 +255,23 @@ export class dataset
             {
                 this.datatables.push(pTable)
             }
+            
+            if(typeof JsStore != 'undefined')
+            {
+                this.jsCon = new JsStore.Connection();
+                this.jsCon.db = await this.jsCon.openDb(this.name);
+            }
+            this.jsCon.db.tables.push()
+            console.log(this.jsCon.db)
+//             await this.jsCon.initDb({name:this.name,tables: 
+//             [{
+//                 name: this.datatables[this.datatables.length - 1].name,
+//                 columns: this.datatables[this.datatables.length - 1].getSchema()
+//             }]})
+//             this.jsCon.insert({
+//     into: this.datatables[this.datatables.length - 1].name,
+//     values: [1,'001']
+// });
         }
     }
     datatable(pName)
@@ -295,6 +323,8 @@ export class datatable
         
         if(typeof pName != 'undefined')
             this.name = pName;
+        
+        this.sql = core.instance.sql;
     }     
     push(pItem,pIsNew)
     {     
@@ -333,13 +363,16 @@ export class datatable
         {
             if(typeof this.selectCmd != 'undefined')
             {
-                let TmpData = await core.instance.sql.execute(this.selectCmd)
-                if(typeof TmpData.result.err == 'undefined')
+                let TmpData = await this.sql.execute(this.selectCmd)
+                if(typeof TmpData.result.err == 'undefined') 
                 {
-                    for (let i = 0; i < TmpData.result.recordset.length; i++) 
-                    {                    
-                        this.push(TmpData.result.recordset[i],false)   
-                    }                    
+                    if(typeof TmpData.result.recordset != 'undefined')
+                    {
+                        for (let i = 0; i < TmpData.result.recordset.length; i++) 
+                        {                    
+                            this.push(TmpData.result.recordset[i],false)   
+                        }                    
+                    }
                 }
                 else
                 {
@@ -399,7 +432,7 @@ export class datatable
             }
             if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
             {
-                let TmpUpdateData = await core.instance.sql.execute(this.updateCmd)
+                let TmpUpdateData = await this.sql.execute(this.updateCmd)
 
                 if(typeof TmpUpdateData.result.err == 'undefined')
                 {
@@ -413,7 +446,7 @@ export class datatable
             
             if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
             {
-                let TmpInsertData = await core.instance.sql.execute(this.insertCmd)
+                let TmpInsertData = await this.sql.execute(this.insertCmd)
 
                 if(typeof TmpInsertData.result.err == 'undefined')
                 {
@@ -427,6 +460,23 @@ export class datatable
                
             resolve();
         });
+    }
+    toArray()
+    {
+        let tmpArr = [];
+        for (let i = 0; i < this.length; i++) 
+        {
+            tmpArr.push(this[i])                                    
+        }
+
+        return tmpArr;
+    }
+    import(pData)
+    {
+        for (let i = 0; i < pData.length; i++) 
+        {
+            this.push(pData[i],false);
+        }
     }
     getSchema()
     {
