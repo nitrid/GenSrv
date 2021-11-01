@@ -26,6 +26,9 @@ export default class Test extends React.Component
             }
         )
         this.test.refresh({query : {query:"SELECT * FROM USERS "}});
+
+        console.log({query : {query:"SELECT * FROM USERS "}})
+
         //this.test.props.
     }
     onSelectionChanged(e)
@@ -61,11 +64,12 @@ export default class Test extends React.Component
                 <div className="row">
                     <div className="col-4">
                         <NdSelectBox 
-                        id = "sbDepo"             //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
-                        displayExpr = "NAME"      //KEY
-                        valueExpr = "ID"          //VALUE
-                        defaultValue = "003"      //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
-                        items = {this.items} 
+                        parent={this}                            //
+                        id = "sbDepo"                            //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
+                        displayExpr = "KEY"                      //KEY - ZORUNLU ALAN
+                        valueExpr = "VALUE"                      //VALUE - ZORUNLU ALAN
+                        defaultValue = "002"                     //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
+                        store = {[{"KEY":"MAHİR","VALUE":"001"},{"KEY":"FURKAN","VALUE":"002"}]} 
                         option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
                     </div>
                 </div>
