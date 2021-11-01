@@ -344,7 +344,7 @@ export class datatable
         
         if(typeof pIsNew == 'undefined' || pIsNew)
         {
-            Object.setPrototypeOf(pItem,{stat:"new"})
+            Object.setPrototypeOf(pItem,{stat:'new'})
         }
         
         super.push(pItem)
@@ -383,6 +383,54 @@ export class datatable
             resolve();
         });
     }
+    insert()
+    {
+        return new Promise(async resolve => 
+        {
+            if(typeof this.insertCmd != 'undefined')
+            {
+                this.insertCmd.value = [];
+            }
+            for (let i = 0; i < this.length; i++) 
+            {
+                if(typeof this[i].stat != 'undefined')
+                {
+                    if(this[i].stat == 'new')
+                    {    
+                        Object.setPrototypeOf(this[i],{stat:''})
+
+                        if(typeof this.insertCmd != 'undefined')
+                        {
+                            if(typeof this.insertCmd.param == 'undefined')
+                            {
+                                continue;
+                            }
+                            for (let m = 0; m < this.insertCmd.param.length; m++) 
+                            {                                
+                                this.insertCmd.value.push(this[i][this.insertCmd.param[m].split(':')[0]]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
+            {
+                let TmpInsertData = await this.sql.execute(this.insertCmd)
+
+                if(typeof TmpInsertData.result.err == 'undefined')
+                {
+                    this.insertCmd.value = [];
+                }
+                else
+                {
+                    console.log(TmpInsertData.result.err)
+                }   
+            }
+
+            resolve();
+        });
+    }
     update()
     {
         return new Promise(async resolve => 
@@ -390,11 +438,7 @@ export class datatable
             if(typeof this.updateCmd != 'undefined')
             {
                 this.updateCmd.value = [];
-            }
-            if(typeof this.insertCmd != 'undefined')
-            {
-                this.insertCmd.value = [];
-            }
+            }            
             
             for (let i = 0; i < this.length; i++) 
             {
@@ -402,6 +446,8 @@ export class datatable
                 {
                     if(this[i].stat == 'edit')
                     {
+                        Object.setPrototypeOf(this[i],{stat:''})
+                        
                         if(typeof this.updateCmd != 'undefined')
                         {
                             if(typeof this.updateCmd.param == 'undefined')
@@ -410,25 +456,10 @@ export class datatable
                             }
                             for (let m = 0; m < this.updateCmd.param.length; m++) 
                             {
-                                console.log(this[i][this.updateCmd.param[m].split(':')[0]]);
                                 this.updateCmd.value.push(this[i][this.updateCmd.param[m].split(':')[0]]);
                             }
                         }
-                    }
-                    else if(this[i].stat == 'new')
-                    {
-                        if(typeof this.insertCmd != 'undefined')
-                        {
-                            if(typeof this.insertCmd.param == 'undefined')
-                            {
-                                continue;
-                            }
-                            for (let m = 0; m < this.insertCmd.param.length; m++) 
-                            {
-                                this.insertCmd.value.push(this[i][this.insertCmd.param[m].split(':')[0]]);
-                            }
-                        }
-                    }
+                    }                    
                 }
             }
             if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
@@ -443,21 +474,7 @@ export class datatable
                 {
                     console.log(TmpUpdateData.result.err)
                 }   
-            }
-            
-            if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
-            {
-                let TmpInsertData = await this.sql.execute(this.insertCmd)
-
-                if(typeof TmpInsertData.result.err == 'undefined')
-                {
-                    this.insertCmd.value = [];
-                }
-                else
-                {
-                    console.log(TmpInsertData.result.err)
-                }   
-            }
+            }            
                
             resolve();
         });

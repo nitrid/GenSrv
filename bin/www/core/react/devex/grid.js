@@ -101,12 +101,6 @@ export default class NdGrid extends React.Component
         {
             this.props.onRowUpdated(e);
         }
-        console.log(11)
-        console.log(this.state.data.datatable)  
-        
-        // console.log(this.state.data.datatable)
-        // await this.state.data.datatable.update();
-        // await this.state.data.datatable.refresh();
     }
     _onRowRemoving(e)
     {
@@ -210,7 +204,7 @@ export default class NdGrid extends React.Component
                                 }
                                 // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
                                 else if (typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
-                                {                                
+                                {                
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = new datatable();
                                     tmpThis.state.data.datatable.sql = e.source.sql
@@ -230,6 +224,18 @@ export default class NdGrid extends React.Component
                                 }
                             });
                         },
+                        insert: (values) => 
+                        {
+                            return new Promise(async resolve => 
+                            {
+                                if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
+                                {
+                                    tmpThis.state.data.datatable.push(values)
+                                    await tmpThis.state.data.datatable.insert();
+                                }
+                                resolve()                                
+                            });
+                        },
                         update: (key, values) => 
                         {
                             return new Promise(async resolve => 
@@ -241,24 +247,10 @@ export default class NdGrid extends React.Component
                                         tmpThis.state.data.datatable.find(x => x === key)[Object.keys(values)[i]] = values[Object.keys(values)[i]]
                                     }                                    
                                 }
-                                console.log(12)
+                                await this.state.data.datatable.update();
                                 resolve()                                
                             });
                         },
-                        insert: (values) => 
-                        {
-                            return new Promise(async resolve => 
-                            {
-                                if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
-                                {
-                                    //tmpThis.state.data.datatable.push({CODE:"001",NAME:"ALI"})
-                                    //await tmpThis.state.data.datatable.update();
-                                    //await tmpThis.state.data.datatable.refresh();
-                                    //console.log(tmpThis.state.data.datatable)
-                                }
-                                resolve()                                
-                            });
-                        }
                     })
                 }
             });
