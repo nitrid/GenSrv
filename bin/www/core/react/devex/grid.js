@@ -8,13 +8,11 @@ export default class NdGrid extends React.Component
     constructor(props)
     {
         super(props);
-
         this.devGrid = null;
         this.state = 
         {            
             showBorders : typeof props.showBorders == 'undefined' ? false : props.showBorders,
-            dataSource : typeof props.dataSource == 'undefined' ? undefined : props.dataSource,
-            store : typeof props.store == 'undefined' ? undefined : props.store,
+            data : typeof props.data == 'undefined' ? undefined : props.data,
             columnsAutoWidth : typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth,
             allowColumnReordering : typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering,
             allowColumnResizing : typeof props.allowColumnResizing == 'undefined' ? false : props.allowColumnResizing,
@@ -29,135 +27,111 @@ export default class NdGrid extends React.Component
             editing : typeof props.editing == 'undefined' ? {} : props.editing
         }
 
-        this.onInitialized = this.onInitialized.bind(this);
-        this.onSelectionChanged = this.onSelectionChanged.bind(this);
-        this.onRowPrepared = this.onRowPrepared.bind(this);
+        this._onInitialized = this._onInitialized.bind(this);
+        this._onSelectionChanged = this._onSelectionChanged.bind(this);
 
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
             this.props.parent[this.props.id] = this
         }        
     }
-    onInitialized(e) 
+    //#region Private
+    _onInitialized(e) 
     {
         this.devGrid = e.component;
-    }
-    onSelectionChanged(e) 
+    }    
+    _onSelectionChanged(e) 
     {
-        //SELECTION ROW COLOR
-        for (let i = 0; i < e.selectedRowKeys.length; i++) 
-        {
-            this.setSelectionRowBgColor(e.component.getRowElement(e.component.getRowIndexByKey(e.selectedRowKeys[i]))[0])
-        }
-        //DESELECTION ROW COLOR
-        for (let i = 0; i < e.currentDeselectedRowKeys.length; i++) 
-        {
-            this.setSelectionRowBgColor(e.component.getRowElement(e.component.getRowIndexByKey(e.currentDeselectedRowKeys[i]))[0])
-        }
-        
         if(typeof this.props.onSelectionChanged != 'undefined')
         {
             this.props.onSelectionChanged(e);
         }
     }
-    onRowPrepared(e)
+    //#endregion
+    async componentDidMount() 
     {
-        if(e.rowType != "header")
+        if(typeof this.state.data != 'undefined')
         {
-            //SELECTION ROW COLOR
-            this.setSelectionRowBgColor(e.rowElement)
+            await this.dataRefresh(this.state.data)                 
         }
     }
-    setSelectionRowBgColor(pElement,pColor)
-    {
-        let tmpColor = pColor;
-        if(typeof pColor == 'undefined')
-        {
-            tmpColor = typeof this.props.selection == 'undefined' ? '' : this.props.selection.rowSelectionBgColor
-        }
-        
-        if(pElement.classList.contains("dx-selection"))
-        {
-            this.setRowStyle(pElement,{backgroundColor:tmpColor})
-        }
-        else
-        {
-            this.setRowStyle(pElement,{backgroundColor:""})
-        }
-    }
-    setRowStyle(pRow,pStyle)
-    {
-        if(typeof pRow == 'number')
-        {
-            pRow = this.devGrid.getRowElement(pRow)[0];
-        }
-        else if(typeof pRow == 'object' && (pRow instanceof HTMLElement) == false)
-        {
-            pRow = this.devGrid.getRowElement(this.devGrid.getRowIndexByKey(pRow))[0]           
-        }
-
-        for (let i = 0; i < Object.keys(pStyle).length; i++) 
-        {
-            pRow.style[Object.keys(pStyle)[i]] = pStyle[Object.keys(pStyle)[0]];
-        }
-    }
-    componentDidMount() 
-    {
-        this.refresh(this.state.dataSource)  
-    }
-    refresh(e)
-    {
-        if(typeof e != 'undefined' && Array.isArray(e))
-        {
-            this.setState(
-            { 
-                dataSource : e,
-                store : new CustomStore(
-                {
-                    load: function()
-                    {
-                        return new Promise(resolve => 
-                        {
-                            resolve({data: e});
-                        });
-                    }
-                })
-            });
-        }
-        else if (typeof e != 'undefined' && typeof e == 'object')
+    dataRefresh(e)
+    {        
+        return new Promise(mresolve => 
         {
             let tmpThis = this;
             this.setState(
             { 
-                dataSource : e,
-                store : new CustomStore(
+                data : 
                 {
-                    load: function()
-                    {                        
-                        return new Promise(async resolve => 
-                        {
-                            if(typeof tmpThis.props.core != 'undefined' && typeof e.query != 'undefined')
-                            {
-                                let tmpDt = new datatable('');
-                                tmpDt.sql = tmpThis.props.core.sql
-                                tmpDt.selectCmd = e.query;
-                                await tmpDt.refresh()
-                                resolve({data: tmpDt.toArray()});
-                            }
-                        });
-                    }
-                })
+                    store : new CustomStore(
+                    {
+                        load: function()
+                        {                        
+                            return new Promise(async resolve => 
+                            {        
+                                // EĞER FONKSİYONA PARAMETRE GÖNDERİLMEMİŞ İSE VE STATE DEĞİŞKENİNDE DAHA ÖNCEDEN ATANMIŞ DATA SOURCE VARSA GRİD REFRESH EDİLİYOR.
+                                if(typeof e == 'undefined' && typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.source != 'undefined')
+                                {
+                                    e = 
+                                    {
+                                        source : tmpThis.state.data.source
+                                    }
+                                }
+                                // EĞER DATA SOURCE A DİZİ GÖNDERİLMİŞ İSE
+                                if(typeof e.source != 'undefined' && Array.isArray(e.source))
+                                {
+                                    tmpThis.state.data.source = e.source;
+                                    tmpThis.state.data.datatable = new datatable();
+                                    tmpThis.state.data.datatable.import(e.source)
+                                    resolve({data: tmpThis.state.data.datatable.toArray()});
+                                    mresolve()
+                                }
+                                // EĞER DATA SOURCE A DATATABLE GÖNDERİLMİŞ İSE
+                                else if (typeof e.source != 'undefined' && e.source instanceof datatable)
+                                {
+                                    console.log(e.source)
+                                    tmpThis.state.data.source = e.source;
+                                    tmpThis.state.data.datatable = e.source;
+                                    await tmpThis.state.data.datatable.refresh();
+                                    resolve({data: tmpThis.state.data.datatable.toArray()});
+                                    mresolve()
+                                }
+                                // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
+                                else if (typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
+                                {                                
+                                    tmpThis.state.data.source = e.source;
+                                    tmpThis.state.data.datatable = new datatable();
+                                    tmpThis.state.data.datatable.sql = e.source.sql
+                                    tmpThis.state.data.datatable.selectCmd = e.source.select;
+                                    await tmpThis.state.data.datatable.refresh()
+                                    resolve({data: tmpThis.state.data.datatable.toArray()});
+                                    mresolve()
+                                }
+                                else
+                                {
+                                    resolve({data: []});
+                                    mresolve()
+                                }
+                            });
+                        }
+                    })
+                }
             });
-        }
+        });
+    }
+    getSelectedData()
+    {
+        return this.devGrid.getSelectedRowsData()
     }
     render()
     {
         return (
             <React.Fragment>
-                <DataGrid id={this.props.id} dataSource={this.state.store} showBorders={this.state.showBorders} 
+                <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} showBorders={this.state.showBorders} 
                     columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
                     allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
-                    onInitialized={this.onInitialized} onSelectionChanged={this.onSelectionChanged} onRowPrepared={this.onRowPrepared}
+                    onInitialized={this._onInitialized} onSelectionChanged={this._onSelectionChanged} 
                     columns={this.state.columns}
                     filterRow={this.state.filterRow}
                     headerFilter={this.state.headerFilter}

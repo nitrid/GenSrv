@@ -4,6 +4,8 @@ import NdPopUp from '../../core/react/devex/popup.js';
 import NdGrid from '../../core/react/devex/grid.js';
 import NdSelectBox from '../../core/react/devex/selectbox.js';
 import App from '../lib/app.js';
+import { datatable } from '../../core/core.js';
+
 export default class Test extends React.Component
 {
     constructor(props)
@@ -12,24 +14,38 @@ export default class Test extends React.Component
         this.core = App.instance.core;
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
     }
-    componentDidMount() 
+    async componentDidMount() 
     {
         //this.txtSeri.value = "aa"
         this.txtSira.value = "100"
         //this.pop.show()
-        this.test.setState(
+        // this.test.setState(
+        //     {
+        //         showBorders : true,
+        //         width : '100%',
+        //         height : '100%',
+        //         selection : {mode:"multiple"}
+        //     }
+        // )
+        let tmpTable = new datatable();
+        tmpTable.sql = this.core.sql;
+        tmpTable.selectCmd = 
+        {
+            query : "SELECT CODE,NAME FROM USERS "
+        }
+        
+        let source = 
+        {
+            source : 
             {
-                showBorders : true,
-                width : '100%',
-                height : '100%',
-                selection : {mode:"multiple"}
+                select : 
+                {
+                    query : "SELECT CODE,NAME FROM USERS ",
+                },
+                sql : this.core.sql
             }
-        )
-        this.test.refresh({query : {query:"SELECT * FROM USERS "}});
-
-        console.log({query : {query:"SELECT * FROM USERS "}})
-
-        //this.test.props.
+        }
+        await this.test.dataRefresh(source);
     }
     onSelectionChanged(e)
     {
@@ -37,10 +53,6 @@ export default class Test extends React.Component
         {
             this.txtSira.value = e.selectedRowsData[0].ROLE
         }
-    }
-    cellRender(data) 
-    {
-        return <div>{data.value} Allll</div>
     }
     render()
     {
@@ -75,8 +87,8 @@ export default class Test extends React.Component
                 </div>
                 <div className="row">
                     <div className="col-12">
-                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} core={this.core}
-                           
+                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
+                           selection={{mode:"multiple"}} //data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
                         > 
                         </NdGrid>
                     </div>
@@ -86,7 +98,7 @@ export default class Test extends React.Component
                     
                     </NdPopUp>
                 </div>
-          
+                <div>ALI KEMAL</div>
             </div>
         )
     }
