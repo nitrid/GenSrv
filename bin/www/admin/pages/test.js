@@ -27,12 +27,6 @@ export default class Test extends React.Component
         //         selection : {mode:"multiple"}
         //     }
         // )
-        let tmpTable = new datatable();
-        tmpTable.sql = this.core.sql;
-        tmpTable.selectCmd = 
-        {
-            query : "SELECT CODE,NAME FROM USERS "
-        }
         
         let source = 
         {
@@ -40,12 +34,28 @@ export default class Test extends React.Component
             {
                 select : 
                 {
-                    query : "SELECT CODE,NAME FROM USERS ",
+                    query : "SELECT * FROM USERS ",
+                },
+                update : 
+                {
+                    query : "UPDATE USERS SET NAME = @NAME WHERE CODE = @CODE",
+                    param : ['CODE:string|25','NAME:string|25']
+                },
+                insert : 
+                {
+                    query : "INSERT INTO USERS (CODE,NAME,PWD,ROLE,SHA,STATUS) VALUES (@CODE,@NAME,'','','',1) ",
+                    param : ['CODE:string|25','NAME:string|25']
                 },
                 sql : this.core.sql
             }
         }
+        
         await this.test.dataRefresh(source);
+        //await this.test.datatable.refresh();
+        setInterval(() => {
+            
+        }, 3000);
+        console.log(this.test.datatable)
     }
     onSelectionChanged(e)
     {
@@ -88,6 +98,28 @@ export default class Test extends React.Component
                     <div className="col-12">
                         <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
                            selection={{mode:"multiple"}} //data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
+                           editing=
+                           {
+                               {
+                                    mode:"batch",
+                                    allowUpdating:true,
+                                    allowAdding:true,
+                                    allowDeleting:true
+                               }
+                           }
+                           columns=
+                           {
+                               [
+                                    {
+                                        dataField:"CODE",
+                                        caption:"KODU"
+                                    },
+                                    {
+                                        dataField:"NAME",
+                                        caption:"ADI"
+                                    }
+                               ]
+                           }
                         > 
                         </NdGrid>
                     </div>

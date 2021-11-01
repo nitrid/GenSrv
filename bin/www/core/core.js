@@ -368,6 +368,7 @@ export class datatable
                 {
                     if(typeof TmpData.result.recordset != 'undefined')
                     {
+                        this.clear();
                         for (let i = 0; i < TmpData.result.recordset.length; i++) 
                         {                    
                             this.push(TmpData.result.recordset[i],false)   
@@ -409,6 +410,7 @@ export class datatable
                             }
                             for (let m = 0; m < this.updateCmd.param.length; m++) 
                             {
+                                console.log(this[i][this.updateCmd.param[m].split(':')[0]]);
                                 this.updateCmd.value.push(this[i][this.updateCmd.param[m].split(':')[0]]);
                             }
                         }
@@ -421,7 +423,6 @@ export class datatable
                             {
                                 continue;
                             }
-
                             for (let m = 0; m < this.insertCmd.param.length; m++) 
                             {
                                 this.insertCmd.value.push(this[i][this.insertCmd.param[m].split(':')[0]]);
@@ -436,7 +437,7 @@ export class datatable
 
                 if(typeof TmpUpdateData.result.err == 'undefined')
                 {
-                    //this.updateCmd.value = [];
+                    this.updateCmd.value = [];
                 }
                 else
                 {
@@ -489,7 +490,6 @@ export class datatable
                 tmp[Object.keys(this[0])[i]] = {notNull:false};
                 Object.assign(tmpObj,tmp)
             }
-
         }
         return tmpObj;
     }
