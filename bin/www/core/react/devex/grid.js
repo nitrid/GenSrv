@@ -2,8 +2,9 @@ import React from 'react';
 import DataGrid from 'devextreme-react/data-grid';
 import { datatable } from '../../core.js';
 import CustomStore from 'devextreme/data/custom_store';
+import Base from './base.js';
 
-export default class NdGrid extends React.Component
+export default class NdGrid extends Base
 {
     constructor(props)
     {
@@ -42,11 +43,6 @@ export default class NdGrid extends React.Component
         this._onSaved = this._onSaved.bind(this);
         this._onEditCanceling = this._onEditCanceling.bind(this);
         this._onEditCanceled = this._onEditCanceled.bind(this);
-
-        if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
-        {
-            this.props.parent[this.props.id] = this
-        }        
     }
     //#region Private
     _onInitialized(e) 

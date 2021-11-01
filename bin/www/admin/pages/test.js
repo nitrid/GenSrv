@@ -51,11 +51,6 @@ export default class Test extends React.Component
         }
         
         await this.test.dataRefresh(source);
-        //await this.test.datatable.refresh();
-        setInterval(() => {
-            
-        }, 3000);
-        console.log(this.test.datatable)
     }
     onSelectionChanged(e)
     {
