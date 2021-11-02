@@ -321,6 +321,8 @@ export class datatable
         this.updateCmd;
         this.deleteCmd;
         
+        this.sql = core.instance.sql;
+
         if(arguments.length == 1 && typeof arguments[0] == 'string')
         {
             this.name = arguments[0];
@@ -337,7 +339,6 @@ export class datatable
         else
         {
             this.name = '';
-            this.sql = core.instance.sql;
         }
     }     
     push(pItem,pIsNew)

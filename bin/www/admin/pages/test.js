@@ -50,6 +50,19 @@ export default class Test extends React.Component
             }
         }
         await this.test.dataRefresh(source);
+
+        let tmp = 
+        {
+            source:
+            {
+                select : 
+                {
+                    query : "SELECT CODE,NAME FROM USERS ",
+                },
+                sql : this.core.sql
+            }
+        }
+        await this.sbDepo.dataRefresh(tmp)
     }
     onSelectionChanged(e)
     {
@@ -80,12 +93,13 @@ export default class Test extends React.Component
                 <div className="row">
                     <div className="col-4">
                         <NdSelectBox 
-                        parent={this}                            //
-                        id = "sbDepo"                            //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
-                        displayExpr = "KEY"                      //KEY - ZORUNLU ALAN
-                        valueExpr = "VALUE"                      //VALUE - ZORUNLU ALAN
-                        defaultValue = "002"                     //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
-                        store = {[{"KEY":"MAHİR","VALUE":"001"},{"KEY":"FURKAN","VALUE":"002"}]} 
+                        parent={this}                               //
+                        id = "sbDepo"                               //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
+                        displayExpr = "NAME"                        //KEY - ZORUNLU ALAN
+                        valueExpr = "CODE"      
+                        Nbkey = "CODE"                             //VALUE - ZORUNLU ALAN
+                        defaultValue = "Test"                      //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
+                        // store = {[{"KEY":"MAHİR","VALUE":"001"},{"KEY":"FURKAN","VALUE":"002"}]} 
                         option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
                     </div>
                 </div>

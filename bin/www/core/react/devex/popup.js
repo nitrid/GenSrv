@@ -1,9 +1,9 @@
 import React from 'react';
 import { Popup, Position, ToolbarItem } from 'devextreme-react/popup';
 import ScrollView from 'devextreme-react/scroll-view';
-import NdBase from './base.js';
+import Base from './base.js';
 
-export default class NdPopUp extends NdBase
+export default class NdPopUp extends Base
 {
     constructor(props)
     {

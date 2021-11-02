@@ -1,8 +1,8 @@
 import React from 'react';
 import TextBox from 'devextreme-react/text-box';
-import NdBase from './base.js';
+import Base from './base.js';
 
-export default class NdTextBox extends NdBase
+export default class NdTextBox extends Base
 {
     constructor(props)
     {

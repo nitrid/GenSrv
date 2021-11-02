@@ -76,6 +76,7 @@ export default class NdBase extends React.Component
                 {
                     store : new CustomStore(
                     {
+                        key: tmpThis.props.Nbkey,
                         load: () =>
                         {                        
                             return new Promise(async resolve => 
@@ -155,6 +156,12 @@ export default class NdBase extends React.Component
                                 resolve()                                
                             });
                         },
+                        byKey: function (e) 
+                        {  
+                            let x = {}
+                            x[tmpThis.props.Nbkey] = e
+                            return x
+                        }  
                     })
                 }
             });
