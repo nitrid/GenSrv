@@ -542,6 +542,10 @@ export class param
     }
     
 }
+export class access 
+{
+    
+}
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
 //* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
 Number.prototype.rateInc = function(pRate,pDigit)
