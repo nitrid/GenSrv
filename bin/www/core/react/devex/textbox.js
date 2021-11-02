@@ -1,7 +1,8 @@
 import React from 'react';
 import TextBox from 'devextreme-react/text-box';
+import NdBase from './base.js';
 
-export default class NdTextBox extends React.Component
+export default class NdTextBox extends NdBase
 {
     constructor(props)
     {
@@ -9,7 +10,7 @@ export default class NdTextBox extends React.Component
         
         this.state = 
         {
-            value : '',
+            value : this.param.get().VALUE,
             option : typeof props.option == 'undefined' ? undefined :
             {
                 title : props.option.title,
@@ -17,23 +18,9 @@ export default class NdTextBox extends React.Component
                 showClearButton : typeof props.option.showClearButton == 'undefined' ? false : true
             }
         }
-        //PARAMETRE ELEMENT E YANSITILIYOR.
-        if(typeof props.param != 'undefined' && props.param.length > 0 && typeof props.id != 'undefined')
-        {
-            let tmp = props.param.filter(x => x.ELEMENT_ID === props.id)
-            if(tmp.length > 0)
-            {
-                this.state.value = tmp[0].VALUE
-            }
-        }
         
         this.onValueChanged = this.onValueChanged.bind(this)
         this.onEnterKey = this.onEnterKey.bind(this)
-        
-        if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
-        {
-            this.props.parent[this.props.id] = this
-        }
     }
     get value()
     {

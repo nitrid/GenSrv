@@ -1,8 +1,9 @@
 import React from 'react';
 import { Popup, Position, ToolbarItem } from 'devextreme-react/popup';
 import ScrollView from 'devextreme-react/scroll-view';
+import NdBase from './base.js';
 
-export default class NdPopUp extends React.Component
+export default class NdPopUp extends NdBase
 {
     constructor(props)
     {
@@ -28,11 +29,6 @@ export default class NdPopUp extends React.Component
         
         this.onHiding = this.onHiding.bind(this);
         this.setOffset = this.setOffset.bind(this);
-
-        if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
-        {
-            this.props.parent[this.props.id] = this
-        }
     }
     show()
     {

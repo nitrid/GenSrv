@@ -39,9 +39,7 @@ export default class NdGrid extends Base
         this._onSaving = this._onSaving.bind(this);
         this._onSaved = this._onSaved.bind(this);
         this._onEditCanceling = this._onEditCanceling.bind(this);
-        this._onEditCanceled = this._onEditCanceled.bind(this);
-
-        console.log(this.props)
+        this._onEditCanceled = this._onEditCanceled.bind(this);                
     }
     //#region Private
     _onInitialized(e) 
@@ -140,15 +138,6 @@ export default class NdGrid extends Base
         }
     }
     //#endregion
-    get datatable()
-    {
-        if(typeof this.state.data == 'undefined' || typeof this.state.data.datatable == 'undefined')
-        {
-            return undefined;
-        }
-
-        return this.state.data.datatable;
-    }
     async componentDidMount() 
     {
         if(typeof this.state.data != 'undefined')

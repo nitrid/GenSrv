@@ -49,7 +49,6 @@ export default class Test extends React.Component
                 sql : this.core.sql
             }
         }
-        
         await this.test.dataRefresh(source);
     }
     onSelectionChanged(e)
@@ -69,7 +68,7 @@ export default class Test extends React.Component
                     </div>
                     <div className="col-3">
                         <NdTextBox id="txtSeri" parent={this} option={{title:"Seri :",titleAlign:"left"}}
-                            lang={"tr"} param={this.param} auth={""} />
+                            lang={"tr"} param={this.param} access={this.access} />
                     </div>
                     <div className="col-3">
                         <NdTextBox id="txtSira" parent={this}/>

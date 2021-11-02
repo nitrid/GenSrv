@@ -314,17 +314,31 @@ export class dataset
 }
 export class datatable
 {    
-    constructor(pName)
+    constructor()
     {        
         this.selectCmd;
         this.insertCmd;
         this.updateCmd;
         this.deleteCmd;
         
-        if(typeof pName != 'undefined')
+        if(arguments.length == 1 && typeof arguments[0] == 'string')
+        {
             this.name = pName;
-        
-        this.sql = core.instance.sql;
+        }
+        else if(arguments.length == 1 && arguments[0] instanceof sql)
+        {
+            this.sql = arguments[0];
+        }
+        else if(arguments.length == 2 && typeof arguments[0] == 'string' && arguments[1] instanceof sql)
+        {
+            this.name = arguments[0];
+            this.sql = arguments[1];
+        }
+        else
+        {
+            this.name = '';
+            this.sql = core.instance.sql;
+        }
     }     
     push(pItem,pIsNew)
     {     
@@ -447,7 +461,7 @@ export class datatable
                     if(this[i].stat == 'edit')
                     {
                         Object.setPrototypeOf(this[i],{stat:''})
-                        
+
                         if(typeof this.updateCmd != 'undefined')
                         {
                             if(typeof this.updateCmd.param == 'undefined')
@@ -510,6 +524,23 @@ export class datatable
         }
         return tmpObj;
     }
+}
+export class param
+{
+    constructor()
+    {
+        if(arguments.length > 0)
+        {
+            this.sql = arguments[0];
+        }
+        else
+        {
+            this.sql = core.instance.sql;
+        }
+
+        this.datatable = new datatable()
+    }
+    
 }
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
 //* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
