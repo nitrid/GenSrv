@@ -323,7 +323,7 @@ export class datatable
         
         if(arguments.length == 1 && typeof arguments[0] == 'string')
         {
-            this.name = pName;
+            this.name = arguments[0];
         }
         else if(arguments.length == 1 && arguments[0] instanceof sql)
         {
@@ -544,7 +544,7 @@ export class param
 }
 export class access 
 {
-    
+
 }
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
 //* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
