@@ -13,6 +13,8 @@ export default class Test extends React.Component
         super(props)
         this.core = App.instance.core;
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
+        
+        console.log(this.param.datatable.filter(x => x.ELEMENT_ID == 'txtSeri'))
     }
     async componentDidMount() 
     {

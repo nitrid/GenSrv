@@ -539,10 +539,34 @@ export class param
             this.sql = core.instance.sql;
         }
 
-        this.datatable = new datatable()
+        this.datatable = new datatable()        
     }
-    
-}
+    getDb()
+    {
+        return new Promise(async resolve => 
+        {
+            if(arguments.length == 1 && typeof arguments[0] == 'object')
+            {
+                this.datatable.sql = this.sql;
+                this.datatable.selectCmd = 
+                {
+                    query : "SELECT * FROM PARAM WHERE PAGE_ID = @PAGE_ID AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND ((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = ''))",
+                    param : ['PAGE_ID:string|25','APP:string|50','USERS:string|25','TYPE:int','SPECIAL:string|150'],
+                    value : [
+                                typeof arguments[0].page_id == 'undefined' ? '' : arguments[0].page_id, 
+                                typeof arguments[0].app == 'undefined' ? '' : arguments[0].app,
+                                typeof arguments[0].user == 'undefined' ? '' : arguments[0].user,
+                                typeof arguments[0].type == 'undefined' ? -1 : arguments[0].type,
+                                typeof arguments[0].special == 'undefined' ? '' : arguments[0].special
+                            ]
+                } 
+
+                await this.datatable.refresh();
+                resolve();
+            }
+        });
+    }
+    }
 export class access 
 {
 

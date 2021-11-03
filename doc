@@ -106,8 +106,9 @@ on('Login',(pResult) => {pResult = {result:[*Login Data*],socket:socket}})
 --------------------------------------------------------------------------------------------------------
 # PARAM
 --------------------------------------------------------------------------------------------------------
-TYPE = 0 => TEXT
-TYPE = 1 => ARRAY
-TYPE = 2 => OBJECT
-TYPE = 3 => FUNCTION
+TYPE = 0 => SİSTEM PARAMETRE
+TYPE = 1 => EVRAK PARAMETRE
+TYPE = 2 => EVRAK ELEMENT PARAMETRE
 --------------------------------------------------------------------------------------------------------
+- PARAM CLASS İÇERİSİNDE getDb FONKSİYONUNA PARAMETRE OLARAK OBJE VERİLİR OBJE İÇERİĞİ ŞÖYLEDİR ;
+	{page_id:'',app:'',user:'',type:-1,special:''}
