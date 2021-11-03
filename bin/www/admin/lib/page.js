@@ -22,20 +22,20 @@ export default class Page extends React.Component
       // }
       // await tmpParam.refresh()      
 
-      let tmpAccess = new datatable('ACCESS')
-      tmpAccess.selectCmd = 
-      {
-        query : "SELECT * FROM ACCESS WHERE PAGE_ID = @PAGE_ID AND USERS = @USERS AND APP = @APP",
-        param : ['PAGE_ID:string|25','USERS:string|25','APP:string|50'],
-        value : [props.data.id,App.instance.core.auth.data.CODE,'ADMIN']
-      }
-      await tmpAccess.refresh()
+      // let tmpAccess = new datatable('ACCESS')
+      // tmpAccess.selectCmd = 
+      // {
+      //   query : "SELECT * FROM ACCESS WHERE PAGE_ID = @PAGE_ID AND USERS = @USERS AND APP = @APP",
+      //   param : ['PAGE_ID:string|25','USERS:string|25','APP:string|50'],
+      //   value : [props.data.id,App.instance.core.auth.data.CODE,'ADMIN']
+      // }
+      // await tmpAccess.refresh()
 
       let tmpPagePrm = new param();
-      await tmpPagePrm.getDb({page_id:props.data.id,app:'ADMIN'})
+      await tmpPagePrm.getDbData({page_id:props.data.id,app:'ADMIN'})
 
       obj.default.prototype.param = tmpPagePrm
-      obj.default.prototype.access = tmpAccess
+      //obj.default.prototype.access = tmpAccess
       obj.default.prototype.user = this.core.auth.data
       return obj;
     }))

@@ -541,7 +541,7 @@ export class param
 
         this.datatable = new datatable()        
     }
-    getDb()
+    getDbData()
     {
         return new Promise(async resolve => 
         {
@@ -550,23 +550,43 @@ export class param
                 this.datatable.sql = this.sql;
                 this.datatable.selectCmd = 
                 {
-                    query : "SELECT * FROM PARAM WHERE PAGE_ID = @PAGE_ID AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND ((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = ''))",
-                    param : ['PAGE_ID:string|25','APP:string|50','USERS:string|25','TYPE:int','SPECIAL:string|150'],
+                    query : "SELECT * FROM PARAM WHERE PAGE_ID = @PAGE_ID AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
+                            "((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT_ID = @ELEMENT_ID) OR (@ELEMENT_ID = ''))" ,
+                    param : ['PAGE_ID:string|25','APP:string|50','USERS:string|25','TYPE:int','SPECIAL:string|150','ELEMENT_ID:string|250'],
                     value : [
                                 typeof arguments[0].page_id == 'undefined' ? '' : arguments[0].page_id, 
                                 typeof arguments[0].app == 'undefined' ? '' : arguments[0].app,
                                 typeof arguments[0].user == 'undefined' ? '' : arguments[0].user,
                                 typeof arguments[0].type == 'undefined' ? -1 : arguments[0].type,
-                                typeof arguments[0].special == 'undefined' ? '' : arguments[0].special
+                                typeof arguments[0].special == 'undefined' ? '' : arguments[0].special,
+                                typeof arguments[0].element_id == 'undefined' ? '' : arguments[0].element_id
                             ]
                 } 
 
                 await this.datatable.refresh();
-                resolve();
+                resolve(this);
             }
         });
     }
+    filter()
+    {
+        if(arguments.length == 1 && typeof arguments[0] == 'object')
+        {
+            if(typeof this.datatable != 'undefined' && this.datatable.length > 0)
+            {
+                let tmpData = this.datatable.toArray();
+                for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
+                {
+                    let tmpKey = Object.keys(arguments[0])[i]
+                    let tmpValue = Object.values(arguments[0])[i]
+                    console.log(tmpKey + ' - ' + tmpValue)
+                    tmpData = tmpData.filter(x => x[tmpKey] == tmpValue)
+                    console.log(tmpData)
+                }
+            }
+        }
     }
+}
 export class access 
 {
 
