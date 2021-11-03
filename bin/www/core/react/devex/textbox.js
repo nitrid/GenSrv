@@ -10,7 +10,7 @@ export default class NdTextBox extends Base
         
         this.state = 
         {
-            value : this.param.get().VALUE,
+            value : '', //this.param.get().VALUE,
             option : typeof props.option == 'undefined' ? undefined :
             {
                 title : props.option.title,

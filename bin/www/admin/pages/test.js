@@ -15,7 +15,10 @@ export default class Test extends React.Component
         //this.sysprm = this.param.
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
-        this.param.filter({ELEMENT_ID:'txtSeri',ID:'VALUE'})
+        console.log(this.param.filter({ELEMENT_ID:'txtSeri'}).getValue(0))
+        this.param.filter({ELEMENT_ID:'txtSeri'}).setValue()
+
+        console.log(this.param)
     }
     async componentDidMount() 
     {

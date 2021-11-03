@@ -526,20 +526,22 @@ export class datatable
         return tmpObj;
     }
 }
-export class param
+export class param extends datatable
 {
     constructor()
     {
-        if(arguments.length > 0)
-        {
-            this.sql = arguments[0];
-        }
-        else
-        {
-            this.sql = core.instance.sql;
-        }
+        super(arguments)
 
-        this.datatable = new datatable()        
+        // if(arguments.length > 0)
+        // {
+        //     this.sql = arguments[0];
+        // }
+        // else
+        // {
+        //     this.sql = core.instance.sql;
+        // }
+        console.log(this)
+        //this.datatable = new datatable()        
     }
     getDbData()
     {
@@ -547,8 +549,7 @@ export class param
         {
             if(arguments.length == 1 && typeof arguments[0] == 'object')
             {
-                this.datatable.sql = this.sql;
-                this.datatable.selectCmd = 
+                this.selectCmd = 
                 {
                     query : "SELECT * FROM PARAM WHERE PAGE_ID = @PAGE_ID AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
                             "((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT_ID = @ELEMENT_ID) OR (@ELEMENT_ID = ''))" ,
@@ -563,7 +564,7 @@ export class param
                             ]
                 } 
 
-                await this.datatable.refresh();
+                await this.refresh();
                 resolve(this);
             }
         });
@@ -572,24 +573,63 @@ export class param
     {
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
-            if(typeof this.datatable != 'undefined' && this.datatable.length > 0)
+            if(typeof this.length > 0)
             {
-                let tmpData = this.datatable.toArray();
+                let tmpData = this.toArray();
                 for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
                 {
                     let tmpKey = Object.keys(arguments[0])[i]
                     let tmpValue = Object.values(arguments[0])[i]
-                    console.log(tmpKey + ' - ' + tmpValue)
                     tmpData = tmpData.filter(x => x[tmpKey] == tmpValue)
-                    console.log(tmpData)
+                }
+                if(tmpData.length > 0)
+                {
+                    let tmpPrm = new param()
+                    tmpPrm.import(tmpData)
+                    return tmpPrm;
                 }
             }
         }
+        return this;
+    }
+    setValue()
+    {
+        this[0].VALUE = 111
+    }
+    getValue()
+    {
+        if(typeof this.length > 0)
+        {
+            // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
+            if(arguments.length == 0)
+            {
+                return this[0].VALUE
+            }
+            // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
+            else if(arguments.length == 1 && typeof arguments[0] == 'number')
+            {
+                try 
+                {
+                    return this[arguments[0]].VALUE
+                } catch (error) 
+                {
+                    console.log('error param.toValue() : ' + error)
+                }
+            }                    
+        }
+        return '';
     }
 }
 export class access 
 {
+    constructor()
+    {
 
+    }
+    access()
+    {
+        return 100;
+    }
 }
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
 //* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
