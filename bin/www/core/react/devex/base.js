@@ -7,55 +7,36 @@ export default class NdBase extends React.Component
     constructor(props)
     {
         super(props)
+
         this.state = 
         {
-            data : props.data,
-            param : props.param,
-            auth : props.auth,
-            lang : props.lang
+            data : props.data
         }
-        
+        // GÖRÜNÜR DURUMU. YETKİLENDİRME.
+        if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().visible != 'undefined')
+        {                
+            this.state.visible = this.props.access.getValue().visible
+        }
+        else
+        {
+            this.state.visible = true;
+        }
+        console.log(this.props.access)
+        // EDİT EDİLEBİLİRLİK DURUMU. YETKİLENDİRME.
+        if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().editable != 'undefined')
+        {
+            this.state.editable = this.props.access.getValue().editable ? false : true
+        }
+        else
+        {
+            this.state.editable = false;
+        }
+
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
             this.props.parent[this.props.id] = this
         }
     }
-    // BASE ÜZERİNDE PARAM YAPILDI GERİYE ELEMAN A AİT PARAMETRE DEĞERLERİ GETİRİLİYOR. İSTENİLİRSE BURASI GELİŞTİRİLEBİLİR. 
-    // BUNUN BENZERLERİNİ AUTH VE LANG İÇİN YAPILACAK. ŞİMDİLİK DURSUN BÖYLE. 
-    get param()
-    {    
-        // PARAM PROPERTYSİ İÇERİSİNDE OBJE İNŞA EDİLDİ GERİYE BU DÖNDÜRÜLÜYOR. BU CLASS YAPISINDA DA YAPILIRDI ARKADAŞLARA ARASINDAKİ FARKI GÖSTERMEK İÇİN 
-        // GEÇİCİ OLARAK YAPTIM. BURASI DEĞİŞECEK.
-        let tmp = 
-        {
-            get: function()
-            {
-                if(typeof this.data != 'undefined' && this.data.length > 0)
-                {
-                    // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
-                    if(arguments.length == 0)
-                    {
-                        return this.data[0]
-                    }
-                    // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
-                    else if(arguments.length == 1 && typeof arguments[0] == 'number')
-                    {
-                        return this.data[arguments[0]]
-                    }                    
-                }
-                return '';
-            }    
-        };
-        //********************************************************************************************************************************************* */
-        if(typeof this.props.param != 'undefined' && this.props.param.length > 0 && typeof this.props.id != 'undefined')
-        {            
-            tmp.data = this.props.param.filter(x => x.ELEMENT_ID === this.props.id)
-            
-            return tmp;
-        }
-
-        return tmp;
-    }    
     get datatable()
     {
         if(typeof this.state.data == 'undefined' || typeof this.state.data.datatable == 'undefined')

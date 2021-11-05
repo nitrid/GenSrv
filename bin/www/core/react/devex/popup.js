@@ -9,23 +9,20 @@ export default class NdPopUp extends Base
     {
         super(props);
         
-        this.state = 
-        {
-            visible : false,
-            type : typeof props.type == 'undefined' ? '' : props.type,
-            datasource : typeof props.datasource == 'undefined' ? undefined : props.datasource,
-            dragEnabled : typeof props.dragEnabled == 'undefined' ? false : props.dragEnabled,
-            closeOnOutsideClick : typeof props.closeOnOutsideClick == 'undefined' ? false : props.closeOnOutsideClick,
-            showCloseButton : typeof props.showCloseButton == 'undefined' ? false : props.showCloseButton,
-            showTitle : typeof props.showTitle == 'undefined' ? false : props.showTitle,
-            title : typeof props.title == 'undefined' ? '' : props.title,
-            container : typeof props.container == 'undefined' ? undefined : props.container,
-            width : typeof props.width == 'undefined' ? 'auto' : props.width,
-            height : typeof props.height == 'undefined' ? 'auto' : props.height,
-            at : typeof props.at == 'undefined' ? "center" : props.at,
-            my : typeof props.my == 'undefined' ? "center" : props.my,
-            of : typeof props.of == 'undefined' ? "" : props.of
-        }
+        this.state.visible = false
+        this.state.type = typeof props.type == 'undefined' ? '' : props.type
+        this.state.datasource = typeof props.datasource == 'undefined' ? undefined : props.datasource
+        this.state.dragEnabled = typeof props.dragEnabled == 'undefined' ? false : props.dragEnabled
+        this.state.closeOnOutsideClick = typeof props.closeOnOutsideClick == 'undefined' ? false : props.closeOnOutsideClick
+        this.state.showCloseButton = typeof props.showCloseButton == 'undefined' ? false : props.showCloseButton
+        this.state.showTitle = typeof props.showTitle == 'undefined' ? false : props.showTitle
+        this.state.title = typeof props.title == 'undefined' ? '' : props.title
+        this.state.container = typeof props.container == 'undefined' ? undefined : props.container
+        this.state.width = typeof props.width == 'undefined' ? 'auto' : props.width
+        this.state.height = typeof props.height == 'undefined' ? 'auto' : props.height
+        this.state.at = typeof props.at == 'undefined' ? "center" : props.at
+        this.state.my = typeof props.my == 'undefined' ? "center" : props.my
+        this.state.of = typeof props.of == 'undefined' ? "" : props.of
         
         this.onHiding = this.onHiding.bind(this);
         this.setOffset = this.setOffset.bind(this);

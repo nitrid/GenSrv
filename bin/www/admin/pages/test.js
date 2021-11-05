@@ -15,15 +15,19 @@ export default class Test extends React.Component
         //this.sysprm = this.param.
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
-        console.log(this.param.filter({ELEMENT_ID:'txtSeri'}).getValue(0))
-        this.param.filter({ELEMENT_ID:'txtSeri'}).setValue()
-
-        console.log(this.param)
+        console.log(this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE}))
+        this.param.filter({ELEMENT:'txtS'}).setValue({"KODU":"001"})
+        this.param.add({ID:"001",VALUE:"test"})
+        //this.param.filter({ELEMENT_ID:'txtSeri'}).setValue()
+        
     }
     async componentDidMount() 
     {
         //this.txtSeri.value = "aa"
         this.txtSira.value = "100"
+
+        //await this.param.save()
+        //console.log(this.param)
         //this.pop.show()
         // this.test.setState(
         //     {
@@ -34,28 +38,28 @@ export default class Test extends React.Component
         //     }
         // )
         
-        let source = 
-        {
-            source : 
-            {
-                select : 
-                {
-                    query : "SELECT * FROM USERS ",
-                },
-                update : 
-                {
-                    query : "UPDATE USERS SET NAME = @NAME WHERE CODE = @CODE",
-                    param : ['CODE:string|25','NAME:string|25']
-                },
-                insert : 
-                {
-                    query : "INSERT INTO USERS (CODE,NAME,PWD,ROLE,SHA,STATUS) VALUES (@CODE,@NAME,'','','',1) ",
-                    param : ['CODE:string|25','NAME:string|25']
-                },
-                sql : this.core.sql
-            }
-        }
-        await this.test.dataRefresh(source);
+        // let source = 
+        // {
+        //     source : 
+        //     {
+        //         select : 
+        //         {
+        //             query : "SELECT * FROM USERS ",
+        //         },
+        //         update : 
+        //         {
+        //             query : "UPDATE USERS SET NAME = @NAME WHERE CODE = @CODE",
+        //             param : ['CODE:string|25','NAME:string|25']
+        //         },
+        //         insert : 
+        //         {
+        //             query : "INSERT INTO USERS (CODE,NAME,PWD,ROLE,SHA,STATUS) VALUES (@CODE,@NAME,'','','',1) ",
+        //             param : ['CODE:string|25','NAME:string|25']
+        //         },
+        //         sql : this.core.sql
+        //     }
+        // }
+        // await this.test.dataRefresh(source);
 
         let tmp = 
         {
@@ -87,7 +91,9 @@ export default class Test extends React.Component
                     </div>
                     <div className="col-3">
                         <NdTextBox id="txtSeri" parent={this} option={{title:"Seri :",titleAlign:"left"}}
-                            lang={"tr"} param={this.param} access={this.access} />
+                            lang={"tr"} 
+                            param={this.param.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} 
+                            access={this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} />
                     </div>
                     <div className="col-3">
                         <NdTextBox id="txtSira" parent={this}/>
@@ -112,7 +118,7 @@ export default class Test extends React.Component
                 <div className="row">
                     <div className="col-12">
                         <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
-                           selection={{mode:"multiple"}} //data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
+                           selection={{mode:"multiple"}} data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
                            editing=
                            {
                                {

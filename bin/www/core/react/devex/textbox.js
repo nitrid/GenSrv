@@ -8,17 +8,14 @@ export default class NdTextBox extends Base
     {
         super(props)
         
-        this.state = 
+        this.state.value = typeof props.param == 'undefined' ? '' : props.param.getValue().toString()
+        this.state.option = typeof props.option == 'undefined' ? undefined :
         {
-            value : '', //this.param.get().VALUE,
-            option : typeof props.option == 'undefined' ? undefined :
-            {
-                title : props.option.title,
-                titleAlign : props.option.titleAlign,
-                showClearButton : typeof props.option.showClearButton == 'undefined' ? false : true
-            }
-        }
-        
+            title : props.option.title,
+            titleAlign : props.option.titleAlign,
+            showClearButton : typeof props.option.showClearButton == 'undefined' ? false : true
+        }       
+
         this.onValueChanged = this.onValueChanged.bind(this)
         this.onEnterKey = this.onEnterKey.bind(this)
     }
@@ -47,13 +44,18 @@ export default class NdTextBox extends Base
     }
     render()
     {
+        // YETKİLENDİRMEDEN GELEN GÖRÜNÜR GÖRÜNMEZ DURUMU. DEĞER BASE DEN GELİYOR.
+        if(this.state.visible == false)
+        {
+            return <div></div>
+        }
         if(typeof this.state.option == 'undefined' || typeof this.state.option.title == 'undefined')
         {
             return (
                 <div className="dx-field">
                     <TextBox showClearButton={typeof this.state.option == 'undefined' ? false : this.state.option.showClearButton} height='fit-content' 
                         valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                        onEnterKey={this.onEnterKey} value={this.state.value}/>
+                        onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                 </div>
             )
         }
@@ -67,7 +69,7 @@ export default class NdTextBox extends Base
                         <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.option.title}</div>
                         <TextBox className="dx-field-value" showClearButton={this.state.option.showClearButton} height='fit-content' 
                             valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey}  value={this.state.value}/>
+                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                     </div>
                 )
             }
@@ -78,7 +80,7 @@ export default class NdTextBox extends Base
                         <div>{this.state.option.title}</div>
                         <TextBox showClearButton={this.state.option.showClearButton} height='fit-content' 
                             valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey}  value={this.state.value}/>
+                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                     </div>
                 )
             }
@@ -88,7 +90,7 @@ export default class NdTextBox extends Base
                     <div className="dx-field">                        
                         <TextBox showClearButton={this.state.option.showClearButton} height='fit-content' 
                             valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey}  value={this.state.value}/>
+                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                         <div>{this.state.option.title}</div>
                     </div>
                 )
@@ -100,7 +102,7 @@ export default class NdTextBox extends Base
                         <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.option.title}</div>
                         <TextBox className="dx-field-value" showClearButton={this.state.option.showClearButton} height='fit-content' 
                             valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey}  value={this.state.value}/>
+                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                     </div>
                 )
             }
@@ -110,7 +112,7 @@ export default class NdTextBox extends Base
                     <div className="dx-field">                        
                         <TextBox className="dx-field-value" showClearButton={this.state.option.showClearButton} height='fit-content' 
                             valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey}  value={this.state.value} style={{float:'left'}}/>
+                            onEnterKey={this.onEnterKey} value={this.state.value} style={{float:'left'}} disabled={this.state.editable}/>
                         <div className="dx-field-label" style={{float:'right',paddingLeft:'15px'}}>{this.state.option.title}</div>
                     </div>
                 )

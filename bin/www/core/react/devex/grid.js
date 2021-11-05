@@ -9,22 +9,21 @@ export default class NdGrid extends Base
         super(props);
 
         this.devGrid = null;
-        this.state = 
-        {            
-            showBorders : typeof props.showBorders == 'undefined' ? false : props.showBorders,
-            columnsAutoWidth : typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth,
-            allowColumnReordering : typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering,
-            allowColumnResizing : typeof props.allowColumnResizing == 'undefined' ? false : props.allowColumnResizing,
-            width : typeof props.width == 'undefined' ? undefined : props.width,
-            height : typeof props.height == 'undefined' ? undefined : props.height,
-            columns : typeof props.columns == 'undefined' ? undefined : props.columns,
-            filterRow : typeof props.filterRow == 'undefined' ? {} : props.filterRow,
-            headerFilter : typeof props.headerFilter == 'undefined' ? {} : props.headerFilter,
-            selection : typeof props.selection == 'undefined' ? {} : props.selection,
-            paging : typeof props.paging == 'undefined' ? {} : props.paging,
-            pager : typeof props.pager == 'undefined' ? {} : props.pager,
-            editing : typeof props.editing == 'undefined' ? {} : props.editing
-        }
+        
+        
+        this.state.showBorders = typeof props.showBorders == 'undefined' ? false : props.showBorders
+        this.state.columnsAutoWidth = typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth
+        this.state.allowColumnReordering = typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering
+        this.state.allowColumnResizing = typeof props.allowColumnResizing == 'undefined' ? false : props.allowColumnResizing
+        this.state.width = typeof props.width == 'undefined' ? undefined : props.width
+        this.state.height = typeof props.height == 'undefined' ? undefined : props.height
+        this.state.columns = typeof props.columns == 'undefined' ? undefined : props.columns
+        this.state.filterRow = typeof props.filterRow == 'undefined' ? {} : props.filterRow
+        this.state.headerFilter = typeof props.headerFilter == 'undefined' ? {} : props.headerFilter
+        this.state.selection = typeof props.selection == 'undefined' ? {} : props.selection
+        this.state.paging = typeof props.paging == 'undefined' ? {} : props.paging
+        this.state.pager = typeof props.pager == 'undefined' ? {} : props.pager
+        this.state.editing = typeof props.editing == 'undefined' ? {} : props.editing
 
         this._onInitialized = this._onInitialized.bind(this);
         this._onSelectionChanged = this._onSelectionChanged.bind(this);

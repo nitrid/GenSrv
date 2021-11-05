@@ -1,7 +1,7 @@
 import React from 'react';
 import LoadIndicator from 'devextreme-react/load-indicator';
 import App from '../lib/app.js';
-import {datatable,param} from '../../core/core.js';
+import {datatable,param,access} from '../../core/core.js';
 
 export default class Page extends React.Component
 {
@@ -31,11 +31,14 @@ export default class Page extends React.Component
       // }
       // await tmpAccess.refresh()
 
-      let tmpPagePrm = new param();
-      await tmpPagePrm.getDbData({page_id:props.data.id,app:'ADMIN'})
+      let tmpPrm = new param();
+      await tmpPrm.load({PAGE:props.data.id,APP:'ADMIN'})
 
-      obj.default.prototype.param = tmpPagePrm
-      //obj.default.prototype.access = tmpAccess
+      let tmpAcs = new access();
+      await tmpAcs.load({PAGE:props.data.id,APP:'ADMIN'})
+      
+      obj.default.prototype.param = tmpPrm
+      obj.default.prototype.access = tmpAcs
       obj.default.prototype.user = this.core.auth.data
       return obj;
     }))

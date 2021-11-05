@@ -421,8 +421,15 @@ export class datatable
                                 continue;
                             }
                             for (let m = 0; m < this.insertCmd.param.length; m++) 
-                            {                                
-                                this.insertCmd.value.push(this[i][this.insertCmd.param[m].split(':')[0]]);
+                            {         
+                                if(typeof this.insertCmd.dataprm == 'undefined')
+                                {
+                                    this.insertCmd.value.push(this[i][this.insertCmd.param[m].split(':')[0]]);
+                                }
+                                else
+                                {
+                                    this.insertCmd.value.push(this[i][this.insertCmd.dataprm[m]]);
+                                }                                                       
                             }
                         }
                     }
@@ -471,7 +478,14 @@ export class datatable
                             }
                             for (let m = 0; m < this.updateCmd.param.length; m++) 
                             {
-                                this.updateCmd.value.push(this[i][this.updateCmd.param[m].split(':')[0]]);
+                                if(typeof this.updateCmd.dataprm == 'undefined')
+                                {
+                                    this.updateCmd.value.push(this[i][this.updateCmd.param[m].split(':')[0]]);
+                                }
+                                else
+                                {
+                                    this.updateCmd.value.push(this[i][this.updateCmd.dataprm[m]]);
+                                }
                             }
                         }
                     }                    
@@ -511,7 +525,7 @@ export class datatable
             this.push(pData[i],false);
         }
     }
-    getSchema()
+    columns()
     {
         let tmpObj = {}
         if(this.length > 0)
@@ -528,22 +542,29 @@ export class datatable
 }
 export class param extends datatable
 {
-    constructor()
+    constructor(...args)
     {
-        super(arguments)
-
-        // if(arguments.length > 0)
-        // {
-        //     this.sql = arguments[0];
-        // }
-        // else
-        // {
-        //     this.sql = core.instance.sql;
-        // }
-        console.log(this)
-        //this.datatable = new datatable()        
+        super(...args)  
     }
-    getDbData()
+    add()
+    {
+        if(arguments.length == 1 && typeof arguments[0] == 'object')
+        {
+            let tmpItem =
+            {
+                TYPE:typeof arguments[0].TYPE == 'undefined' ? -1 : arguments[0].TYPE,
+                ID:typeof arguments[0].ID == 'undefined' ? '' : arguments[0].ID,
+                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : arguments[0].VALUE,
+                SPECIAL:typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
+                USERS:typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
+                ELEMENT:typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT,
+                APP:typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+            }
+            this.push(tmpItem)
+        }
+    }
+    load()
     {
         return new Promise(async resolve => 
         {
@@ -551,66 +572,98 @@ export class param extends datatable
             {
                 this.selectCmd = 
                 {
-                    query : "SELECT * FROM PARAM WHERE PAGE_ID = @PAGE_ID AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
-                            "((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT_ID = @ELEMENT_ID) OR (@ELEMENT_ID = ''))" ,
-                    param : ['PAGE_ID:string|25','APP:string|50','USERS:string|25','TYPE:int','SPECIAL:string|150','ELEMENT_ID:string|250'],
+                    query : "SELECT * FROM PARAM WHERE PAGE = @PAGE AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
+                            "((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT = @ELEMENT) OR (@ELEMENT = ''))" ,
+                    param : ['PAGE:string|25','APP:string|50','USERS:string|25','TYPE:int','SPECIAL:string|150','ELEMENT:string|250'],
                     value : [
-                                typeof arguments[0].page_id == 'undefined' ? '' : arguments[0].page_id, 
-                                typeof arguments[0].app == 'undefined' ? '' : arguments[0].app,
-                                typeof arguments[0].user == 'undefined' ? '' : arguments[0].user,
-                                typeof arguments[0].type == 'undefined' ? -1 : arguments[0].type,
-                                typeof arguments[0].special == 'undefined' ? '' : arguments[0].special,
-                                typeof arguments[0].element_id == 'undefined' ? '' : arguments[0].element_id
+                                typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE, 
+                                typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+                                typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                                typeof arguments[0].TYPE == 'undefined' ? -1 : arguments[0].TYPE,
+                                typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
+                                typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT
                             ]
                 } 
-
                 await this.refresh();
-                resolve(this);
             }
+            resolve(this);
+        });
+    }
+    save()
+    {
+        return new Promise(async resolve => 
+        {
+            this.insertCmd = 
+            {
+                query : "EXEC [dbo].[PRD_PARAM_INSERT] " + 
+                        "@TYPE = @PTYPE, " + 
+                        "@ID = @PID, " + 
+                        "@VALUE = @PVALUE, " + 
+                        "@SPECIAL = @PSPECIAL, " + 
+                        "@USERS = @PUSERS, " + 
+                        "@PAGE = @PPAGE, " + 
+                        "@ELEMENT = @PELEMENT, " + 
+                        "@APP = @PAPP ", 
+                param : ['PTYPE:int','PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
+                dataprm : ['TYPE','ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
+            } 
+
+            this.updateCmd = 
+            {
+                query : "EXEC [dbo].[PRD_PARAM_UPDATE] " + 
+                        "@GUID = @PGUID, " + 
+                        "@TYPE = @PTYPE, " + 
+                        "@ID = @PID, " + 
+                        "@VALUE = @PVALUE, " + 
+                        "@SPECIAL = @PSPECIAL, " + 
+                        "@USERS = @PUSERS, " + 
+                        "@PAGE = @PPAGE, " + 
+                        "@ELEMENT = @PELEMENT, " + 
+                        "@APP = @PAPP ", 
+                param : ['PGUID:string|50','PTYPE:int','PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
+                dataprm : ['GUID','TYPE','ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
+            } 
+            await this.insert();
+            await this.update(); 
+            resolve();
         });
     }
     filter()
     {
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
-            if(typeof this.length > 0)
+            if(this.length > 0)
             {
                 let tmpData = this.toArray();
                 for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
                 {
                     let tmpKey = Object.keys(arguments[0])[i]
                     let tmpValue = Object.values(arguments[0])[i]
-                    tmpData = tmpData.filter(x => x[tmpKey] == tmpValue)
+                    tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
                 }
-                if(tmpData.length > 0)
-                {
-                    let tmpPrm = new param()
-                    tmpPrm.import(tmpData)
-                    return tmpPrm;
-                }
+                
+                let tmpPrm = new param()
+                tmpPrm.import(tmpData)
+                return tmpPrm;
             }
         }
         return this;
     }
-    setValue()
-    {
-        this[0].VALUE = 111
-    }
     getValue()
     {
-        if(typeof this.length > 0)
+        if(this.length > 0)
         {
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
             if(arguments.length == 0)
             {
-                return this[0].VALUE
+                return JSON.parse(this[0].VALUE)
             }
             // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
             else if(arguments.length == 1 && typeof arguments[0] == 'number')
             {
                 try 
                 {
-                    return this[arguments[0]].VALUE
+                    return JSON.parse(this[arguments[0]].VALUE)
                 } catch (error) 
                 {
                     console.log('error param.toValue() : ' + error)
@@ -619,16 +672,142 @@ export class param extends datatable
         }
         return '';
     }
-}
-export class access 
-{
-    constructor()
+    setValue()
     {
-
+        // BU FONKSİYON 1 VEYA 2 PARAMETRE ALABİLİR. BİR PARAMETRE ALIRSA SIFIRINCI SATIRA PARAMETRE DEĞERİ SET EDİLİR. İKİ PARAMETRE ALIRSA BİRİNCİ PARAMETRE SATIR İKİNCİ PARAMETRE SET EDİLECEK DEĞERDİR.
+        if(this.length > 0)
+        {
+            // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRA SET EDİLİYOR
+            if(arguments.length == 1)
+            {
+                this[0].VALUE = JSON.stringify(arguments[0]);
+            }
+            // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
+            else if(arguments.length == 2 && typeof arguments[0] == 'number')
+            {
+                try 
+                {
+                    this[arguments[0]].VALUE = JSON.stringify(arguments[0])
+                } catch (error) 
+                {
+                    console.log('error param.toValue() : ' + error)
+                }
+            }
+        }
     }
-    access()
+}
+export class access extends datatable
+{
+    constructor(...args)
     {
-        return 100;
+        super(...args)
+    }
+    add()
+    {
+        if(arguments.length == 1 && typeof arguments[0] == 'object')
+        {
+            let tmpItem =
+            {
+                PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
+                ELEMENT:typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT,
+                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : arguments[0].VALUE,
+                SPECIAL:typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
+                USERS:typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                APP:typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+            }
+            this.push(tmpItem)
+        }
+    }
+    load()
+    {
+        return new Promise(async resolve => 
+        {
+            if(arguments.length == 1 && typeof arguments[0] == 'object')
+            {
+                this.selectCmd = 
+                {
+                    query : "SELECT * FROM ACCESS WHERE PAGE = @PAGE AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
+                            "((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT = @ELEMENT) OR (@ELEMENT = ''))" ,
+                    param : ['PAGE:string|25','APP:string|50','USERS:string|25','SPECIAL:string|150','ELEMENT:string|250'],
+                    value : [
+                                typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE, 
+                                typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+                                typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                                typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
+                                typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT
+                            ]
+                } 
+                await this.refresh();
+            }
+            resolve(this);
+        });
+    }
+    filter()
+    {
+        if(arguments.length == 1 && typeof arguments[0] == 'object')
+        {
+            if(this.length > 0)
+            {
+                let tmpData = this.toArray();
+                for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
+                {
+                    let tmpKey = Object.keys(arguments[0])[i]
+                    let tmpValue = Object.values(arguments[0])[i]
+                    tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
+                }
+
+                let tmpAcs = new access()
+                tmpAcs.import(tmpData)
+                return tmpAcs;
+            }
+        }
+        return this;
+    }
+    getValue()
+    {
+        if(this.length > 0)
+        {
+            // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
+            if(arguments.length == 0)
+            {
+                return JSON.parse(this[0].VALUE)
+            }
+            // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
+            else if(arguments.length == 1 && typeof arguments[0] == 'number')
+            {
+                try 
+                {
+                    return JSON.parse(this[arguments[0]].VALUE)
+                } catch (error) 
+                {
+                    console.log('error param.toValue() : ' + error)
+                }
+            }                    
+        }
+        return '';
+    }
+    setValue()
+    {
+        // BU FONKSİYON 1 VEYA 2 PARAMETRE ALABİLİR. BİR PARAMETRE ALIRSA SIFIRINCI SATIRA PARAMETRE DEĞERİ SET EDİLİR. İKİ PARAMETRE ALIRSA BİRİNCİ PARAMETRE SATIR İKİNCİ PARAMETRE SET EDİLECEK DEĞERDİR.
+        if(this.length > 0)
+        {
+            // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRA SET EDİLİYOR
+            if(arguments.length == 1)
+            {
+                this[0].VALUE = JSON.stringify(arguments[0]);
+            }
+            // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
+            else if(arguments.length == 2 && typeof arguments[0] == 'number')
+            {
+                try 
+                {
+                    this[arguments[0]].VALUE = JSON.stringify(arguments[0])
+                } catch (error) 
+                {
+                    console.log('error param.toValue() : ' + error)
+                }
+            }
+        }
     }
 }
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
