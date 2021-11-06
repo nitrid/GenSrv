@@ -21,7 +21,6 @@ export default class NdBase extends React.Component
         {
             this.state.visible = true;
         }
-        console.log(this.props.access)
         // EDİT EDİLEBİLİRLİK DURUMU. YETKİLENDİRME.
         if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().editable != 'undefined')
         {

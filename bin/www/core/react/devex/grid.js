@@ -10,7 +10,6 @@ export default class NdGrid extends Base
 
         this.devGrid = null;
         
-        
         this.state.showBorders = typeof props.showBorders == 'undefined' ? false : props.showBorders
         this.state.columnsAutoWidth = typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth
         this.state.allowColumnReordering = typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering
@@ -139,6 +138,28 @@ export default class NdGrid extends Base
     //#endregion
     async componentDidMount() 
     {
+        // KOLON ÜZERİNDEKİ YETKİLENDİRME DEĞERLERİNİN SET EDİLİYOR. 
+        let tmpColmnAcs = null;
+        console.log(this.props.access)
+        console.log(typeof this.props.access.getValue())
+        if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue() != 'undefined' && typeof this.props.access.getValue().columns != 'undefined')
+        {
+            tmpColmnAcs = this.props.access.getValue().columns;
+            console.log(tmpColmnAcs)
+            for (let i = 0; i < Object.keys(tmpColmnAcs).length; i++) 
+            {
+                if(typeof tmpColmnAcs[Object.keys(tmpColmnAcs)[i]].visible != 'undefined')
+                {
+                    this.devGrid.columnOption(Object.keys(tmpColmnAcs)[i],'visible',tmpColmnAcs[Object.keys(tmpColmnAcs)[i]].visible)
+                }
+                if(typeof tmpColmnAcs[Object.keys(tmpColmnAcs)[i]].editable != 'undefined')
+                {
+                    this.devGrid.columnOption(Object.keys(tmpColmnAcs)[i],'allowEditing',tmpColmnAcs[Object.keys(tmpColmnAcs)[i]].editable)
+                }
+            }
+        }
+        //********************************************************/
+
         if(typeof this.state.data != 'undefined')
         {
             await this.dataRefresh(this.state.data)                 
@@ -150,6 +171,12 @@ export default class NdGrid extends Base
     }
     render()
     {
+        // YETKİLENDİRMEDEN GELEN GÖRÜNÜR GÖRÜNMEZ DURUMU. DEĞER BASE DEN GELİYOR.
+        if(this.state.visible == false)
+        {
+            return <div></div>
+        }
+
         return (
             <React.Fragment>
                 <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} showBorders={this.state.showBorders} 

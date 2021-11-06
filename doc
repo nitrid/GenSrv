@@ -104,11 +104,70 @@ npm publish --access public
 --------------------------------------------------------------------------------------------------------
 on('Login',(pResult) => {pResult = {result:[*Login Data*],socket:socket}})  
 --------------------------------------------------------------------------------------------------------
-# PARAM
---------------------------------------------------------------------------------------------------------
-TYPE = 0 => SİSTEM PARAMETRE
-TYPE = 1 => EVRAK PARAMETRE
-TYPE = 2 => EVRAK ELEMENT PARAMETRE
---------------------------------------------------------------------------------------------------------
-- PARAM CLASS İÇERİSİNDE getDb FONKSİYONUNA PARAMETRE OLARAK OBJE VERİLİR OBJE İÇERİĞİ ŞÖYLEDİR ;
-	{page_id:'',app:'',user:'',type:-1,special:''}
+- class param
+	# YENİ SATIR KAYITI İÇİN KULLANILIR. save() FONKSİYONU İLE DB YE KAYIT EDİLİR.
+	- add(object) 
+	  object: {TYPE:int,ID:string,VALUE:string,SPECIAL:string,USERS:string,PAGE:string,ELEMENT:string,APP:string}
+	  return: undefined
+	# DB ÜZERİNDEN DEĞERLERİN GETİRİLMESİ İÇİN KULLANILIR.PAGE VE APP DEĞERLERİ ZORUNLUDUR. 
+	# DİĞER ALANLAR İSTEĞE BAĞLIDIR.
+	- load(object) 
+	  object:{PAGE:string,APP:string,USERS:string,TYPE:int,SPECIAL:string,ELEMENT:string}
+	  return: new Promise(new param())
+	# YENİ EKLENMİŞ SATIRLARIN VEYA GÜNCELLENMİŞ SATIRLARI TOPLU OLARAK DB YE KAYIT EDİLİR.
+	- save()
+	  return: new Promise(undefined)
+	# DB DEN GETİRİLMİŞ DATAYI JS İÇERİSİNDE FİLTRELEMEK İÇİN KULLANILIR.DATA İÇERİSİNDEKİ TÜM ALANLAR SÜZÜLEBİLİR.
+	# KULLANIM SIRASINDA 1,2,3.. KOLONLARI SÜZMEK İÇİN OBJE İÇERİSİNDE DEVAM ETTİRİLEBİLİR.
+	- filter(object) 
+	  object:{TYPE:int,ID:string,VALUE:string,SPECIAL:string,USERS:string,PAGE:string,ELEMENT:string,APP:string}
+	  return: new param()
+	# DATA İÇERİSİNDEKİ VALUE KOLONUN DEĞERİNİ GETİRİR.
+	- getValue() OR getValue(index)
+	  return string
+	# DATA İÇERİSİNDEKİ VALUE KOLONUN DEĞERİNİ DEĞİŞTİRİR.
+	- setValue()
+	  return undefined
+	# TABLO DETAYI
+	  - PARAM.VALUE KOLONU 3 TİP VERİ ALABİLİR. 
+	    1.string
+		2.array
+		3.object
+	  - TYPE = 0 => SİSTEM PARAMETRE
+		TYPE = 1 => EVRAK PARAMETRE
+		TYPE = 2 => ELEMENT PARAMETRE
+- class access
+	# YENİ SATIR KAYITI İÇİN KULLANILIR. save() FONKSİYONU İLE DB YE KAYIT EDİLİR.
+	- add(object) 
+	  object: {ID:string,VALUE:string,SPECIAL:string,USERS:string,PAGE:string,ELEMENT:string,APP:string}
+	  return: undefined
+	# DB ÜZERİNDEN DEĞERLERİN GETİRİLMESİ İÇİN KULLANILIR.PAGE VE APP DEĞERLERİ ZORUNLUDUR. 
+	# DİĞER ALANLAR İSTEĞE BAĞLIDIR.
+	- load(object) 
+	  object:{PAGE:string,APP:string,USERS:string,SPECIAL:string,ELEMENT:string}
+	  return: new Promise(new param())
+	# YENİ EKLENMİŞ SATIRLARIN VEYA GÜNCELLENMİŞ SATIRLARI TOPLU OLARAK DB YE KAYIT EDİLİR.
+	- save()
+	  return: new Promise(undefined)
+	# DB DEN GETİRİLMİŞ DATAYI JS İÇERİSİNDE FİLTRELEMEK İÇİN KULLANILIR.DATA İÇERİSİNDEKİ TÜM ALANLAR SÜZÜLEBİLİR.
+	# KULLANIM SIRASINDA 1,2,3.. KOLONLARI SÜZMEK İÇİN OBJE İÇERİSİNDE DEVAM ETTİRİLEBİLİR.
+	- filter(object) 
+	  object:{ID:string,VALUE:string,SPECIAL:string,USERS:string,PAGE:string,ELEMENT:string,APP:string}
+	  return: new param()
+	# DATA İÇERİSİNDEKİ VALUE KOLONUN DEĞERİNİ GETİRİR.
+	- getValue() OR getValue(index)
+	  return string
+	# DATA İÇERİSİNDEKİ VALUE KOLONUN DEĞERİNİ DEĞİŞTİRİR.
+	- setValue()
+	  return undefined
+	# TABLO DETAYI
+	  - PARAM.VALUE KOLONU 3 TİP VERİ ALABİLİR. 
+	    1.string
+		2.array
+		3.object
+	# NOT
+	  - TEXTBOX VE DİĞER ELEMENTLER İÇİN.
+	  ÖRN: {visible:true, editable:true}
+	  - GRID İÇERİSİNDEKİ KOLONLAR İÇİN.
+	  ÖRN: {visible:true, columns:{COLUMN_NAME:{visible:true,editable:true}}}
+	

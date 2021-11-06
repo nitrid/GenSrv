@@ -15,17 +15,18 @@ export default class Test extends React.Component
         //this.sysprm = this.param.
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
 
-        console.log(this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE}))
-        this.param.filter({ELEMENT:'txtS'}).setValue({"KODU":"001"})
-        this.param.add({ID:"001",VALUE:"test"})
+        //console.log(this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE}))
+        //this.param.filter({ELEMENT:'txtS'}).setValue({"KODU":"001"})
+        //this.param.add({ID:"001",VALUE:"test"})
         //this.param.filter({ELEMENT_ID:'txtSeri'}).setValue()
-        
+        // this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE}).setValue({"editable":true})
+        // this.access.add({ID:"001",VALUE:"test"})
     }
     async componentDidMount() 
     {
         //this.txtSeri.value = "aa"
-        this.txtSira.value = "100"
-
+        //this.txtSira.value = "100"
+        // await this.access.save()
         //await this.param.save()
         //console.log(this.param)
         //this.pop.show()
@@ -96,10 +97,14 @@ export default class Test extends React.Component
                             access={this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} />
                     </div>
                     <div className="col-3">
-                        <NdTextBox id="txtSira" parent={this}/>
+                        <NdTextBox id="txtSira" parent={this}
+                            param={this.param.filter({ELEMENT:'txtSira',USERS:this.user.CODE})} 
+                            access={this.access.filter({ELEMENT:'txtSira',USERS:this.user.CODE})} />
                     </div>
                     <div className="col-3">
-                        
+                        <NdTextBox id="txtBelge" parent={this}
+                                param={this.param.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
+                                access={this.access.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} />
                     </div>
                 </div>
                 <div className="row">
@@ -119,6 +124,8 @@ export default class Test extends React.Component
                     <div className="col-12">
                         <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
                            selection={{mode:"multiple"}} data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
+                           param={this.param.filter({ELEMENT:'test',USERS:this.user.CODE})} 
+                           access={this.access.filter({ELEMENT:'test',USERS:this.user.CODE})}
                            editing=
                            {
                                {

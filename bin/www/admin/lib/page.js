@@ -2,6 +2,8 @@ import React from 'react';
 import LoadIndicator from 'devextreme-react/load-indicator';
 import App from '../lib/app.js';
 import {datatable,param,access} from '../../core/core.js';
+import {prm} from '../meta/prm.js'
+import {acs} from '../meta/acs.js'
 
 export default class Page extends React.Component
 {
@@ -13,28 +15,10 @@ export default class Page extends React.Component
     this.page = React.lazy(() => import(props.data.path).then(async (obj)=>
     {
       //SAYFA YÜKLENMEDEN ÖNCE PARAMETRE, DİL, YETKİLENDİRME DEĞERLERİ GETİRİLİP CLASS PROTOTYPE A SET EDİLİYOR.
-      // let tmpParam = new datatable('PARAM')
-      // tmpParam.selectCmd = 
-      // {
-      //   query : "SELECT * FROM PARAM WHERE PAGE_ID = @PAGE_ID AND USERS = @USERS AND APP = @APP",
-      //   param : ['PAGE_ID:string|25','USERS:string|25','APP:string|50'],
-      //   value : [props.data.id,App.instance.core.auth.data.CODE,'ADMIN']
-      // }
-      // await tmpParam.refresh()      
-
-      // let tmpAccess = new datatable('ACCESS')
-      // tmpAccess.selectCmd = 
-      // {
-      //   query : "SELECT * FROM ACCESS WHERE PAGE_ID = @PAGE_ID AND USERS = @USERS AND APP = @APP",
-      //   param : ['PAGE_ID:string|25','USERS:string|25','APP:string|50'],
-      //   value : [props.data.id,App.instance.core.auth.data.CODE,'ADMIN']
-      // }
-      // await tmpAccess.refresh()
-
-      let tmpPrm = new param();
+      let tmpPrm = new param(prm);
       await tmpPrm.load({PAGE:props.data.id,APP:'ADMIN'})
 
-      let tmpAcs = new access();
+      let tmpAcs = new access(acs);
       await tmpAcs.load({PAGE:props.data.id,APP:'ADMIN'})
       
       obj.default.prototype.param = tmpPrm

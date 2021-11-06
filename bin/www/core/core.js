@@ -542,9 +542,15 @@ export class datatable
 }
 export class param extends datatable
 {
-    constructor(...args)
+    constructor()
     {
-        super(...args)  
+        super()  
+        this.meta = null;
+
+        if(arguments.length > 0)
+        {
+            this.meta = arguments[0]
+        }
     }
     add()
     {
@@ -554,7 +560,7 @@ export class param extends datatable
             {
                 TYPE:typeof arguments[0].TYPE == 'undefined' ? -1 : arguments[0].TYPE,
                 ID:typeof arguments[0].ID == 'undefined' ? '' : arguments[0].ID,
-                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : arguments[0].VALUE,
+                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : JSON.stringify(arguments[0].VALUE),
                 SPECIAL:typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
                 USERS:typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
                 PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
@@ -632,25 +638,42 @@ export class param extends datatable
     {
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
+            let tmpData = this.toArray();
+            let tmpMeta = [...this.meta];
+            //PARAMETRENİN META DATASI FİLİTRELENİYOR.
+            if(this.meta != null && this.meta.length > 0)
+            {
+                for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
+                {
+                    let tmpKey = Object.keys(arguments[0])[i]
+                    let tmpValue = Object.values(arguments[0])[i]
+
+                    if(tmpKey != "USERS")
+                    {
+                        tmpMeta = tmpMeta.filter(x => x[tmpKey] === tmpValue)
+                    }
+                }
+            }
+            //DATA FİLİTRELENİYOR.
             if(this.length > 0)
             {
-                let tmpData = this.toArray();
                 for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
                 {
                     let tmpKey = Object.keys(arguments[0])[i]
                     let tmpValue = Object.values(arguments[0])[i]
                     tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
-                }
-                
-                let tmpPrm = new param()
-                tmpPrm.import(tmpData)
-                return tmpPrm;
+                }                
             }
+
+            let tmpPrm = new param(tmpMeta)
+            tmpPrm.import(tmpData)
+            return tmpPrm;
         }
         return this;
     }
     getValue()
-    {
+    {        
+        // DB İÇERİSİNDEKİ PARAMETRE DEĞERİ GERİ DÖNDÜRÜLÜYOR.
         if(this.length > 0)
         {
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
@@ -670,6 +693,12 @@ export class param extends datatable
                 }
             }                    
         }
+        // DB İÇERİSİNDE KAYIT YOKSA META İÇERİSİNDEKİ DEĞER DÖNDÜRÜLÜYOR.
+        else if(this.length == 0 && this.meta != null && this.meta.length > 0)
+        {
+            return JSON.parse(JSON.stringify(this.meta[0].VALUE))
+        }
+
         return '';
     }
     setValue()
@@ -698,21 +727,29 @@ export class param extends datatable
 }
 export class access extends datatable
 {
-    constructor(...args)
+    constructor()
     {
-        super(...args)
+        super()
+
+        this.meta = null;
+
+        if(arguments.length > 0)
+        {
+            this.meta = arguments[0]
+        }
     }
     add()
     {
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
             let tmpItem =
-            {
-                PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
-                ELEMENT:typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT,
-                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : arguments[0].VALUE,
+            {   
+                ID:typeof arguments[0].ID == 'undefined' ? '' : arguments[0].ID,             
+                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : JSON.stringify(arguments[0].VALUE),
                 SPECIAL:typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
                 USERS:typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
+                ELEMENT:typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT,
                 APP:typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
             }
             this.push(tmpItem)
@@ -742,29 +779,83 @@ export class access extends datatable
             resolve(this);
         });
     }
+    save()
+    {
+        return new Promise(async resolve => 
+        {
+            this.insertCmd = 
+            {
+                query : "EXEC [dbo].[PRD_ACCESS_INSERT] " + 
+                        "@ID = @PID, " + 
+                        "@VALUE = @PVALUE, " + 
+                        "@SPECIAL = @PSPECIAL, " + 
+                        "@USERS = @PUSERS, " + 
+                        "@PAGE = @PPAGE, " + 
+                        "@ELEMENT = @PELEMENT, " + 
+                        "@APP = @PAPP ", 
+                param : ['PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
+                dataprm : ['ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
+            } 
+
+            this.updateCmd = 
+            {
+                query : "EXEC [dbo].[PRD_ACCESS_UPDATE] " + 
+                        "@GUID = @PGUID, " + 
+                        "@ID = @PID, " + 
+                        "@VALUE = @PVALUE, " + 
+                        "@SPECIAL = @PSPECIAL, " + 
+                        "@USERS = @PUSERS, " + 
+                        "@PAGE = @PPAGE, " + 
+                        "@ELEMENT = @PELEMENT, " + 
+                        "@APP = @PAPP ", 
+                param : ['PGUID:string|50','PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
+                dataprm : ['GUID','ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
+            } 
+            await this.insert();
+            await this.update(); 
+            resolve();
+        });
+    }
     filter()
     {
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
+            let tmpData = this.toArray();
+            let tmpMeta = [...this.meta];
+            //PARAMETRENİN META DATASI FİLİTRELENİYOR.
+            if(this.meta != null && this.meta.length > 0)
+            {
+                for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
+                {
+                    let tmpKey = Object.keys(arguments[0])[i]
+                    let tmpValue = Object.values(arguments[0])[i]
+
+                    if(tmpKey != "USERS")
+                    {
+                        tmpMeta = tmpMeta.filter(x => x[tmpKey] === tmpValue)
+                    }
+                }
+            }
+            //DATA FİLİTRELENİYOR.
             if(this.length > 0)
             {
-                let tmpData = this.toArray();
                 for (let i = 0; i < Object.keys(arguments[0]).length; i++) 
                 {
                     let tmpKey = Object.keys(arguments[0])[i]
                     let tmpValue = Object.values(arguments[0])[i]
                     tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
-                }
-
-                let tmpAcs = new access()
-                tmpAcs.import(tmpData)
-                return tmpAcs;
+                }                
             }
+
+            let tmpAcs = new access(tmpMeta)
+            tmpAcs.import(tmpData)
+            return tmpAcs;
         }
         return this;
     }
     getValue()
     {
+        // DB İÇERİSİNDEKİ PARAMETRE DEĞERİ GERİ DÖNDÜRÜLÜYOR.
         if(this.length > 0)
         {
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
@@ -784,6 +875,11 @@ export class access extends datatable
                 }
             }                    
         }
+         // DB İÇERİSİNDE KAYIT YOKSA META İÇERİSİNDEKİ DEĞER DÖNDÜRÜLÜYOR.
+         else if(this.length == 0 && this.meta != null && this.meta.length > 0)
+         {
+            return JSON.parse(JSON.stringify(this.meta[0].VALUE))
+         }
         return '';
     }
     setValue()
