@@ -68,7 +68,7 @@ export default class Test extends React.Component
             {
                 select : 
                 {
-                    query : "SELECT CODE,NAME FROM USERS ",
+                    query : "SELECT CODE,NAME,GUID FROM USERS ",
                 },
                 sql : this.core.sql
             }
@@ -110,19 +110,18 @@ export default class Test extends React.Component
                 <div className="row">
                     <div className="col-4">
                         <NdSelectBox 
-                        parent={this}                               //
-                        id = "sbDepo"                               //LISANSLAMA İŞLEMİ İÇİN KULLANILACAK
-                        displayExpr = "NAME"                        //KEY - ZORUNLU ALAN
+                        parent={this}                             
+                        id = "sbDepo"                             
+                        displayExpr = "NAME"                       
                         valueExpr = "CODE"      
-                        Nbkey = "CODE"                             //VALUE - ZORUNLU ALAN
-                        defaultValue = "Test"                      //{0} - '003' Şeklinde kullanılır.Index veya değer şeklinde verilir.
+                        defaultValue = "Ali"
                         // store = {[{"KEY":"MAHİR","VALUE":"001"},{"KEY":"FURKAN","VALUE":"002"}]} 
                         option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-12">
-                        <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
+                        {/* <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
                            selection={{mode:"multiple"}} data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
                            param={this.param.filter({ELEMENT:'test',USERS:this.user.CODE})} 
                            access={this.access.filter({ELEMENT:'test',USERS:this.user.CODE})}
@@ -149,7 +148,7 @@ export default class Test extends React.Component
                                ]
                            }
                         > 
-                        </NdGrid>
+                        </NdGrid> */}
                     </div>
                 </div>
                 <div>

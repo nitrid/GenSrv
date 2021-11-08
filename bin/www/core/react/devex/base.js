@@ -56,9 +56,8 @@ export default class NdBase extends React.Component
                 {
                     store : new CustomStore(
                     {
-                        key: tmpThis.props.Nbkey,
                         load: () =>
-                        {                        
+                        {         
                             return new Promise(async resolve => 
                             {        
                                 // EĞER FONKSİYONA PARAMETRE GÖNDERİLMEMİŞ İSE VE STATE DEĞİŞKENİNDE DAHA ÖNCEDEN ATANMIŞ DATA SOURCE VARSA GRİD REFRESH EDİLİYOR.
@@ -136,12 +135,22 @@ export default class NdBase extends React.Component
                                 resolve()                                
                             });
                         },
-                        byKey: function (e) 
-                        {  
+                        byKey: async function (e) 
+                        {
                             let x = {}
-                            x[tmpThis.props.Nbkey] = e
+                            x[tmpThis.props.valueExpr] = e
+
+                            if(tmpThis.props.defaultValue != "")                                                                            //defaultValue Dolu ise Datatable doldurma işlemi gerçekleştiriliyor.
+                            {
+                                await tmpThis.state.data.store.load().done(function () 
+                                {
+                                    let FilterData = tmpThis.state.data.datatable.toArray().filter(x => x[tmpThis.props.valueExpr] === e)   //Datatable içerisinde defaultValue parametresine göre filtreleme işlemi yapılıyor.
+                                    x[tmpThis.props.displayExpr] = FilterData[0][tmpThis.props.displayExpr]                                 //displayExpr objesine göre x objesine alan ekleniyor, valuesine filtreden gelen veri ekleniyor.
+                                });
+                            }
+
                             return x
-                        }  
+                        }   
                     })
                 }
             });
