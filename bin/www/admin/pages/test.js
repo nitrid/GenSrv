@@ -4,6 +4,7 @@ import NdPopUp from '../../core/react/devex/popup.js';
 import NdGrid from '../../core/react/devex/grid.js';
 import NdPopGrid from '../../core/react/devex/popgrid.js';
 import NdSelectBox from '../../core/react/devex/selectbox.js';
+import NdDatePicker from '../../core/react/devex/datepicker.js';
 import App from '../lib/app.js';
 import { datatable } from '../../core/core.js';
 
@@ -95,13 +96,12 @@ export default class Test extends React.Component
     {
         return (
             <div>
-                <TextBox className="dx-field-value" height='fit-content'  />
                 <div className="row">
                     <div className = "col-1">
                         <label>DENEME</label>
                     </div>
                     <div className="col-3">
-                        <NdTextBox id="txtSeri" parent={this} option={{title:"Seri :",titleAlign:"left"}}
+                        <NdTextBox id="txtSeri" parent={this} title={"Seri :"} titleAlign={"left"}
                             lang={"tr"} 
                             param={this.param.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} 
                             access={this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} />
@@ -112,7 +112,7 @@ export default class Test extends React.Component
                             access={this.access.filter({ELEMENT:'txtSira',USERS:this.user.CODE})} />
                     </div>
                     <div className="col-3">
-                        <NdTextBox id="txtBelge" parent={this}
+                        <NdDatePicker id="txtBelge" parent={this} title={"Tarih :"}
                                 param={this.param.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
                                 access={this.access.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} />
                     </div>

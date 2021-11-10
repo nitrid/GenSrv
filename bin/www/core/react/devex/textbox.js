@@ -9,15 +9,12 @@ export default class NdTextBox extends Base
         super(props)
         
         this.state.value = typeof props.param == 'undefined' ? '' : props.param.getValue().toString()
-        this.state.option = typeof props.option == 'undefined' ? undefined :
-        {
-            title : props.option.title,
-            titleAlign : props.option.titleAlign,
-            showClearButton : typeof props.option.showClearButton == 'undefined' ? false : true
-        }       
+        this.state.title = typeof props.title == 'undefined' ? '' : props.title
+        this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
+        this.state.showClearButton = typeof props.showClearButton == 'undefined' ? false : props.showClearButton
 
-        this.onValueChanged = this.onValueChanged.bind(this)
-        this.onEnterKey = this.onEnterKey.bind(this)
+        this._onValueChanged = this._onValueChanged.bind(this)
+        this._onEnterKey = this._onEnterKey.bind(this)
     }
     get value()
     {
@@ -31,7 +28,7 @@ export default class NdTextBox extends Base
     {
          
     }
-    onValueChanged(e) 
+    _onValueChanged(e) 
     {           
         this.value = e.value;
         if(typeof this.props.onValueChanged != 'undefined')
@@ -39,7 +36,7 @@ export default class NdTextBox extends Base
             this.props.onValueChanged();
         }
     }
-    onEnterKey()
+    _onEnterKey()
     {
         if(typeof this.props.onEnterKey != 'undefined')
         {
@@ -53,71 +50,71 @@ export default class NdTextBox extends Base
         {
             return <div></div>
         }
-        if(typeof this.state.option == 'undefined' || typeof this.state.option.title == 'undefined')
+        if(typeof this.state.title == 'undefined')
         {
             return (
                 <div className="dx-field">
-                    <TextBox showClearButton={typeof this.state.option == 'undefined' ? false : this.state.option.showClearButton} height='fit-content' 
-                        valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                        onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
+                    <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
+                        valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                        onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                 </div>
             )
         }
         else
         {
             // TITLE POZISYONU LEFT,RIGHT,TOP,BOTTOM 
-            if(typeof this.state.option.titleAlign == 'undefined')
+            if(typeof this.state.titleAlign == 'undefined')
             {
                 return (
                     <div className="dx-field">
-                        <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.option.title}</div>
-                        <TextBox className="dx-field-value" showClearButton={this.state.option.showClearButton} height='fit-content' 
-                            valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
+                        <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.title}</div>
+                        <TextBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
+                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                     </div>
                 )
             }
-            else if(this.state.option.titleAlign == 'top')
+            else if(this.state.titleAlign == 'top')
             {
                 return (
                     <div className="dx-field">
-                        <div>{this.state.option.title}</div>
-                        <TextBox showClearButton={this.state.option.showClearButton} height='fit-content' 
-                            valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
+                        <div>{this.state.title}</div>
+                        <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
+                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                     </div>
                 )
             }
-            else if(this.state.option.titleAlign == 'bottom')
+            else if(this.state.titleAlign == 'bottom')
             {
                 return (
                     <div className="dx-field">                        
-                        <TextBox showClearButton={this.state.option.showClearButton} height='fit-content' 
-                            valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
+                        <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
+                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                         <div>{this.state.option.title}</div>
                     </div>
                 )
             }
-            else if(this.state.option.titleAlign == 'left')
+            else if(this.state.titleAlign == 'left')
             {
                 return (
                     <div className="dx-field">
-                        <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.option.title}</div>
-                        <TextBox className="dx-field-value" showClearButton={this.state.option.showClearButton} height='fit-content' 
-                            valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey} value={this.state.value} disabled={this.state.editable}/>
+                        <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.title}</div>
+                        <TextBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
+                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}/>
                     </div>
                 )
             }
-            else if(this.state.option.titleAlign == 'right')
+            else if(this.state.titleAlign == 'right')
             {
                 return (
                     <div className="dx-field">                        
-                        <TextBox className="dx-field-value" showClearButton={this.state.option.showClearButton} height='fit-content' 
-                            valueChangeEvent="keyup" onValueChanged={this.onValueChanged} 
-                            onEnterKey={this.onEnterKey} value={this.state.value} style={{float:'left'}} disabled={this.state.editable}/>
-                        <div className="dx-field-label" style={{float:'right',paddingLeft:'15px'}}>{this.state.option.title}</div>
+                        <TextBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
+                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                            onEnterKey={this._onEnterKey} value={this.state.value} style={{float:'left'}} disabled={this.state.editable}/>
+                        <div className="dx-field-label" style={{float:'right',paddingLeft:'15px'}}>{this.state.title}</div>
                     </div>
                 )
             }
