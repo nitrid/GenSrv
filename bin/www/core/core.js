@@ -548,7 +548,7 @@ export class param extends datatable
         this.meta = null;
 
         if(arguments.length > 0)
-        {
+        {            
             this.meta = arguments[0]
         }
     }

@@ -17,5 +17,14 @@ export const prm =
         PAGE : "P0002",
         ELEMENT : "txtSira",
         APP : "ADMIN"
+    },
+    {
+        TYPE : 2,
+        ID :"txtBelge",
+        VALUE : "TTT",
+        SPECIAL : "",
+        PAGE : "P0002",
+        ELEMENT : "txtBelge",
+        APP : "ADMIN"
     }
 ]

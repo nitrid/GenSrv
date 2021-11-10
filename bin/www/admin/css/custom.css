@@ -31,3 +31,7 @@
     margin-left: 7px;
     font-size: 12px;
 }
+.dx-checkbox-container
+{
+    height: fit-content;
+}

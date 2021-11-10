@@ -1,5 +1,5 @@
 import React from 'react';
-import DataGrid from 'devextreme-react/data-grid';
+import DataGrid,{HeaderFilter} from 'devextreme-react/data-grid';
 import Base from './base.js';
 
 export default class NdGrid extends Base
@@ -7,10 +7,11 @@ export default class NdGrid extends Base
     constructor(props)
     {
         super(props);
-
+        
         this.devGrid = null;
         
         this.state.showBorders = typeof props.showBorders == 'undefined' ? false : props.showBorders
+        this.state.columnWidth = typeof props.columnWidth == 'undefined' ? undefined : props.columnWidth
         this.state.columnsAutoWidth = typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth
         this.state.allowColumnReordering = typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering
         this.state.allowColumnResizing = typeof props.allowColumnResizing == 'undefined' ? false : props.allowColumnResizing
@@ -37,7 +38,7 @@ export default class NdGrid extends Base
         this._onSaving = this._onSaving.bind(this);
         this._onSaved = this._onSaved.bind(this);
         this._onEditCanceling = this._onEditCanceling.bind(this);
-        this._onEditCanceled = this._onEditCanceled.bind(this);                
+        this._onEditCanceled = this._onEditCanceled.bind(this);         
     }
     //#region Private
     _onInitialized(e) 
@@ -137,15 +138,12 @@ export default class NdGrid extends Base
     }
     //#endregion
     async componentDidMount() 
-    {
+    {        
         // KOLON ÜZERİNDEKİ YETKİLENDİRME DEĞERLERİNİN SET EDİLİYOR. 
         let tmpColmnAcs = null;
-        console.log(this.props.access)
-        console.log(typeof this.props.access.getValue())
         if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue() != 'undefined' && typeof this.props.access.getValue().columns != 'undefined')
-        {
+        {            
             tmpColmnAcs = this.props.access.getValue().columns;
-            console.log(tmpColmnAcs)
             for (let i = 0; i < Object.keys(tmpColmnAcs).length; i++) 
             {
                 if(typeof tmpColmnAcs[Object.keys(tmpColmnAcs)[i]].visible != 'undefined')
@@ -158,13 +156,24 @@ export default class NdGrid extends Base
                 }
             }
         }
-        //********************************************************/
-
+        //********************************************************/        
         if(typeof this.state.data != 'undefined')
         {
             await this.dataRefresh(this.state.data)                 
         }
     }
+    componentWillReceiveProps(pProps) 
+    {
+        this.setState(
+            {
+                columnWidth : pProps.columnWidth,
+                showBorders : pProps.showBorders,
+                columnsAutoWidth : pProps.columnsAutoWidth,
+                allowColumnReordering : pProps.allowColumnReordering,
+                allowColumnResizing : pProps.allowColumnResizing
+            }
+        )
+    }  
     getSelectedData()
     {
         return this.devGrid.getSelectedRowsData()
@@ -177,9 +186,34 @@ export default class NdGrid extends Base
             return <div></div>
         }
 
-        return (
-            <React.Fragment>
-                <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} showBorders={this.state.showBorders} 
+        if(typeof this.state.columns == 'undefined')
+        {
+            return (
+                <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
+                    showBorders={this.state.showBorders} 
+                    columnWidth={this.state.columnWidth} 
+                    columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
+                    allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
+                    onInitialized={this._onInitialized} onSelectionChanged={this._onSelectionChanged} 
+                    onInitNewRow={this._onInitNewRow} onEditingStart={this._onEditingStart} onRowInserting={this._onRowInserting} onRowInserted={this._onRowInserted}
+                    onRowUpdating={this._onRowUpdating} onRowUpdated={this._onRowUpdated} onRowRemoving={this._onRowRemoving} onRowRemoved={this._onRowRemoved} 
+                    onSaving={this._onSaving} onSaved={this._onSaved} onEditCanceling={this._onEditCanceling} onEditCanceled={this._onEditCanceled}
+                    filterRow={this.state.filterRow}
+                    headerFilter={this.state.headerFilter}
+                    selection={this.state.selection}
+                    paging={this.state.paging}
+                    pager={this.state.pager}
+                    editing={this.state.editing} 
+                    >
+                </DataGrid>
+            )            
+        }
+        else
+        {
+            return (
+                <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
+                    showBorders={this.state.showBorders} 
+                    columnWidth={this.state.columnWidth}
                     columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
                     allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
                     onInitialized={this._onInitialized} onSelectionChanged={this._onSelectionChanged} 
@@ -195,7 +229,7 @@ export default class NdGrid extends Base
                     editing={this.state.editing} 
                     >
                 </DataGrid>
-            </React.Fragment>
-        )
+            )
+        }
     }
 }

@@ -2,9 +2,12 @@ import React from 'react';
 import NdTextBox from '../../core/react/devex/textbox.js';
 import NdPopUp from '../../core/react/devex/popup.js';
 import NdGrid from '../../core/react/devex/grid.js';
+import NdPopGrid from '../../core/react/devex/popgrid.js';
 import NdSelectBox from '../../core/react/devex/selectbox.js';
 import App from '../lib/app.js';
 import { datatable } from '../../core/core.js';
+
+import TextBox from 'devextreme-react/text-box';
 
 export default class Test extends React.Component
 {
@@ -14,8 +17,12 @@ export default class Test extends React.Component
         this.core = App.instance.core;
         //this.sysprm = this.param.
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
-
         //console.log(this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE}))
+        
+        //console.log(this.param)
+        //console.log(this.param.filter({ELEMENT:'txtSeri'}))
+
+        //this.param.filter({ELEMENT:'txtSeri'}).setValue("112233");
         //this.param.filter({ELEMENT:'txtS'}).setValue({"KODU":"001"})
         //this.param.add({ID:"001",VALUE:"test"})
         //this.param.filter({ELEMENT_ID:'txtSeri'}).setValue()
@@ -23,7 +30,8 @@ export default class Test extends React.Component
         // this.access.add({ID:"001",VALUE:"test"})
     }
     async componentDidMount() 
-    {
+    {        
+        this.popgrid.show()
         //this.txtSeri.value = "aa"
         //this.txtSira.value = "100"
         // await this.access.save()
@@ -62,18 +70,18 @@ export default class Test extends React.Component
         // }
         // await this.test.dataRefresh(source);
 
-        let tmp = 
-        {
-            source:
-            {
-                select : 
-                {
-                    query : "SELECT CODE,NAME,GUID FROM USERS ",
-                },
-                sql : this.core.sql
-            }
-        }
-        await this.sbDepo.dataRefresh(tmp)
+        // let tmp = 
+        // {
+        //     source:
+        //     {
+        //         select : 
+        //         {
+        //             query : "SELECT CODE,NAME,GUID FROM USERS ",
+        //         },
+        //         sql : this.core.sql
+        //     }
+        // }
+        // await this.sbDepo.dataRefresh(tmp)
     }
     onSelectionChanged(e)
     {
@@ -82,10 +90,12 @@ export default class Test extends React.Component
             this.txtSira.value = e.selectedRowsData[0].ROLE
         }
     }
+    
     render()
     {
         return (
             <div>
+                <TextBox className="dx-field-value" height='fit-content'  />
                 <div className="row">
                     <div className = "col-1">
                         <label>DENEME</label>
@@ -108,7 +118,7 @@ export default class Test extends React.Component
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-4">
+                    {/* <div className="col-4">
                         <NdSelectBox 
                         parent={this}                             
                         id = "sbDepo"                             
@@ -117,12 +127,13 @@ export default class Test extends React.Component
                         defaultValue = "Ali"
                         // store = {[{"KEY":"MAHİR","VALUE":"001"},{"KEY":"FURKAN","VALUE":"002"}]} 
                         option={{title:"Depo :",titleAlign:"left"}} ></NdSelectBox>
-                    </div>
+                    </div> */}
                 </div>
                 <div className="row">
                     <div className="col-12">
                         {/* <NdGrid id="test" parent={this} onSelectionChanged={this.onSelectionChanged} 
                            selection={{mode:"multiple"}} data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
+                           filterRow={{visible:true}} headerFilter={{visible:true}}
                            param={this.param.filter({ELEMENT:'test',USERS:this.user.CODE})} 
                            access={this.access.filter({ELEMENT:'test',USERS:this.user.CODE})}
                            editing=
@@ -152,11 +163,32 @@ export default class Test extends React.Component
                     </div>
                 </div>
                 <div>
-                    <NdPopUp id="pop" parent={this} showTitle={true} container={".dx-multiview-wrapper"} of={"#page"} width={'90%'} height={'90%'} title={'Bilgi'} showCloseButton={true}>
+                    {/* <NdPopUp id="pop" parent={this} showTitle={true} container={".dx-multiview-wrapper"} of={"#page"} width={'90%'} height={'90%'} title={'Bilgi'} showCloseButton={true} visible={true}>
                     
-                    </NdPopUp>
+                    </NdPopUp> */}
                 </div>
-                <div>ALI KEMAL</div>
+                <div>
+                    <NdPopGrid id="popgrid" parent={this} container={".dx-multiview-wrapper"} position={{of:"#page"}} width={'90%'} height={'90%'}
+                        showTitle={true} title={"Bilgi"} columnWidth={200}
+                        data={{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}}}
+                        param={this.param.filter({ELEMENT:'popgrid',USERS:this.user.CODE})} 
+                        access={this.access.filter({ELEMENT:'popgrid',USERS:this.user.CODE})}
+                        // columns=
+                        // {
+                        //     [
+                        //         {
+                        //             dataField:"ID",
+                        //             caption:"ID"
+                        //         },
+                        //         {
+                        //             dataField:"VALUE",
+                        //             caption:"VALUE"
+                        //         }
+                        //     ]
+                        // }
+                    >
+                    </NdPopGrid>
+                </div>
             </div>
         )
     }

@@ -14,7 +14,7 @@ export default class NdBase extends React.Component
         }
         // GÖRÜNÜR DURUMU. YETKİLENDİRME.
         if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().visible != 'undefined')
-        {                
+        {   
             this.state.visible = this.props.access.getValue().visible
         }
         else
@@ -57,9 +57,9 @@ export default class NdBase extends React.Component
                     store : new CustomStore(
                     {
                         load: () =>
-                        {         
+                        {  
                             return new Promise(async resolve => 
-                            {        
+                            {      
                                 // EĞER FONKSİYONA PARAMETRE GÖNDERİLMEMİŞ İSE VE STATE DEĞİŞKENİNDE DAHA ÖNCEDEN ATANMIŞ DATA SOURCE VARSA GRİD REFRESH EDİLİYOR.
                                 if(typeof e == 'undefined' && typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.source != 'undefined')
                                 {
@@ -67,9 +67,10 @@ export default class NdBase extends React.Component
                                     {
                                         source : tmpThis.state.data.source
                                     }
+                                    console.log(e)
                                 }
                                 // EĞER DATA SOURCE A DİZİ GÖNDERİLMİŞ İSE
-                                if(typeof e.source != 'undefined' && Array.isArray(e.source))
+                                if(typeof e != 'undefined' && typeof e.source != 'undefined' && Array.isArray(e.source))
                                 {
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = new datatable();
@@ -78,7 +79,7 @@ export default class NdBase extends React.Component
                                     mresolve()
                                 }
                                 // EĞER DATA SOURCE A DATATABLE GÖNDERİLMİŞ İSE
-                                else if (typeof e.source != 'undefined' && e.source instanceof datatable)
+                                else if (typeof e != 'undefined' && typeof e.source != 'undefined' && e.source instanceof datatable)
                                 {
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = e.source;
@@ -87,7 +88,7 @@ export default class NdBase extends React.Component
                                     mresolve()
                                 }
                                 // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
-                                else if (typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
+                                else if (typeof e != 'undefined' && typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
                                 {                
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = new datatable();

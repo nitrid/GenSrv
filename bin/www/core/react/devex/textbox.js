@@ -27,6 +27,10 @@ export default class NdTextBox extends Base
     {
         this.setState({value:e})
     }
+    componentDidMount()
+    {
+         
+    }
     onValueChanged(e) 
     {           
         this.value = e.value;

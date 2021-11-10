@@ -26,7 +26,7 @@ export const menu =
             },
             {
                 id: 'P0003',
-                text: 'Kullanıcı Ekle'
+                text: 'Kullanıcı Ekle',
             }
         ]
     },
