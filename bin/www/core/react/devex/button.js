@@ -16,6 +16,7 @@ export default class NdButton extends Base
         
         this._onClick = this._onClick.bind(this);
     }
+    //#region Private
     _onClick()
     {
         if(typeof this.props.onClick != 'undefined')
@@ -23,6 +24,7 @@ export default class NdButton extends Base
             this.props.onClick();
         }
     }
+    //#endregion
     render()
     {
         // YETKİLENDİRMEDEN GELEN GÖRÜNÜR GÖRÜNMEZ DURUMU. DEĞER BASE DEN GELİYOR.

@@ -7,14 +7,12 @@ export default class NdDatePicker extends Base
     constructor(props)
     {
         super(props)
-
-        this.state.value = typeof props.param == 'undefined' ? '' : props.param.getValue().toString()
+        
+        this.state.value = typeof props.param == 'undefined' ? new Date() : new Date(props.param.getValue().toString())
         this.state.title = typeof props.title == 'undefined' ? '' : props.title
         this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
         this.state.showClearButton = typeof props.showClearButton == 'undefined' ? false : props.showClearButton
         this.state.type = typeof props.type == 'undefined' ? 'date' : props.type
-
-        this.now = new Date();
 
         this._onValueChanged = this._onValueChanged.bind(this)
         this._onEnterKey = this._onEnterKey.bind(this)
@@ -48,10 +46,9 @@ export default class NdDatePicker extends Base
                     <DateBox showClearButton={this.state.showClearButton} 
                         height='fit-content' 
                         valueChangeEvent="keyup" 
-                        // value={this.state.value} 
+                        value={this.state.value} 
                         disabled={this.state.editable}
                         type={this.state.type}
-                        defaultValue={this.now}
                         onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}/>
                 </div>
             )
@@ -68,10 +65,9 @@ export default class NdDatePicker extends Base
                             showClearButton={this.state.showClearButton} 
                             height='fit-content' 
                             valueChangeEvent="keyup" 
-                            // value={this.state.value} 
+                            value={this.state.value} 
                             disabled={this.state.editable}
                             type={this.state.type}
-                            defaultValue={this.now}
                             onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}/>
                     </div>
                 )
@@ -84,10 +80,9 @@ export default class NdDatePicker extends Base
                         <DateBox showClearButton={this.state.showClearButton} 
                             height='fit-content' 
                             valueChangeEvent="keyup"
-                            // value={this.state.value} 
+                            value={this.state.value} 
                             disabled={this.state.editable}
                             type={this.state.type}
-                            defaultValue={this.now}
                             onEnterKey={this._onEnterKey}
                             onValueChanged={this._onValueChanged}/>
                     </div>
@@ -100,10 +95,9 @@ export default class NdDatePicker extends Base
                         <DateBox showClearButton={this.state.showClearButton} 
                             height='fit-content' 
                             valueChangeEvent="keyup" 
-                            // value={this.state.value} 
+                            value={this.state.value} 
                             disabled={this.state.editable}
                             type={this.state.type}
-                            defaultValue={this.now}
                             onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}/>
                         <div>{this.state.option.title}</div>
                     </div>
@@ -118,10 +112,9 @@ export default class NdDatePicker extends Base
                             showClearButton={this.state.showClearButton} 
                             height='fit-content' 
                             valueChangeEvent="keyup" 
-                            // value={this.state.value} 
+                            value={this.state.value} 
                             disabled={this.state.editable}
                             type={this.state.type}
-                            defaultValue={this.now}
                             onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}/>
                     </div>
                 )
@@ -132,11 +125,10 @@ export default class NdDatePicker extends Base
                     <div className="dx-field">                        
                         <DateBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
                             valueChangeEvent="keyup"  
-                            // value={this.state.value} 
+                            value={this.state.value} 
                             style={{float:'left'}} 
                             disabled={this.state.editable}
                             type={this.state.type}
-                            defaultValue={this.now}
                             onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}/>
                         <div className="dx-field-label" style={{float:'right',paddingLeft:'15px'}}>{this.state.title}</div>
                     </div>

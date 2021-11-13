@@ -21,12 +21,13 @@ export const menu =
         [
             {
                 id: 'P0002',
-                text: 'Kullanıcı Listesi',
-                path: '../pages/test.js'
+                text: 'Kullanıcılar',
+                path: '../pages/users.js'
             },
             {
                 id: 'P0003',
-                text: 'Kullanıcı Ekle',
+                text: 'Roller',
+                path: '../pages/test.js'
             }
         ]
     },

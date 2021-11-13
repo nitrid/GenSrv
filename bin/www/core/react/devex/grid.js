@@ -1,7 +1,8 @@
 import React from 'react';
-import DataGrid,{HeaderFilter} from 'devextreme-react/data-grid';
+import DataGrid,{Column,HeaderFilter} from 'devextreme-react/data-grid';
 import Base from './base.js';
 
+export {Column}
 export default class NdGrid extends Base
 {
     constructor(props)
@@ -10,13 +11,6 @@ export default class NdGrid extends Base
         
         this.devGrid = null;
         
-        this.state.showBorders = typeof props.showBorders == 'undefined' ? false : props.showBorders
-        this.state.columnWidth = typeof props.columnWidth == 'undefined' ? undefined : props.columnWidth
-        this.state.columnsAutoWidth = typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth
-        this.state.allowColumnReordering = typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering
-        this.state.allowColumnResizing = typeof props.allowColumnResizing == 'undefined' ? false : props.allowColumnResizing
-        this.state.width = typeof props.width == 'undefined' ? undefined : props.width
-        this.state.height = typeof props.height == 'undefined' ? undefined : props.height
         this.state.columns = typeof props.columns == 'undefined' ? undefined : props.columns
         this.state.filterRow = typeof props.filterRow == 'undefined' ? {} : props.filterRow
         this.state.headerFilter = typeof props.headerFilter == 'undefined' ? {} : props.headerFilter
@@ -190,21 +184,25 @@ export default class NdGrid extends Base
         {
             return (
                 <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
-                    showBorders={this.state.showBorders} 
-                    columnWidth={this.state.columnWidth} 
-                    columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
-                    allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
-                    onInitialized={this._onInitialized} onSelectionChanged={this._onSelectionChanged} 
-                    onInitNewRow={this._onInitNewRow} onEditingStart={this._onEditingStart} onRowInserting={this._onRowInserting} onRowInserted={this._onRowInserted}
-                    onRowUpdating={this._onRowUpdating} onRowUpdated={this._onRowUpdated} onRowRemoving={this._onRowRemoving} onRowRemoved={this._onRowRemoved} 
-                    onSaving={this._onSaving} onSaved={this._onSaved} onEditCanceling={this._onEditCanceling} onEditCanceled={this._onEditCanceled}
-                    filterRow={this.state.filterRow}
-                    headerFilter={this.state.headerFilter}
-                    selection={this.state.selection}
-                    paging={this.state.paging}
-                    pager={this.state.pager}
-                    editing={this.state.editing} 
-                    >
+                showBorders={this.props.showBorders} 
+                columnWidth={this.props.columnWidth} 
+                columnsAutoWidth={this.props.columnsAutoWidth} 
+                allowColumnReordering={this.props.allowColumnReordering} 
+                allowColumnResizing={this.props.allowColumnResizing} 
+                height={this.props.height} 
+                width={this.props.width}
+                onInitialized={this._onInitialized} onSelectionChanged={this._onSelectionChanged} 
+                onInitNewRow={this._onInitNewRow} onEditingStart={this._onEditingStart} onRowInserting={this._onRowInserting} onRowInserted={this._onRowInserted}
+                onRowUpdating={this._onRowUpdating} onRowUpdated={this._onRowUpdated} onRowRemoving={this._onRowRemoving} onRowRemoved={this._onRowRemoved} 
+                onSaving={this._onSaving} onSaved={this._onSaved} onEditCanceling={this._onEditCanceling} onEditCanceled={this._onEditCanceled}
+                filterRow={this.state.filterRow}
+                headerFilter={this.state.headerFilter}
+                selection={this.state.selection}
+                paging={this.state.paging}
+                pager={this.state.pager}
+                editing={this.state.editing} 
+                >
+                    {this.props.children}
                 </DataGrid>
             )            
         }
@@ -212,10 +210,13 @@ export default class NdGrid extends Base
         {
             return (
                 <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
-                    showBorders={this.state.showBorders} 
-                    columnWidth={this.state.columnWidth}
-                    columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
-                    allowColumnResizing={this.state.allowColumnResizing} height={this.state.height} width={this.state.width}
+                    showBorders={this.props.showBorders} 
+                    columnWidth={this.props.columnWidth}
+                    columnsAutoWidth={this.props.columnsAutoWidth} 
+                    allowColumnReordering={this.props.allowColumnReordering} 
+                    allowColumnResizing={this.props.allowColumnResizing} 
+                    height={this.props.height} 
+                    width={this.props.width}
                     onInitialized={this._onInitialized} onSelectionChanged={this._onSelectionChanged} 
                     onInitNewRow={this._onInitNewRow} onEditingStart={this._onEditingStart} onRowInserting={this._onRowInserting} onRowInserted={this._onRowInserted}
                     onRowUpdating={this._onRowUpdating} onRowUpdated={this._onRowUpdated} onRowRemoving={this._onRowRemoving} onRowRemoved={this._onRowRemoved} 

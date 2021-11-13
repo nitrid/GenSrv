@@ -21,11 +21,6 @@ export default class NdPopGrid extends Base
         this.state.height = typeof props.height == 'undefined' ? 'auto' : props.height
         this.state.position = typeof props.position == 'undefined' ? undefined : props.position
         
-        this.state.showBorders = typeof props.showBorders == 'undefined' ? true : props.showBorders
-        this.state.columnWidth = typeof props.columnWidth == 'undefined' ? false : props.columnWidth
-        this.state.columnsAutoWidth = typeof props.columnsAutoWidth == 'undefined' ? false : props.columnsAutoWidth
-        this.state.allowColumnReordering = typeof props.allowColumnReordering == 'undefined' ? false : props.allowColumnReordering
-        this.state.allowColumnResizing = typeof props.allowColumnResizing == 'undefined' ? true : props.allowColumnResizing
         this.state.columns = typeof props.columns == 'undefined' ? undefined : props.columns
         this.state.filterRow = typeof props.filterRow == 'undefined' ? {visible:true} : props.filterRow
         this.state.headerFilter = typeof props.headerFilter == 'undefined' ? {visible:true} : props.headerFilter
@@ -112,6 +107,7 @@ export default class NdPopGrid extends Base
         if(this.grid.getSelectedData().length > 0)
         {
             this.hide()
+            this.onClick(this.grid.getSelectedData())
         }
     }
     //#endregion
@@ -155,17 +151,21 @@ export default class NdPopGrid extends Base
                             <NdButton parent={this} id={"btn_" + this.props.id} text="Seç" width={'100%'} type={"default"}
                                 onClick={this._onClick}
                                 param={this.param.btn} 
-                                access={this.access.btn}></NdButton>
+                                access={this.access.btn} 
+                            />
                         </div>
                     </div>
                     <div className="row" style={{height:"92%"}}>
                         <div className="col-12">
                             <NdGrid parent={this} id={"grid_" + this.props.id} 
                             dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
-                            columnWidth={this.state.columnWidth}
-                            showBorders={this.state.showBorders} 
-                            columnsAutoWidth={this.state.columnsAutoWidth} allowColumnReordering={this.state.allowColumnReordering} 
-                            allowColumnResizing={this.state.allowColumnResizing} height={'100%'} width={'100%'}
+                            columnWidth={this.props.columnWidth}
+                            showBorders={this.props.showBorders} 
+                            columnsAutoWidth={this.props.columnsAutoWidth} 
+                            allowColumnReordering={this.props.allowColumnReordering} 
+                            allowColumnResizing={this.props.allowColumnResizing} 
+                            height={'100%'} 
+                            width={'100%'}
                             onSelectionChanged={this._onSelectionChanged} 
                             columns={this.state.columns}
                             filterRow={this.state.filterRow}

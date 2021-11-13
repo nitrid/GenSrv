@@ -136,6 +136,61 @@ export default class NdBase extends React.Component
                                 resolve()                                
                             });
                         },
+                        remove: (key) => 
+                        {
+                            return new Promise(async resolve => 
+                            {
+                                if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
+                                {
+                                    tmpThis.state.data.datatable.removeAt(key)
+                                }
+
+                                await this.state.data.datatable.delete();
+                                resolve()                                
+                            });
+                        },
+                        onInserted: function (values,key) 
+                        {
+                            if(typeof tmpThis.props.data.onInserted != 'undefined')
+                            {
+                                tmpThis.props.data.onInserted(values,key)
+                            }
+                        },
+                        onInserting: function (values,key) 
+                        {
+                            if(typeof tmpThis.props.data.onInserting != 'undefined')
+                            {
+                                tmpThis.props.data.onInserting(values,key)
+                            }
+                        },
+                        onUpdated: function (key, values) 
+                        {
+                            if(typeof tmpThis.props.data.onUpdated != 'undefined')
+                            {
+                                tmpThis.props.data.onUpdated(key,values)
+                            }
+                        },
+                        onUpdating: function (key, values) 
+                        {
+                            if(typeof tmpThis.props.data.onUpdating != 'undefined')
+                            {
+                                tmpThis.props.data.onUpdating(key,values)
+                            }
+                        },
+                        onRemoved: function (key) 
+                        {
+                            if(typeof tmpThis.props.data.onRemoved != 'undefined')
+                            {
+                                tmpThis.props.data.onRemoved(key)
+                            }
+                        },
+                        onRemoving: function (key) 
+                        {
+                            if(typeof tmpThis.props.data.onRemoving != 'undefined')
+                            {
+                                tmpThis.props.data.onRemoving(key,values)
+                            }
+                        },
                         byKey: async function (e) 
                         {
                             let x = {}

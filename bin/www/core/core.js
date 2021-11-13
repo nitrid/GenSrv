@@ -320,6 +320,8 @@ export class datatable
         this.insertCmd;
         this.updateCmd;
         this.deleteCmd;
+
+        this._deleteList = [];
         
         this.sql = core.instance.sql;
 
@@ -353,7 +355,8 @@ export class datatable
             {
                 Object.setPrototypeOf(target,{stat:'edit'})
                 target[prop] = receiver
-                return target[prop];
+                //return target[prop];
+                return true;
             }
         });
         
@@ -364,9 +367,23 @@ export class datatable
         
         super.push(pItem)
     }
-    removeAt(pIndex)
+    removeAt()
     {
-        this.splice(pIndex,1);
+        let tmpIndex = -1;
+        if(arguments.length > 0 && typeof arguments[0] == 'object')
+        {
+            tmpIndex = this.indexOf(arguments[0]);
+        }
+        else if(arguments.length > 0 && typeof arguments[0] == 'number')
+        {
+            tmpIndex = arguments[0]
+        }
+
+        if(tmpIndex > -1)
+        {
+            this._deleteList.push(this[tmpIndex]); 
+            this.splice(tmpIndex,1);
+        }
     }
     clear()
     {
@@ -502,6 +519,56 @@ export class datatable
                 else
                 {
                     console.log(TmpUpdateData.result.err)
+                }   
+            }            
+               
+            resolve();
+        });
+    }
+    delete()
+    {
+        return new Promise(async resolve => 
+        {
+            if(typeof this.deleteCmd != 'undefined')
+            {
+                this.deleteCmd.value = [];
+            }  
+
+            for (let i = 0; i < this._deleteList.length; i++) 
+            {
+                if(typeof this.deleteCmd != 'undefined')
+                {
+                    if(typeof this.deleteCmd.param == 'undefined')
+                    {
+                        continue;
+                    }
+                    for (let m = 0; m < this.deleteCmd.param.length; m++) 
+                    {
+                        if(typeof this.deleteCmd.dataprm == 'undefined')
+                        {
+                            this.deleteCmd.value.push(this._deleteList[i][this.deleteCmd.param[m].split(':')[0]]);
+                        }
+                        else
+                        {
+                            this.deleteCmd.value.push(this._deleteList[i][this.deleteCmd.dataprm[m]]);
+                        }
+                    }
+
+                    this._deleteList.splice(i,1);
+                }
+            }
+
+            if(typeof this.deleteCmd != 'undefined' && typeof this.deleteCmd.value != 'undefined' && this.deleteCmd.value.length > 0)
+            {
+                let TmpDeleteData = await this.sql.execute(this.deleteCmd)
+
+                if(typeof TmpDeleteData.result.err == 'undefined')
+                {
+                    this.deleteCmd.value = [];
+                }
+                else
+                {
+                    console.log(TmpDeleteData.result.err)
                 }   
             }            
                

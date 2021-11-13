@@ -21,7 +21,7 @@ export const prm =
     {
         TYPE : 2,
         ID :"txtBelge",
-        VALUE : "TTT",
+        VALUE : "11.10.2021",
         SPECIAL : "",
         PAGE : "P0002",
         ELEMENT : "txtBelge",

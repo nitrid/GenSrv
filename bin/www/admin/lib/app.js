@@ -1,6 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import {core} from '../../core/core.js'
+import { locale, loadMessages, formatMessage } from 'devextreme/localization';
+import moment from 'moment';
+// import momLocFr from 'moment-localization-fr'
 
 import Drawer from 'devextreme-react/drawer';
 import Toolbar from 'devextreme-react/toolbar';
@@ -20,6 +23,9 @@ export default class App extends React.Component
     constructor()
     {
         super();
+
+        locale('en');
+
         this.style =
         {
             splash_body : 

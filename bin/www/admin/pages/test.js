@@ -91,12 +91,11 @@ export default class Test extends React.Component
             this.txtSira.value = e.selectedRowsData[0].ROLE
         }
     }
-    
     render()
     {
         return (
             <div>
-                <div className="row">
+                <div className="row py-3">
                     <div className = "col-1">
                         <label>DENEME</label>
                     </div>
@@ -109,7 +108,19 @@ export default class Test extends React.Component
                     <div className="col-3">
                         <NdTextBox id="txtSira" parent={this}
                             param={this.param.filter({ELEMENT:'txtSira',USERS:this.user.CODE})} 
-                            access={this.access.filter({ELEMENT:'txtSira',USERS:this.user.CODE})} />
+                            access={this.access.filter({ELEMENT:'txtSira',USERS:this.user.CODE})} 
+                            popgrid=
+                            {
+                                {
+                                    data:{source: {select : {query:"SELECT * FROM USERS "},sql : this.core.sql}},
+                                    position:{of:"#page"},
+                                    width:'90%', 
+                                    height:'90%',
+                                    key:'CODE',
+                                    onClick:this.onClick
+                                }
+                            }
+                            />
                     </div>
                     <div className="col-3">
                         <NdDatePicker id="txtBelge" parent={this} title={"Tarih :"}
