@@ -33,6 +33,11 @@ export const menu =
                 id: 'P0004',
                 text: 'TEST_MAHİR',
                 path: '../pages/test_mahir.js'
+            },
+            {
+                id: 'P0005',
+                text: 'TEST_ALI',
+                path: '../pages/test.js'
             }
         ]
     },
