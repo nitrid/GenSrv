@@ -7,7 +7,6 @@ import NdSelectBox from '../../core/react/devex/selectbox.js';
 import NdDatePicker from '../../core/react/devex/datepicker.js';
 import App from '../lib/app.js';
 import { datatable } from '../../core/core.js';
-
 import TextBox from 'devextreme-react/text-box';
 
 export default class Test extends React.Component
@@ -18,6 +17,7 @@ export default class Test extends React.Component
         this.core = App.instance.core;
         //this.sysprm = this.param.
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
+        //console.log(Button)
         //console.log(this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE}))
         
         //console.log(this.param)
