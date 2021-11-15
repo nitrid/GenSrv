@@ -28,6 +28,11 @@ export const menu =
                 id: 'P0003',
                 text: 'Roller',
                 path: '../pages/test.js'
+            },
+            {
+                id: 'P0004',
+                text: 'TEST_MAHİR',
+                path: '../pages/test_mahir.js'
             }
         ]
     },
