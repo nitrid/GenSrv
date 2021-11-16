@@ -21,7 +21,6 @@
     "node-machine-id": "^1.1.12",
     "node-windows": "^1.0.0-beta.5",
     "postinstall": "^0.7.0",
-    "react-bootstrap": "^2.0.1",
     "socket.io": "^3.1.2",
     "socket.io-client": "^3.0.4"
   }

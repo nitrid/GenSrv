@@ -39,6 +39,7 @@ window.config =
       'inferno-create-class': 'npm:inferno-create-class/dist/inferno-create-class.min.js',
       'inferno-extras': 'npm:inferno-extras/dist/inferno-extras.min.js',
       'moment' : 'npm:moment/moment.js',
+      'react-bootstrap' : 'npm:react-bootstrap/cjs',
       // SystemJS plugins
       'plugin-babel': 'npm:systemjs-plugin-babel/plugin-babel.js',
       'systemjs-babel-build': 'npm:systemjs-plugin-babel/systemjs-babel-browser.js'
@@ -69,7 +70,7 @@ window.config =
       {
         main: './index.js',
         defaultExtension: 'js'
-      }
+      },
     },
     packageConfigPaths: 
     [

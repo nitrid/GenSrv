@@ -1,38 +1,73 @@
 import React from 'react';
 import App from '../lib/app.js';
 import { datatable } from '../../core/core.js';
-import TextBox from 'devextreme-react/text-box';
+import Textbox from '../../core/react/bootstrap/textbox.js';
+import Button from '../../core/react/bootstrap/button.js';
+import NdDatePicker from '../../core/react/devex/datepicker.js';
 
-export default class Test extends React.Component
+export default class Test_Mahir extends React.Component
 {
     constructor(props)
     {
         super(props)
+
         this.core = App.instance.core;
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
     }
     async componentDidMount() 
     {        
-        
+        //console.log(this.T01.value = "mahır")
     }
     onSelectionChanged(e)
     {
-        if(e.selectedRowsData.length > 0)
+        if(e.key == "m")
         {
-            this.txtSira.value = e.selectedRowsData[0].ROLE
+            console.log(this.T01.state.disabled)
+            this.T01.state.disabled = true;
         }
+    }
+    onClick(e)
+    {
+        console.log(e)
     }
     render()
     {
         return (
             <div>
-                <div className="row py-3">
-                    {/* <div className="col-3">
-                        <NdTextBox id="txtSeri" parent={this} title={"Seri :"} titleAlign={"left"}
-                            lang={"tr"} 
-                            param={this.param.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} 
-                            access={this.access.filter({ELEMENT:'txtSeri',USERS:this.user.CODE})} />
-                    </div> */}
+                <div className="row">
+                    <div className="col-4">
+                        <Textbox 
+                        parent = {this}
+                        id = {"T01"}
+                        lang = {"tr"}
+                        title = {"Test :"}
+                        titleAlign = {"right"}
+                        type = {"text"}
+                        disabled = {false}
+                        onKeyUp = {this.onSelectionChanged}
+                        onClick = {this.onClick}
+                        >
+                        </Textbox>
+                    </div>
+                    <div className="col-4">
+                        <Button
+                            parent = {this}
+                            id = {"T01"}
+                            text = "Button"
+                            className = "btn btn-danger btn-block"
+                            onClick={this.onClick}
+                        >
+                        </Button>
+                    </div>
+                    <div className="col-4">
+                        <NdDatePicker 
+                            id="txtBelge" 
+                            parent={this} 
+                            title={"Tarih :"}
+                            param={this.param.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
+                            access={this.access.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
+                        />
+                    </div>
                 </div>
             </div>
         )
