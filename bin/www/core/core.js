@@ -449,24 +449,24 @@ export class datatable
                                 }                                                       
                             }
                         }
+
+                        if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
+                        {
+                            let TmpInsertData = await this.sql.execute(this.insertCmd)
+
+                            if(typeof TmpInsertData.result.err == 'undefined')
+                            {
+                                this.insertCmd.value = [];
+                            }
+                            else
+                            {
+                                console.log(TmpInsertData.result.err)
+                            }   
+                        }
                     }
                 }
             }
-
-            if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
-            {
-                let TmpInsertData = await this.sql.execute(this.insertCmd)
-
-                if(typeof TmpInsertData.result.err == 'undefined')
-                {
-                    this.insertCmd.value = [];
-                }
-                else
-                {
-                    console.log(TmpInsertData.result.err)
-                }   
-            }
-
+            
             resolve();
         });
     }
@@ -505,23 +505,24 @@ export class datatable
                                 }
                             }
                         }
-                    }                    
+                    }  
+                    
+                    if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
+                    {
+                        let TmpUpdateData = await this.sql.execute(this.updateCmd)
+
+                        if(typeof TmpUpdateData.result.err == 'undefined')
+                        {
+                            this.updateCmd.value = [];
+                        }
+                        else
+                        {
+                            console.log(TmpUpdateData.result.err)
+                        }   
+                    }      
                 }
             }
-            if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
-            {
-                let TmpUpdateData = await this.sql.execute(this.updateCmd)
-
-                if(typeof TmpUpdateData.result.err == 'undefined')
-                {
-                    this.updateCmd.value = [];
-                }
-                else
-                {
-                    console.log(TmpUpdateData.result.err)
-                }   
-            }            
-               
+                                 
             resolve();
         });
     }
@@ -605,7 +606,7 @@ export class datatable
             }
         }
         return tmpObj;
-    }
+    }    
 }
 export class param extends datatable
 {
@@ -623,18 +624,25 @@ export class param extends datatable
     {
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
-            let tmpItem =
+            if(this.filter({ID:arguments[0].ID}).length > 0)
             {
-                TYPE:typeof arguments[0].TYPE == 'undefined' ? -1 : arguments[0].TYPE,
-                ID:typeof arguments[0].ID == 'undefined' ? '' : arguments[0].ID,
-                VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : JSON.stringify(arguments[0].VALUE),
-                SPECIAL:typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
-                USERS:typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
-                PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
-                ELEMENT:typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT,
-                APP:typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+                this.filter({ID:arguments[0].ID}).setValue(arguments[0].VALUE)
             }
-            this.push(tmpItem)
+            else
+            {
+                let tmpItem =
+                {
+                    TYPE:typeof arguments[0].TYPE == 'undefined' ? -1 : arguments[0].TYPE,
+                    ID:typeof arguments[0].ID == 'undefined' ? '' : arguments[0].ID,
+                    VALUE:typeof arguments[0].VALUE == 'undefined' ? '' : typeof arguments[0].VALUE == 'object' ? JSON.stringify(arguments[0].VALUE) : arguments[0].VALUE,
+                    SPECIAL:typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
+                    USERS:typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                    PAGE:typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE,
+                    ELEMENT:typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT,
+                    APP:typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+                }
+                this.push(tmpItem)    
+            }
         }
     }
     load()
@@ -746,14 +754,14 @@ export class param extends datatable
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
             if(arguments.length == 0)
             {
-                return JSON.parse(this[0].VALUE)
+                return JSON.parse(JSON.stringify(this[0].VALUE))
             }
             // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
             else if(arguments.length == 1 && typeof arguments[0] == 'number')
             {
                 try 
                 {
-                    return JSON.parse(this[arguments[0]].VALUE)
+                    return JSON.parse(JSON.stringify(this[arguments[0]].VALUE))
                 } catch (error) 
                 {
                     console.log('error param.toValue() : ' + error)
@@ -776,14 +784,14 @@ export class param extends datatable
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRA SET EDİLİYOR
             if(arguments.length == 1)
             {
-                this[0].VALUE = JSON.stringify(arguments[0]);
+                this[0].VALUE = typeof arguments[0] == 'object' ? JSON.stringify(arguments[0]) : arguments[0];
             }
             // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
             else if(arguments.length == 2 && typeof arguments[0] == 'number')
             {
                 try 
                 {
-                    this[arguments[0]].VALUE = JSON.stringify(arguments[0])
+                    this[arguments[0]].VALUE = typeof arguments[0] == 'object' ? JSON.stringify(arguments[0]) : arguments[0];
                 } catch (error) 
                 {
                     console.log('error param.toValue() : ' + error)
@@ -928,14 +936,14 @@ export class access extends datatable
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
             if(arguments.length == 0)
             {
-                return JSON.parse(this[0].VALUE)
+                return JSON.parse(JSON.stringify(this[0].VALUE))
             }
             // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
             else if(arguments.length == 1 && typeof arguments[0] == 'number')
             {
                 try 
                 {
-                    return JSON.parse(this[arguments[0]].VALUE)
+                    return JSON.parse(JSON.stringify(this[arguments[0]].VALUE))
                 } catch (error) 
                 {
                     console.log('error param.toValue() : ' + error)
@@ -974,6 +982,15 @@ export class access extends datatable
     }
 }
 Object.setPrototypeOf(datatable.prototype,Array.prototype);
+//* DİZİ İÇİN GROUP BY */
+Array.prototype.toGroupBy = function(pKey)
+{
+    return this.reduce(function(rv, x) 
+    {
+        (rv[x[pKey]] = rv[x[pKey]] || []).push(x);
+        return rv;
+    }, {});
+}
 //* SAYI İÇERİSİNDEKİ ORAN. ÖRN: 10 SAYISININ YÜZDE 18 İ 1.8. */
 Number.prototype.rateInc = function(pRate,pDigit)
 {

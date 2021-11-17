@@ -52,6 +52,10 @@ export default class NdSelectBox extends Base
     {
         if(typeof this.props.simple != 'undefined' && this.props.simple)
         {
+            return this._selectBoxView()
+        }
+        else
+        {
             return (
                 <div className="dx-field">
                     <div className="dx-field-label">{typeof this.state.option == 'undefined' ? '' : this.state.option.title}</div>
@@ -59,11 +63,7 @@ export default class NdSelectBox extends Base
                         {this._selectBoxView()}
                     </div>
                 </div>
-            )
-        }
-        else
-        {
-            return this._selectBoxView()
+            )            
         }
     }
 }

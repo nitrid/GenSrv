@@ -9,7 +9,7 @@ export default class NdTextBox extends Base
     {
         super(props)
         
-        this.state.value = typeof props.param == 'undefined' ? '' : props.param.getValue().toString()
+        this.state.value = typeof props.value != 'undefined' ? props.value : typeof props.param == 'undefined' ? '' : props.param.getValue().toString()
         this.state.title = typeof props.title == 'undefined' ? '' : props.title
         this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
         this.state.showClearButton = typeof props.showClearButton == 'undefined' ? false : props.showClearButton
@@ -110,6 +110,18 @@ export default class NdTextBox extends Base
         if(this.state.visible == false)
         {
             return <div></div>
+        }
+
+        if(typeof this.props.simple != 'undefined' && this.props.simple)
+        {
+            return (
+                <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
+                    valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
+                    onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
+                    {this._buttonView(this.props.popgrid)}
+                    {this._gridView(this.props.popgrid)}
+                </TextBox>
+            )
         }
 
         if(this.state.title == '')
