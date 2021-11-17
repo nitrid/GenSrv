@@ -3,6 +3,7 @@ import App from '../lib/app.js';
 import { datatable } from '../../core/core.js';
 import Textbox from '../../core/react/bootstrap/textbox.js';
 import Button from '../../core/react/bootstrap/button.js';
+import PopUp from '../../core/react/bootstrap/popup.js';
 import NdDatePicker from '../../core/react/devex/datepicker.js';
 
 export default class Test_Mahir extends React.Component
@@ -28,7 +29,7 @@ export default class Test_Mahir extends React.Component
     }
     onClick(e)
     {
-        console.log(e)
+        $("#P01").modal("show");
     }
     render()
     {
@@ -68,6 +69,24 @@ export default class Test_Mahir extends React.Component
                             access={this.access.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
                         />
                     </div>
+                </div>
+                <div>
+                    <PopUp
+                    parent = {this}
+                    id = {"P01"}
+                    >
+                    <div className="row">
+                        <div className="col-12">
+                        <NdDatePicker 
+                            id="txtBelge2" 
+                            parent={this}
+                            title={"Tarih :"}
+                            param={this.param.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
+                            access={this.access.filter({ELEMENT:'txtBelge',USERS:this.user.CODE})} 
+                        />
+                        </div>
+                    </div>
+                    </PopUp> 
                 </div>
             </div>
         )
