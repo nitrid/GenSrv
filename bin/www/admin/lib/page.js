@@ -4,7 +4,7 @@ import App from '../lib/app.js';
 import {datatable,param,access} from '../../core/core.js';
 import {prm} from '../meta/prm.js'
 import {acs} from '../meta/acs.js'
-
+import i18n from 'i18next';
 export default class Page extends React.Component
 {
   constructor(props)
