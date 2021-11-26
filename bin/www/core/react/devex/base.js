@@ -36,24 +36,27 @@ export default class NdBase extends React.Component
             this.props.parent[this.props.id] = this
         }
     }
-    get datatable()
+    get data()
     {
-        if(typeof this.state.data == 'undefined' || typeof this.state.data.datatable == 'undefined')
+        if(typeof this.state.data == 'undefined')
         {
             return undefined;
         }
 
-        return this.state.data.datatable;
+        return this.state.data;
     }
     dataRefresh(e)
     {        
         return new Promise(mresolve => 
         {
             let tmpThis = this;
+            
             this.setState(
             { 
                 data : 
                 {
+                    source : typeof tmpThis.data == 'undefined' || typeof tmpThis.data.source == 'undefined' ? undefined : tmpThis.data.source,
+                    datatable : typeof tmpThis.data == 'undefined' || typeof tmpThis.data.datatable == 'undefined' ? undefined : tmpThis.data.datatable,
                     store : new CustomStore(
                     {
                         load: () =>
@@ -67,7 +70,6 @@ export default class NdBase extends React.Component
                                     {
                                         source : tmpThis.state.data.source
                                     }
-                                    console.log(e)
                                 }
                                 // EĞER DATA SOURCE A DİZİ GÖNDERİLMİŞ İSE
                                 if(typeof e != 'undefined' && typeof e.source != 'undefined' && Array.isArray(e.source))
@@ -75,17 +77,13 @@ export default class NdBase extends React.Component
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = new datatable();
                                     tmpThis.state.data.datatable.import(e.source)
-                                    resolve({data: tmpThis.state.data.datatable.toArray()});
-                                    mresolve()
                                 }
                                 // EĞER DATA SOURCE A DATATABLE GÖNDERİLMİŞ İSE
                                 else if (typeof e != 'undefined' && typeof e.source != 'undefined' && e.source instanceof datatable)
                                 {
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = e.source;
-                                    await tmpThis.state.data.datatable.refresh();
-                                    resolve({data: tmpThis.state.data.datatable.toArray()});
-                                    mresolve()
+                                    await tmpThis.state.data.datatable.refresh();                                    
                                 }
                                 // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
                                 else if (typeof e != 'undefined' && typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
@@ -99,12 +97,30 @@ export default class NdBase extends React.Component
                                     tmpThis.state.data.datatable.deleteCmd = e.source.delete;
 
                                     await tmpThis.state.data.datatable.refresh()
-                                    resolve({data: tmpThis.state.data.datatable.toArray()});
+                                }
+
+                                if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
+                                {
+                                    //GROUP BY İÇİN YAPILDI
+                                    if(typeof e.source.groupBy != 'undefined' && e.source.groupBy.length > 0)
+                                    {
+                                        let tmpDt = new datatable()
+                                        tmpDt.import(tmpThis.state.data.datatable.toArray())
+                                        
+                                        tmpDt = tmpDt.groupBy(e.source.groupBy) 
+
+                                        resolve({data: tmpDt.toArray(),totalCount:tmpDt.toArray().length});
+                                    }
+                                    else
+                                    {
+                                        resolve({data: tmpThis.state.data.datatable.toArray(),totalCount:tmpThis.state.data.datatable.toArray().length});
+                                    }
+
                                     mresolve()
                                 }
                                 else
                                 {
-                                    resolve({data: []});
+                                    resolve({data: [],totalCount:0});
                                     mresolve()
                                 }
                             });

@@ -322,7 +322,8 @@ export class datatable
         this.deleteCmd;
 
         this._deleteList = [];
-        
+        this._groupList = [];
+
         this.sql = core.instance.sql;
 
         if(arguments.length == 1 && typeof arguments[0] == 'string')
@@ -606,7 +607,46 @@ export class datatable
             }
         }
         return tmpObj;
-    }    
+    }   
+    groupBy(pKey)
+    {
+        if(typeof pKey == 'string')
+        {
+            pKey = pKey.split(',')
+        }
+
+        let helper = {};
+        let tmpGrpData = this.reduce(function(r,o)
+        {
+            let key = '';
+            for (let i = 0; i < pKey.length; i++) 
+            {
+                if(i < pKey.length - 1)
+                {
+                    key += o[pKey[i]] + '-'
+                }
+                else
+                {
+                    key += o[pKey[i]]
+                }                
+            }
+
+            if(!helper[key]) 
+            {
+                helper[key] = Object.assign({}, o);
+                r.push(helper[key]);                
+            }
+            else 
+            {
+                helper[key] = o;
+            }
+            return r;
+        },[])
+
+        let tmpDt = new datatable();
+        tmpDt.import(tmpGrpData)
+        return tmpDt
+    } 
 }
 export class param extends datatable
 {

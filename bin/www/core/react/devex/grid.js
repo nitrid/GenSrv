@@ -1,8 +1,8 @@
 import React from 'react';
-import DataGrid,{Column,HeaderFilter} from 'devextreme-react/data-grid';
+import DataGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter} from 'devextreme-react/data-grid';
 import Base from './base.js';
 
-export {Column}
+export {Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter}
 export default class NdGrid extends Base
 {
     constructor(props)
@@ -15,8 +15,6 @@ export default class NdGrid extends Base
         this.state.filterRow = typeof props.filterRow == 'undefined' ? {} : props.filterRow
         this.state.headerFilter = typeof props.headerFilter == 'undefined' ? {} : props.headerFilter
         this.state.selection = typeof props.selection == 'undefined' ? {} : props.selection
-        this.state.paging = typeof props.paging == 'undefined' ? {} : props.paging
-        this.state.pager = typeof props.pager == 'undefined' ? {} : props.pager
         this.state.editing = typeof props.editing == 'undefined' ? {} : props.editing
 
         this._onInitialized = this._onInitialized.bind(this);
@@ -32,7 +30,8 @@ export default class NdGrid extends Base
         this._onSaving = this._onSaving.bind(this);
         this._onSaved = this._onSaved.bind(this);
         this._onEditCanceling = this._onEditCanceling.bind(this);
-        this._onEditCanceled = this._onEditCanceled.bind(this);         
+        this._onEditCanceled = this._onEditCanceled.bind(this);
+        this._onCellPrepared = this._onCellPrepared.bind(this);         
     }
     //#region Private
     _onInitialized(e) 
@@ -130,6 +129,13 @@ export default class NdGrid extends Base
             this.props.onEditCanceled(e);
         }
     }
+    _onCellPrepared(e)
+    {
+        if(typeof this.props.onCellPrepared != 'undefined')
+        {
+            this.props.onCellPrepared(e);
+        }
+    }
     //#endregion
     async componentDidMount() 
     {        
@@ -179,14 +185,14 @@ export default class NdGrid extends Base
         {
             return <div></div>
         }
-
+        
         if(typeof this.state.columns == 'undefined')
         {
             return (
                 <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
                 showBorders={this.props.showBorders} 
                 columnWidth={this.props.columnWidth} 
-                columnsAutoWidth={this.props.columnsAutoWidth} 
+                columnAutoWidth={this.props.columnAutoWidth} 
                 allowColumnReordering={this.props.allowColumnReordering} 
                 allowColumnResizing={this.props.allowColumnResizing} 
                 height={this.props.height} 
@@ -195,11 +201,10 @@ export default class NdGrid extends Base
                 onInitNewRow={this._onInitNewRow} onEditingStart={this._onEditingStart} onRowInserting={this._onRowInserting} onRowInserted={this._onRowInserted}
                 onRowUpdating={this._onRowUpdating} onRowUpdated={this._onRowUpdated} onRowRemoving={this._onRowRemoving} onRowRemoved={this._onRowRemoved} 
                 onSaving={this._onSaving} onSaved={this._onSaved} onEditCanceling={this._onEditCanceling} onEditCanceled={this._onEditCanceled}
+                onCellPrepared={this._onCellPrepared}
                 filterRow={this.state.filterRow}
                 headerFilter={this.state.headerFilter}
                 selection={this.state.selection}
-                paging={this.state.paging}
-                pager={this.state.pager}
                 editing={this.state.editing} 
                 >
                     {this.props.children}
@@ -212,7 +217,7 @@ export default class NdGrid extends Base
                 <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
                     showBorders={this.props.showBorders} 
                     columnWidth={this.props.columnWidth}
-                    columnsAutoWidth={this.props.columnsAutoWidth} 
+                    columnAutoWidth={this.props.columnAutoWidth} 
                     allowColumnReordering={this.props.allowColumnReordering} 
                     allowColumnResizing={this.props.allowColumnResizing} 
                     height={this.props.height} 
@@ -225,8 +230,6 @@ export default class NdGrid extends Base
                     filterRow={this.state.filterRow}
                     headerFilter={this.state.headerFilter}
                     selection={this.state.selection}
-                    paging={this.state.paging}
-                    pager={this.state.pager}
                     editing={this.state.editing} 
                     >
                 </DataGrid>

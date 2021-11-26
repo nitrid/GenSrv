@@ -1,36 +1,19 @@
 import React from 'react';
-import SelectBox from 'devextreme-react/select-box';
 import Base from './base.js';
 
-export default class NdSelectBox extends Base
+import DropDownBox from 'devextreme-react/drop-down-box';
+
+export default class NdDropDownBox extends Base
 {
     constructor(props)
     {
         super(props)
         
-        this.state.value = typeof props.value == 'undefined' ? '' : props.value;
+        this.state.value = typeof props.value == 'undefined' ? [] : props.value;
 
         this._onValueChanged = this._onValueChanged.bind(this);
     }
     //#region Private
-    _selectBoxView()
-    {
-        return (
-            <SelectBox 
-            dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
-            displayExpr={this.props.displayExpr} 
-            valueExpr={this.props.valueExpr}
-            defaultValue={this.props.defaultValue}
-            showClearButton={this.props.showClearButton}
-            searchEnabled={this.props.searchEnabled}
-            searchMode={'contains'}
-            searchExpr={this.props.displayExpr}
-            searchTimeout={200}
-            minSearchLength={0}
-            onValueChanged={this._onValueChanged}
-            />
-        )
-    }
     _onValueChanged(e) 
     {
         this.value = e.value;
@@ -38,7 +21,23 @@ export default class NdSelectBox extends Base
         {
             this.props.onValueChanged(e);
         }
-    }  
+    } 
+    _dropDownView()
+    {
+        return(
+            <DropDownBox
+            value={this.state.value}
+            valueExpr={this.props.valueExpr}
+            displayExpr={this.props.displayExpr} 
+            placeholder={this.props.placeholder}
+            showClearButton={this.props.showClearButton}
+            dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
+            onValueChanged={this._onValueChanged}
+            contentRender={this.props.contentRender}
+            >
+            </DropDownBox>
+        )
+    }
     //#endregion
     get value()
     {
@@ -46,7 +45,7 @@ export default class NdSelectBox extends Base
     }
     set value(e)
     {
-        this.setState({value:e == null ? '' : e})
+        this.setState({value:e})
     }
     async componentDidMount()
     {
@@ -55,12 +54,19 @@ export default class NdSelectBox extends Base
             await this.dataRefresh(this.state.data)                 
         }
     }
-      
+    componentWillReceiveProps(pProps) 
+    {
+        this.setState(
+            {
+                value : pProps.value
+            }
+        )
+    } 
     render()
     {
         if(typeof this.props.simple != 'undefined' && this.props.simple)
         {
-            return this._selectBoxView()
+            return this._dropDownView()
         }
         else
         {
@@ -68,7 +74,7 @@ export default class NdSelectBox extends Base
                 <div className="dx-field">
                     <div className="dx-field-label">{typeof this.props.title == 'undefined' ? '' : this.props.title}</div>
                     <div className="dx-field-value">
-                        {this._selectBoxView()}
+                        {this._dropDownView()}
                     </div>
                 </div>
             )            
