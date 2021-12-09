@@ -29,7 +29,7 @@ export default class NdCheckBox extends Base
     render()
     {
         return(
-            <CheckBox id={this.props.id} defaultValue={this.props.defaultValue} text={this.props.text} onValueChanged={this._onValueChanged}/>
+            <CheckBox defaultValue={this.props.defaultValue} text={this.props.text} onValueChanged={this._onValueChanged}/>
         )
     }
 }

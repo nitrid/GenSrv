@@ -28,6 +28,8 @@ export default class NdSelectBox extends Base
             searchTimeout={200}
             minSearchLength={0}
             onValueChanged={this._onValueChanged}
+            height={this.props.height}
+            style={this.props.style}
             />
         )
     }
