@@ -34,7 +34,37 @@ export default class NdTextBox extends Base
             this.props.onEnterKey();
         }
     }
-    _buttonView(props)
+    _buttonView()
+    {
+        if(typeof this.props.button != 'undefined')
+        {
+            let tmp = []
+            
+            for (let i = 0; i < this.props.button.length; i++) 
+            {
+                tmp.push (
+                    <Button key={i}
+                        name={"btn_" + this.props.button[i].id}
+                        location="after"
+                        options=
+                        {
+                            {
+                                icon: this.props.button[i].icon,
+                                stylingMode: "text",
+                                onClick: () => 
+                                {
+                                    
+                                }
+                            }
+                        }
+                    >                
+                    </Button>
+                )
+            }
+            return tmp
+        }
+    }
+    _btnPopGridView(props)
     {
         let tmpThis = this;
         if(typeof props != 'undefined')
@@ -47,6 +77,46 @@ export default class NdTextBox extends Base
                     {
                         {
                             icon: 'more',
+                            stylingMode: "text",
+                            onClick: () => 
+                            {
+                                this["pg_" + this.props.id].show()
+                                this["pg_" + this.props.id].onClick = function(data)
+                                {
+                                    if(data.length > 0)
+                                    {
+                                        if(typeof props.key != 'undefined')
+                                        {
+                                            tmpThis.value = data[0][props.key]
+                                            if(typeof tmpThis.props.popgrid.onClick != 'undefined')
+                                            {
+                                                tmpThis.props.popgrid.onClick(data[0][props.key])
+                                            }
+                                        }
+                                    }
+                                    
+                                }
+                            }
+                        }
+                    }
+                >                
+                </Button>
+            )
+        }        
+    }
+    _btnAddView(props)
+    {
+        let tmpThis = this;
+        if(typeof props != 'undefined')
+        {
+            return (
+                <Button 
+                    name={"btn1_" + this.props.id}
+                    location="after"
+                    options=
+                    {
+                        {
+                            icon: 'add',
                             stylingMode: "text",
                             onClick: () => 
                             {
@@ -98,8 +168,10 @@ export default class NdTextBox extends Base
                 style={this.props.style}
                 valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
                 onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                {this._buttonView(this.props.popgrid)}
-                {this._gridView(this.props.popgrid)}
+                {this._buttonView()}
+                {/* {this._btnAddView(this.props.addpop)}
+                {this._btnPopGridView(this.props.popgrid)}
+                {this._gridView(this.props.popgrid)} */}
             </TextBox>
         )
     }
@@ -114,7 +186,7 @@ export default class NdTextBox extends Base
     }
     componentDidMount()
     {
-        
+        console.log(this.props.button)
     }    
     render()
     {
@@ -126,28 +198,14 @@ export default class NdTextBox extends Base
 
         if(typeof this.props.simple != 'undefined' && this.props.simple)
         {
-            return (
-                <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
-                    style={this.props.style}
-                    valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                    onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                    {this._buttonView(this.props.popgrid)}
-                    {this._gridView(this.props.popgrid)}
-                </TextBox>
-            )
+            return this._txtView()
         }
 
         if(this.state.title == '')
         {
             return (
                 <div className="dx-field">
-                    <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
-                        style={this.props.style}
-                        valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                        onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                            {this._buttonView(this.props.popgrid)}
-                            {this._gridView(this.props.popgrid)}
-                        </TextBox>
+                    {this._txtView()}
                 </div>
             )
         }
@@ -159,13 +217,7 @@ export default class NdTextBox extends Base
                 return (
                     <div className="dx-field">
                         <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.title}</div>
-                        <TextBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
-                            style={this.props.style}
-                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                                {this._buttonView(this.props.popgrid)}
-                                {this._gridView(this.props.popgrid)}
-                            </TextBox>
+                        {this._txtView()}
                     </div>
                 )
             }
@@ -174,13 +226,7 @@ export default class NdTextBox extends Base
                 return (
                     <div className="dx-field">
                         <div>{this.state.title}</div>
-                        <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
-                            style={this.props.style}
-                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                                {this._buttonView(this.props.popgrid)}
-                                {this._gridView(this.props.popgrid)}
-                            </TextBox>
+                        {this._txtView()}
                     </div>
                 )
             }
@@ -188,13 +234,7 @@ export default class NdTextBox extends Base
             {
                 return (
                     <div className="dx-field">                        
-                        <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
-                            style={this.props.style}
-                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                            {this._buttonView(this.props.popgrid)}
-                            {this._gridView(this.props.popgrid)}
-                        </TextBox>
+                        {this._txtView()}
                         <div>{this.state.option.title}</div>
                     </div>
                 )
@@ -204,13 +244,7 @@ export default class NdTextBox extends Base
                 return (
                     <div className="dx-field">
                         <div className="dx-field-label" style={{textAlign:'right'}}>{this.state.title}</div>
-                        <TextBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
-                            style={this.props.style}
-                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                            onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
-                            {this._buttonView(this.props.popgrid)}
-                            {this._gridView(this.props.popgrid)}
-                        </TextBox>
+                        {this._txtView()}
                     </div>
                 )
             }
@@ -218,13 +252,7 @@ export default class NdTextBox extends Base
             {
                 return (
                     <div className="dx-field">                        
-                        <TextBox className="dx-field-value" showClearButton={this.state.showClearButton} height='fit-content' 
-                            style={this.props.style}
-                            valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                            onEnterKey={this._onEnterKey} value={this.state.value} style={{float:'left'}} disabled={this.state.editable}>
-                            {this._buttonView(this.props.popgrid)}
-                            {this._gridView(this.props.popgrid)}
-                        </TextBox>
+                        {this._txtView()}
                         <div className="dx-field-label" style={{float:'right',paddingLeft:'15px'}}>{this.state.title}</div>
                     </div>
                 )
