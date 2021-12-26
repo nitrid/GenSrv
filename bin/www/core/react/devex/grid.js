@@ -1,8 +1,9 @@
 import React from 'react';
-import DataGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter} from 'devextreme-react/data-grid';
+import DataGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup} from 'devextreme-react/data-grid';
+import Toolbar from 'devextreme-react/toolbar';
 import Base from './base.js';
 
-export {Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter}
+export {Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup,Toolbar}
 export default class NdGrid extends Base
 {
     constructor(props)
@@ -15,7 +16,6 @@ export default class NdGrid extends Base
         this.state.filterRow = typeof props.filterRow == 'undefined' ? {} : props.filterRow
         this.state.headerFilter = typeof props.headerFilter == 'undefined' ? {} : props.headerFilter
         this.state.selection = typeof props.selection == 'undefined' ? {} : props.selection
-        this.state.editing = typeof props.editing == 'undefined' ? {} : props.editing
 
         this._onInitialized = this._onInitialized.bind(this);
         this._onSelectionChanged = this._onSelectionChanged.bind(this);
@@ -137,6 +137,31 @@ export default class NdGrid extends Base
         }
     }
     //#endregion
+    componentDidUpdate()
+    {
+        setTimeout(() => 
+        {
+            if(typeof this.data != 'undefined' && typeof this.data.datatable != 'undefined' && (typeof arguments[1].data == 'undefined' || typeof arguments[1].data.datatable == 'undefined'))
+            {
+                this.data.datatable.on('onEdit',(e) =>
+                {  
+                    this.devGrid.refresh()
+                });
+                this.data.datatable.on('onNew',(e) =>
+                {           
+                    this.devGrid.refresh()
+                });
+                this.data.datatable.on('onRefresh',() =>
+                {
+                    this.devGrid.refresh()
+                });
+                this.data.datatable.on('onClear',() =>
+                {
+                    this.devGrid.refresh()
+                });
+            }
+        }, 100);
+    }
     async componentDidMount() 
     {        
         // KOLON ÜZERİNDEKİ YETKİLENDİRME DEĞERLERİNİN SET EDİLİYOR. 
@@ -205,7 +230,6 @@ export default class NdGrid extends Base
                 filterRow={this.state.filterRow}
                 headerFilter={this.state.headerFilter}
                 selection={this.state.selection}
-                editing={this.state.editing} 
                 >
                     {this.props.children}
                 </DataGrid>
@@ -214,7 +238,7 @@ export default class NdGrid extends Base
         else
         {
             return (
-                <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
+                <DataGrid id={this.props.id} dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store}
                     showBorders={this.props.showBorders} 
                     columnWidth={this.props.columnWidth}
                     columnAutoWidth={this.props.columnAutoWidth} 
@@ -230,8 +254,8 @@ export default class NdGrid extends Base
                     filterRow={this.state.filterRow}
                     headerFilter={this.state.headerFilter}
                     selection={this.state.selection}
-                    editing={this.state.editing} 
                     >
+                        {this.props.children}
                 </DataGrid>
             )
         }

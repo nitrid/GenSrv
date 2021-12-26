@@ -31,7 +31,6 @@ export class core
             return;
         }
 
-        this.dataset = null;
         this.listeners = Object();        
         this.sql = new sql();
         this.auth = new auth();
@@ -220,6 +219,16 @@ export class util
             });
         });
     }
+    waitUntil()
+    {
+        return new Promise(async resolve => 
+        {
+            setTimeout(() => 
+            {
+                resolve()
+            }, typeof arguments[0] == 'undefined' ? 0 : arguments[0]);
+        })
+    }
 }
 export class dataset
 {    
@@ -230,85 +239,60 @@ export class dataset
         else
             this.name = 'dataset'
         
-        this.datatables = [];
-        //this.initJsDb();
+        this.dts = [];
     }
-    async initJsDb()
+    get length()
     {
-        if(typeof JsStore != 'undefined')
+        return this.dts.length;
+    }
+    get()
+    {
+        //PARAMETRE OLARAK INDEX YADA TABLO ADI.
+        if(arguments.length > 0 && typeof arguments[0] == 'string')
         {
-            this.jsCon = new JsStore.Connection();
-            this.jsCon.db = await this.jsCon.openDb(this.name);
-            console.log(this.jsCon.db)
-            //await this.jsCon.initDb({name:this.name,tables: []})
+            return this.dts.find(x => x.name == arguments[0])
         }
+        else if (arguments.length > 0 && typeof arguments[0] == 'number')
+        {
+            return this.dts[arguments[0]]
+        }
+
+        return
     }
     async add(pTable)
     {
         if(typeof pTable != 'undefined')
         {
+            let tmpDt = null
             if(typeof pTable == 'string')
             {
-                this.datatables.push(new datatable(pTable))    
+                tmpDt = new datatable(pTable)
             }
             else if(typeof pTable == 'object')
             {
-                this.datatables.push(pTable)
+                tmpDt = pTable;
             }
             
-            if(typeof JsStore != 'undefined')
-            {
-                this.jsCon = new JsStore.Connection();
-                this.jsCon.db = await this.jsCon.openDb(this.name);
-            }
-            this.jsCon.db.tables.push()
-            console.log(this.jsCon.db)
-//             await this.jsCon.initDb({name:this.name,tables: 
-//             [{
-//                 name: this.datatables[this.datatables.length - 1].name,
-//                 columns: this.datatables[this.datatables.length - 1].getSchema()
-//             }]})
-//             this.jsCon.insert({
-//     into: this.datatables[this.datatables.length - 1].name,
-//     values: [1,'001']
-// });
-        }
-    }
-    datatable(pName)
-    {
-        if(typeof pName != 'undefined')
-        {
-            for (let i = 0; i < this.datatables.length; i++) 
-            {
-                if(this.datatables[i].name == pName)
-                {
-                    return this.datatables[i];
-                }
-            }
+            this.remove(tmpDt.name)
+            this.dts.push(tmpDt)
         }
     }
     remove(pName)
     {
+        //EĞER PARAMETRE BOŞ GÖNDERİLİRSE TÜM DATASET TEMİZLENİYOR.
         if(typeof pName != 'undefined')
         {
-            for (let i = 0; i < this.datatables.length; i++) 
+            for (let i = 0; i < this.dts.length; i++) 
             {
-                if(this.datatables[i].name == pName)
+                if(this.dts[i].name == pName)
                 {
-                    this.splice(i,1);
+                    this.dts.splice(i,1);
                 }
             }
         }
-    }
-    addTemplate(pObj)
-    {
-        for (let i = 0; i < pObj.length; i++) 
+        else
         {
-            this.add(pObj[i].name);
-            let TmpTbl = this.datatable(pObj[i].name);
-            TmpTbl.selectCmd = pObj[i].selectCmd;
-            TmpTbl.insertCmd = pObj[i].insertCmd;
-            TmpTbl.updateCmd = pObj[i].updateCmd;
+            this.dts.splice(0,this.dts.length);
         }
     }
 }
@@ -324,7 +308,8 @@ export class datatable
         this._deleteList = [];
         this._groupList = [];
 
-        this.sql = core.instance.sql;
+        this.listeners = Object();
+        this.sql = core.instance.sql;        
 
         if(arguments.length == 1 && typeof arguments[0] == 'string')
         {
@@ -344,6 +329,25 @@ export class datatable
             this.name = '';
         }
     }     
+    //#region  "EVENT"
+    on(pEvt, pCallback) 
+    {
+        if (!this.listeners.hasOwnProperty(pEvt))
+        this.listeners[pEvt] = Array();
+        this.listeners[pEvt].push(pCallback); 
+    }
+    emit(pEvt, pParams)
+    {
+        if (pEvt in this.listeners) 
+        {
+            let callbacks = this.listeners[pEvt];
+            for (var x in callbacks)
+            {
+                callbacks[x](pParams);
+            }
+        } 
+    }
+    //#endregion
     push(pItem,pIsNew)
     {     
         pItem = new Proxy(pItem, 
@@ -352,20 +356,31 @@ export class datatable
             {
                 return target[prop];
             },
-            set: function(target, prop, receiver) 
-            {
-                Object.setPrototypeOf(target,{stat:'edit'})
-                target[prop] = receiver
+            set: (function(target, prop, receiver) 
+            {            
+                if(target[prop] != receiver)
+                {
+                    target[prop] = receiver
+                    this.emit('onEdit',{data:{[prop]:receiver},rowIndex:this.length,rowData:this.toArray()});
+    
+                    if(target.stat != 'new')
+                    {
+                        Object.setPrototypeOf(target,{stat:'edit'})                    
+                    }
+                }
                 //return target[prop];
                 return true;
-            }
+            }).bind(this)
         });
         
         if(typeof pIsNew == 'undefined' || pIsNew)
         {
             Object.setPrototypeOf(pItem,{stat:'new'})
+
+            this.emit('onNew',pItem)
         }
-        
+
+        this.emit('onAddRow',pItem);
         super.push(pItem)
     }
     removeAt()
@@ -389,6 +404,7 @@ export class datatable
     clear()
     {
         this.splice(0,this.length);
+        this.emit('onClear')
     }
     refresh()
     {
@@ -405,7 +421,8 @@ export class datatable
                         for (let i = 0; i < TmpData.result.recordset.length; i++) 
                         {                    
                             this.push(TmpData.result.recordset[i],false)   
-                        }                    
+                        }                                            
+                        this.emit('onRefresh')
                     }
                 }
                 else
@@ -584,7 +601,6 @@ export class datatable
         {
             tmpArr.push(this[i])                                    
         }
-
         return tmpArr;
     }
     import(pData)
@@ -646,7 +662,26 @@ export class datatable
         let tmpDt = new datatable();
         tmpDt.import(tmpGrpData)
         return tmpDt
-    } 
+    }
+    where()
+    {
+        if(arguments.length > 0)
+        {
+            let tmpData = this.toArray();
+            
+            if(Object.keys(arguments[0]).length > 0)
+            {
+                let tmpKey = Object.keys(arguments[0])[0]
+                let tmpValue = Object.values(arguments[0])[0]
+                tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
+            }
+
+            let tmpDt = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+            tmpDt.clear()
+            tmpDt.import(tmpData)
+            return tmpDt;
+        }
+    }
 }
 export class param extends datatable
 {

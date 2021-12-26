@@ -3,6 +3,8 @@ import { Popup, Position, ToolbarItem } from 'devextreme-react/popup';
 import ScrollView from 'devextreme-react/scroll-view';
 import Base from './base.js';
 
+export {Position,ToolbarItem}
+
 export default class NdPopUp extends Base
 {
     constructor(props)
@@ -20,15 +22,29 @@ export default class NdPopUp extends Base
         this.state.width = typeof props.width == 'undefined' ? 'auto' : props.width
         this.state.height = typeof props.height == 'undefined' ? 'auto' : props.height
         this.state.position = typeof props.position == 'undefined' ? undefined : props.position
-        this.state.at = typeof props.at == 'undefined' ? "center" : props.at
-        this.state.my = typeof props.my == 'undefined' ? "center" : props.my
-        this.state.of = typeof props.of == 'undefined' ? "" : props.of
+        // this.state.at = typeof props.at == 'undefined' ? "center" : props.at
+        // this.state.my = typeof props.my == 'undefined' ? "center" : props.my
+        // this.state.of = typeof props.of == 'undefined' ? "" : props.of
         
         this.onHiding = this.onHiding.bind(this);
     }
-    componentDidMount()
+    _contentView()
     {
-    }  
+        if(typeof this.props.scroll == 'undefined' || this.props.scroll == true)
+        {            
+            return(
+                <ScrollView width='100%' height='100%'>
+                    {this.props.children}
+                </ScrollView>
+            )            
+        }
+        else if(typeof this.props.scroll != 'undefined' || this.props.scroll == false)
+        {
+            return(
+                this.props.children
+            )
+        }
+    }
     componentWillReceiveProps(pProps) 
     {
         this.setState(
@@ -94,9 +110,7 @@ export default class NdPopUp extends Base
                     height={this.state.height}
                     position={this.state.position}
                     >
-                    <ScrollView width='100%' height='100%'>
-                            {this.props.children}
-                    </ScrollView>
+                    {this._contentView()}
                 </Popup>
             </React.Fragment>
         )

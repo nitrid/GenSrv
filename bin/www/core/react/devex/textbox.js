@@ -1,6 +1,5 @@
 import React from 'react';
 import {TextBox,Button} from 'devextreme-react/text-box';
-import NdPopGrid from './popgrid.js';
 import Base from './base.js';
 
 export default class NdTextBox extends Base
@@ -13,10 +12,12 @@ export default class NdTextBox extends Base
         this.state.title = typeof props.title == 'undefined' ? '' : props.title
         this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
         this.state.showClearButton = typeof props.showClearButton == 'undefined' ? false : props.showClearButton
-        this.state.popgrid = props.popgrid
-
+        
         this._onValueChanged = this._onValueChanged.bind(this)
         this._onEnterKey = this._onEnterKey.bind(this)
+        this._onFocusIn = this._onFocusIn.bind(this)
+        this._onFocusOut = this._onFocusOut.bind(this)
+        this._onChange = this._onChange.bind(this)
     }
     //#region Private
     _onValueChanged(e) 
@@ -34,6 +35,27 @@ export default class NdTextBox extends Base
             this.props.onEnterKey();
         }
     }
+    _onFocusIn()
+    {
+        if(typeof this.props.onFocusIn != 'undefined')
+        {
+            this.props.onFocusIn();
+        }
+    }
+    _onFocusOut()
+    {
+        if(typeof this.props.onFocusOut != 'undefined')
+        {
+            this.props.onFocusOut();
+        }
+    }
+    _onChange()
+    {
+        if(typeof this.props.onChange != 'undefined')
+        {
+            this.props.onChange();
+        }
+    }
     _buttonView()
     {
         if(typeof this.props.button != 'undefined')
@@ -45,16 +67,14 @@ export default class NdTextBox extends Base
                 tmp.push (
                     <Button key={i}
                         name={"btn_" + this.props.button[i].id}
-                        location="after"
+                        location="after"                        
                         options=
                         {
                             {
+                                disabled:false,
                                 icon: this.props.button[i].icon,
                                 stylingMode: "text",
-                                onClick: () => 
-                                {
-                                    
-                                }
+                                onClick: this.props.button[i].onClick
                             }
                         }
                     >                
@@ -64,114 +84,19 @@ export default class NdTextBox extends Base
             return tmp
         }
     }
-    _btnPopGridView(props)
-    {
-        let tmpThis = this;
-        if(typeof props != 'undefined')
-        {
-            return (
-                <Button 
-                    name={"btn_" + this.props.id}
-                    location="after"
-                    options=
-                    {
-                        {
-                            icon: 'more',
-                            stylingMode: "text",
-                            onClick: () => 
-                            {
-                                this["pg_" + this.props.id].show()
-                                this["pg_" + this.props.id].onClick = function(data)
-                                {
-                                    if(data.length > 0)
-                                    {
-                                        if(typeof props.key != 'undefined')
-                                        {
-                                            tmpThis.value = data[0][props.key]
-                                            if(typeof tmpThis.props.popgrid.onClick != 'undefined')
-                                            {
-                                                tmpThis.props.popgrid.onClick(data[0][props.key])
-                                            }
-                                        }
-                                    }
-                                    
-                                }
-                            }
-                        }
-                    }
-                >                
-                </Button>
-            )
-        }        
-    }
-    _btnAddView(props)
-    {
-        let tmpThis = this;
-        if(typeof props != 'undefined')
-        {
-            return (
-                <Button 
-                    name={"btn1_" + this.props.id}
-                    location="after"
-                    options=
-                    {
-                        {
-                            icon: 'add',
-                            stylingMode: "text",
-                            onClick: () => 
-                            {
-                                this["pg_" + this.props.id].show()
-                                this["pg_" + this.props.id].onClick = function(data)
-                                {
-                                    if(data.length > 0)
-                                    {
-                                        if(typeof props.key != 'undefined')
-                                        {
-                                            tmpThis.value = data[0][props.key]
-                                            if(typeof tmpThis.props.popgrid.onClick != 'undefined')
-                                            {
-                                                tmpThis.props.popgrid.onClick(data[0][props.key])
-                                            }
-                                        }
-                                    }
-                                    
-                                }
-                            }
-                        }
-                    }
-                >                
-                </Button>
-            )
-        }        
-    }
-    _gridView(props)
-    {
-        if(typeof props != 'undefined')
-        {
-            return (
-                <NdPopGrid id={"pg_" + this.props.id} parent={this} container={".dx-multiview-wrapper"} 
-                    position={props.position} 
-                    width={props.width} 
-                    height={props.height}
-                    showTitle={true} 
-                    title={props.title} 
-                    columnWidth={props.columnWidth}
-                    data={props.data}
-                />
-            )
-        }
-    }
     _txtView()
     {
         return (
             <TextBox showClearButton={this.state.showClearButton} height='fit-content' 
                 style={this.props.style}
                 valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
-                onEnterKey={this._onEnterKey} value={this.state.value} disabled={this.state.editable}>
+                onEnterKey={this._onEnterKey} onFocusIn={this._onFocusIn} onFocusOut={this._onFocusOut}
+                onChange={this._onChange}
+                value={this.state.value} 
+                readOnly={this.props.readOnly}
+                disabled={typeof this.props.editable == 'undefined' ? this.state.editable : this.props.editable}>
                 {this._buttonView()}
-                {/* {this._btnAddView(this.props.addpop)}
-                {this._btnPopGridView(this.props.popgrid)}
-                {this._gridView(this.props.popgrid)} */}
+                {this.props.children}
             </TextBox>
         )
     }
@@ -181,15 +106,28 @@ export default class NdTextBox extends Base
         return this.state.value
     }
     set value(e)
-    {
-        this.setState({value:e})
-    }
-    componentDidMount()
-    {
-        console.log(this.props.button)
-    }    
+    {        
+        //VALUE DEĞİŞTİĞİNDE BU DEĞİŞİKLİK DATATABLE A YANSITMAK İÇİN YAPILDI.
+        if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && this.props.dt.data.length > 0 && typeof this.props.dt.field != 'undefined')
+        {            
+            if(typeof this.props.dt.filter == 'undefined')
+            {
+                this.props.dt.data[0][this.props.dt.field] = e
+            }   
+            else
+            {
+                let tmpData = this.props.dt.data.where(this.props.dt.filter);
+                if(tmpData.length > 0)
+                {
+                    tmpData[0][this.props.dt.field] = e
+                }
+            }
+        }
+        
+        this.setState({value:e.toString()})        
+    } 
     render()
-    {
+    {        
         // YETKİLENDİRMEDEN GELEN GÖRÜNÜR GÖRÜNMEZ DURUMU. DEĞER BASE DEN GELİYOR.
         if(this.state.visible == false)
         {

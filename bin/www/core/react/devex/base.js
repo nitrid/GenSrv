@@ -10,8 +10,9 @@ export default class NdBase extends React.Component
 
         this.state = 
         {
-            data : props.data
+            data : typeof props.data == 'undefined' ? undefined : props.data
         }
+        
         // GÖRÜNÜR DURUMU. YETKİLENDİRME.
         if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().visible != 'undefined')
         {   
@@ -28,12 +29,88 @@ export default class NdBase extends React.Component
         }
         else
         {
-            this.state.editable = false;
+            this.state.editable = typeof this.props.editable != 'undefined' ? this.props.editable : false;
         }
 
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
             this.props.parent[this.props.id] = this
+        }
+        // DATATABLE DEĞİŞTİĞİNDE YA DA YENİ SATIR EKLENDİĞİNDE BU DEĞİŞİKLİK ELEMENT E YANSITILIYOR.                
+        if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && typeof this.props.dt.field != 'undefined')
+        {            
+            this.props.dt.data.on('onEdit',(e) =>
+            {                                
+                if(Object.keys(e.data)[0] == this.props.dt.field)
+                {
+                    if(typeof this.props.dt.filter == 'undefined')
+                    {
+                        this.value = e.data[Object.keys(e.data)[0]]
+                    }   
+                    else
+                    {   
+                        let tmpD = []                                   
+
+                        if(Array.isArray(e.rowData))          
+                        {
+                            tmpD = e.rowData;
+                        }
+                        else
+                        {
+                            tmpD.push({...e.rowData})
+                        }
+
+                        tmpD = tmpD.find(x => x[Object.keys(this.props.dt.filter)[0]] === Object.values(this.props.dt.filter)[0]);
+                        
+                        if(typeof tmpD != 'undefined')
+                        {
+                            this.value = tmpD[this.props.dt.field] 
+                        }
+                    }
+                }
+            });
+            this.props.dt.data.on('onNew',(e) =>
+            {           
+                if(typeof Object.keys(e).find(x => x === this.props.dt.field) != 'undefined')
+                {  
+                    if(typeof this.props.dt.filter == 'undefined')
+                    {
+                        this.value = e[this.props.dt.field] 
+                    }   
+                    else
+                    {
+                        let tmpD = []
+                        if(Array.isArray(e))          
+                        {
+                            tmpD = e;
+                        }
+                        else
+                        {
+                            tmpD.push({...e})
+                        }
+                        
+                        tmpD = tmpD.find(x => x[Object.keys(this.props.dt.filter)[0]] === Object.values(this.props.dt.filter)[0]);
+                        if(typeof tmpD != 'undefined')
+                        {
+                            this.value = tmpD[this.props.dt.field] 
+                        }
+                    }
+                }
+            });
+            this.props.dt.data.on('onRefresh',() =>
+            {
+                if(this.props.dt.data.length > 0)
+                {                 
+                    if(typeof this.props.dt.filter == 'undefined')
+                    {
+                        this.value = this.props.dt.data[0][this.props.dt.field]
+                    }   
+                    else
+                    {
+                        this.value = this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]
+                    }
+                }
+            });
         }
     }
     get data()
@@ -46,11 +123,10 @@ export default class NdBase extends React.Component
         return this.state.data;
     }
     dataRefresh(e)
-    {        
+    {  
         return new Promise(mresolve => 
         {
-            let tmpThis = this;
-            
+            let tmpThis = this;            
             this.setState(
             { 
                 data : 
@@ -82,8 +158,8 @@ export default class NdBase extends React.Component
                                 else if (typeof e != 'undefined' && typeof e.source != 'undefined' && e.source instanceof datatable)
                                 {
                                     tmpThis.state.data.source = e.source;
-                                    tmpThis.state.data.datatable = e.source;
-                                    await tmpThis.state.data.datatable.refresh();                                    
+                                    tmpThis.state.data.datatable = e.source;                                    
+                                    //await tmpThis.state.data.datatable.refresh();    
                                 }
                                 // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
                                 else if (typeof e != 'undefined' && typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
@@ -97,12 +173,11 @@ export default class NdBase extends React.Component
                                     tmpThis.state.data.datatable.deleteCmd = e.source.delete;
 
                                     await tmpThis.state.data.datatable.refresh()
-                                }
-
+                                }                                
                                 if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
                                 {
                                     //GROUP BY İÇİN YAPILDI
-                                    if(typeof e.source.groupBy != 'undefined' && e.source.groupBy.length > 0)
+                                    if(!e.source instanceof datatable && typeof e.source.groupBy != 'undefined' && e.source.groupBy.length > 0)
                                     {
                                         let tmpDt = new datatable()
                                         tmpDt.import(tmpThis.state.data.datatable.toArray())
@@ -132,23 +207,32 @@ export default class NdBase extends React.Component
                                 if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
                                 {
                                     tmpThis.state.data.datatable.push(values)
-                                    await tmpThis.state.data.datatable.insert();
+
+                                    if(typeof tmpThis.props.dbApply == 'undefined' || tmpThis.props.dbApply)
+                                    {
+                                        await this.state.data.datatable.insert();
+                                    }
                                 }
                                 resolve()                                
                             });
                         },
                         update: (key, values) => 
-                        {
+                        {                            
                             return new Promise(async resolve => 
                             {
-                                if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
+                                if(typeof this.state.data != 'undefined' && typeof this.state.data.datatable != 'undefined')
                                 {
                                     for (let i = 0; i < Object.keys(values).length; i++) 
                                     {
-                                        tmpThis.state.data.datatable.find(x => x === key)[Object.keys(values)[i]] = values[Object.keys(values)[i]]
+                                        this.state.data.datatable.find(x => x === key)[Object.keys(values)[i]] = values[Object.keys(values)[i]]
                                     }                                    
                                 }
-                                await this.state.data.datatable.update();
+                                
+                                if(typeof this.props.dbApply == 'undefined' || this.props.dbApply)
+                                {
+                                    await this.state.data.datatable.update();
+                                }
+                                
                                 resolve()                                
                             });
                         },
@@ -161,7 +245,11 @@ export default class NdBase extends React.Component
                                     tmpThis.state.data.datatable.removeAt(key)
                                 }
 
-                                await this.state.data.datatable.delete();
+                                if(typeof tmpThis.props.dbApply == 'undefined' || tmpThis.props.dbApply)
+                                {
+                                    await this.state.data.datatable.delete();
+                                }
+                                
                                 resolve()                                
                             });
                         },
@@ -181,14 +269,14 @@ export default class NdBase extends React.Component
                         },
                         onUpdated: function (key, values) 
                         {
-                            if(typeof tmpThis.props.data.onUpdated != 'undefined')
+                            if(typeof tmpThis.props.data != 'undefined' && typeof tmpThis.props.data.onUpdated != 'undefined')
                             {
                                 tmpThis.props.data.onUpdated(key,values)
                             }
                         },
                         onUpdating: function (key, values) 
-                        {
-                            if(typeof tmpThis.props.data.onUpdating != 'undefined')
+                        {                            
+                            if(typeof tmpThis.props.data != 'undefined' && typeof tmpThis.props.data.onUpdating != 'undefined')
                             {
                                 tmpThis.props.data.onUpdating(key,values)
                             }
@@ -212,14 +300,17 @@ export default class NdBase extends React.Component
                             let x = {}
                             x[tmpThis.props.valueExpr] = e
 
-                            if(tmpThis.props.defaultValue != "")                                                                            //defaultValue Dolu ise Datatable doldurma işlemi gerçekleştiriliyor.
-                            {
-                                await tmpThis.state.data.store.load().done(function () 
+                            // if(typeof tmpThis.props.defaultValue != 'undefined' && tmpThis.props.defaultValue != "")                        //defaultValue Dolu ise Datatable doldurma işlemi gerçekleştiriliyor.
+                            // {
+                                await tmpThis.state.data.store.load().done(async function () 
                                 {
                                     let FilterData = tmpThis.state.data.datatable.toArray().filter(x => x[tmpThis.props.valueExpr] === e)   //Datatable içerisinde defaultValue parametresine göre filtreleme işlemi yapılıyor.
-                                    x[tmpThis.props.displayExpr] = FilterData[0][tmpThis.props.displayExpr]                                 //displayExpr objesine göre x objesine alan ekleniyor, valuesine filtreden gelen veri ekleniyor.
+                                    if(FilterData.length > 0)
+                                    {
+                                        x[tmpThis.props.displayExpr] = FilterData[0][tmpThis.props.displayExpr]                             //displayExpr objesine göre x objesine alan ekleniyor, valuesine filtreden gelen veri ekleniyor.
+                                    }
                                 });
-                            }
+                            // }
 
                             return x
                         }   
