@@ -61,29 +61,57 @@ export default class NdSelectBox extends Base
         {            
             if(typeof this.props.dt.filter == 'undefined')
             {
-                this.props.dt.data[0][this.props.dt.field] = e
-                //SELECTBOX DA DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
-                if(typeof this.props.dt.display != 'undefined')
+                if(typeof this.props.dt.row != 'undefined' && typeof this.props.dt.data.find(x => x === this.props.dt.row) != 'undefined')
                 {
-                    this.props.dt.data[0][this.props.dt.display] = this.dev.option('displayValue')
+                    this.props.dt.data.find(x => x === this.props.dt.row)[this.props.dt.field] = e
+                    //SELECTBOX DA DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
+                    if(typeof this.props.dt.display != 'undefined')
+                    {
+                        this.props.dt.data.find(x => x === this.props.dt.row)[this.props.dt.display] = this.displayValue
+                    }
                 }
+                else
+                {
+                    this.props.dt.data[this.props.dt.data.length-1][this.props.dt.field] = e
+                    //SELECTBOX DA DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
+                    if(typeof this.props.dt.display != 'undefined')
+                    {
+                        this.props.dt.data[this.props.dt.data.length-1][this.props.dt.display] = this.displayValue
+                    }
+                }                
             }   
             else
             {
                 let tmpData = this.props.dt.data.where(this.props.dt.filter);
                 if(tmpData.length > 0)
                 {
-                    tmpData[0][this.props.dt.field] = e
-                    //SELECTBOX DA DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
-                    if(typeof this.props.dt.display != 'undefined')
+                    if(typeof this.props.dt.row != 'undefined' && typeof tmpData.find(x => x === this.props.dt.row) != 'undefined')
                     {
-                        tmpData[0][this.props.dt.display] = this.dev.option('displayValue')
+                        tmpData.find(x => x === this.props.dt.row)[this.props.dt.field] = e
+                        //SELECTBOX DA DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
+                        if(typeof this.props.dt.display != 'undefined')
+                        {
+                            tmpData.find(x => x === this.props.dt.row)[this.props.dt.display] = this.displayValue
+                        }
+                    }
+                    else
+                    {
+                        tmpData[tmpData.length-1][this.props.dt.field] = e
+                        //SELECTBOX DA DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
+                        if(typeof this.props.dt.display != 'undefined')
+                        {
+                            tmpData[tmpData.length-1][this.props.dt.display] = this.displayValue
+                        }
                     }
                 }
             }
         }
 
         this.setState({value:e == null ? '' : e})
+    }
+    get displayValue()
+    {
+        return this.dev.option('displayValue');
     }
     async componentDidMount()
     {

@@ -1,6 +1,6 @@
 import React from 'react';
 import NdPopUp from './popup.js';
-import NdGrid from './grid.js';
+import NdGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup,Toolbar} from './grid.js';
 import NdButton from './button.js';
 import Base from './base.js';
 import { access,param } from '../../core.js';
@@ -32,6 +32,7 @@ export default class NdPopGrid extends Base
         this._onHiding = this._onHiding.bind(this);
         this._onSelectionChanged = this._onSelectionChanged.bind(this);
         this._onClick = this._onClick.bind(this);
+        this._onRowDblClick = this._onRowDblClick.bind(this);
 
         this.access = {}
         this.param = {}
@@ -110,6 +111,15 @@ export default class NdPopGrid extends Base
             this.onClick(this.grid.getSelectedData())
         }
     }
+    _onRowDblClick(e)
+    {
+        this._onClick();
+        
+        if(typeof this.props.onRowDblClick != 'undefined')
+        {
+            this.props.onRowDblClick(e);
+        }
+    }
     //#endregion
     async componentDidMount()
     {
@@ -167,6 +177,7 @@ export default class NdPopGrid extends Base
                             height={'100%'} 
                             width={'100%'}
                             onSelectionChanged={this._onSelectionChanged} 
+                            onRowDblClick={this._onRowDblClick}
                             columns={this.state.columns}
                             filterRow={this.state.filterRow}
                             headerFilter={this.state.headerFilter}
@@ -176,7 +187,8 @@ export default class NdPopGrid extends Base
                             editing={this.state.editing}  
                             param={this.param.grid} 
                             access={this.access.grid}
-                            >
+                            >                            
+                            {this.props.children}
                             </NdGrid>
                         </div>
                     </div>

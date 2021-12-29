@@ -31,7 +31,8 @@ export default class NdGrid extends Base
         this._onSaved = this._onSaved.bind(this);
         this._onEditCanceling = this._onEditCanceling.bind(this);
         this._onEditCanceled = this._onEditCanceled.bind(this);
-        this._onCellPrepared = this._onCellPrepared.bind(this);         
+        this._onCellPrepared = this._onCellPrepared.bind(this);   
+        this._onRowDblClick = this._onRowDblClick.bind(this);      
     }
     //#region Private
     _onInitialized(e) 
@@ -136,6 +137,13 @@ export default class NdGrid extends Base
             this.props.onCellPrepared(e);
         }
     }
+    _onRowDblClick(e)
+    {
+        if(typeof this.props.onRowDblClick != 'undefined')
+        {
+            this.props.onRowDblClick(e);
+        }
+    }
     //#endregion
     componentDidUpdate()
     {
@@ -226,7 +234,7 @@ export default class NdGrid extends Base
                 onInitNewRow={this._onInitNewRow} onEditingStart={this._onEditingStart} onRowInserting={this._onRowInserting} onRowInserted={this._onRowInserted}
                 onRowUpdating={this._onRowUpdating} onRowUpdated={this._onRowUpdated} onRowRemoving={this._onRowRemoving} onRowRemoved={this._onRowRemoved} 
                 onSaving={this._onSaving} onSaved={this._onSaved} onEditCanceling={this._onEditCanceling} onEditCanceled={this._onEditCanceled}
-                onCellPrepared={this._onCellPrepared}
+                onCellPrepared={this._onCellPrepared} onRowDblClick={this._onRowDblClick}
                 filterRow={this.state.filterRow}
                 headerFilter={this.state.headerFilter}
                 selection={this.state.selection}

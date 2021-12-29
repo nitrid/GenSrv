@@ -1,7 +1,7 @@
 import React from 'react';
 import {TextBox,Button} from 'devextreme-react/text-box';
 import Base from './base.js';
-
+import { core } from '../../core.js';
 export default class NdTextBox extends Base
 {
     constructor(props)
@@ -12,12 +12,13 @@ export default class NdTextBox extends Base
         this.state.title = typeof props.title == 'undefined' ? '' : props.title
         this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
         this.state.showClearButton = typeof props.showClearButton == 'undefined' ? false : props.showClearButton
-        
+        this.state.readOnly = typeof props.readOnly == 'undefined' ? false : props.readOnly
+
         this._onValueChanged = this._onValueChanged.bind(this)
         this._onEnterKey = this._onEnterKey.bind(this)
         this._onFocusIn = this._onFocusIn.bind(this)
         this._onFocusOut = this._onFocusOut.bind(this)
-        this._onChange = this._onChange.bind(this)
+        this._onChange = this._onChange.bind(this)        
     }
     //#region Private
     _onValueChanged(e) 
@@ -25,7 +26,7 @@ export default class NdTextBox extends Base
         this.value = e.value;
         if(typeof this.props.onValueChanged != 'undefined')
         {
-            this.props.onValueChanged();
+            this.props.onValueChanged(e);
         }
     }
     _onEnterKey()
@@ -92,8 +93,8 @@ export default class NdTextBox extends Base
                 valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
                 onEnterKey={this._onEnterKey} onFocusIn={this._onFocusIn} onFocusOut={this._onFocusOut}
                 onChange={this._onChange}
-                value={this.state.value} 
-                readOnly={this.props.readOnly}
+                value={this.state.value.toString()} 
+                readOnly={this.state.readOnly}
                 disabled={typeof this.props.editable == 'undefined' ? this.state.editable : this.props.editable}>
                 {this._buttonView()}
                 {this.props.children}
@@ -112,20 +113,42 @@ export default class NdTextBox extends Base
         {            
             if(typeof this.props.dt.filter == 'undefined')
             {
-                this.props.dt.data[0][this.props.dt.field] = e
+                if(typeof this.props.dt.row != 'undefined' && typeof this.props.dt.data.find(x => x === this.props.dt.row) != 'undefined')
+                {
+                    this.props.dt.data.find(x => x === this.props.dt.row)[this.props.dt.field] = e
+                }
+                else
+                {
+                    this.props.dt.data[this.props.dt.data.length-1][this.props.dt.field] = e
+                }
             }   
             else
             {
                 let tmpData = this.props.dt.data.where(this.props.dt.filter);
                 if(tmpData.length > 0)
                 {
-                    tmpData[0][this.props.dt.field] = e
+                    if(typeof this.props.dt.row != 'undefined' && typeof tmpData.find(x => x === this.props.dt.row) != 'undefined')
+                    {
+                        tmpData.find(x => x === this.props.dt.row)[this.props.dt.field] = e
+                    }
+                    else
+                    {
+                        tmpData[tmpData.length-1][this.props.dt.field] = e
+                    }
                 }
             }
         }
         
         this.setState({value:e.toString()})        
     } 
+    get readOnly()
+    {
+        return this.state.readOnly
+    }
+    set readOnly(e)
+    {
+        this.setState({readOnly:e})
+    }
     render()
     {        
         // YETKİLENDİRMEDEN GELEN GÖRÜNÜR GÖRÜNMEZ DURUMU. DEĞER BASE DEN GELİYOR.

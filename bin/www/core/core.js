@@ -328,7 +328,13 @@ export class datatable
         {
             this.name = '';
         }
-    }     
+    }  
+    static uuidv4() 
+    {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+          (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        ).toString().toUpperCase();
+    }   
     //#region  "EVENT"
     on(pEvt, pCallback) 
     {
@@ -361,7 +367,7 @@ export class datatable
                 if(target[prop] != receiver)
                 {
                     target[prop] = receiver
-                    this.emit('onEdit',{data:{[prop]:receiver},rowIndex:this.length,rowData:this.toArray()});
+                    this.emit('onEdit',{data:{[prop]:receiver},rowIndex:this.findIndex(x => x === pItem),rowData:pItem});
     
                     if(target.stat != 'new')
                     {
@@ -469,7 +475,8 @@ export class datatable
                         }
 
                         if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
-                        {
+                        {             
+                            console.log(this.insertCmd)               
                             let TmpInsertData = await this.sql.execute(this.insertCmd)
 
                             if(typeof TmpInsertData.result.err == 'undefined')
@@ -591,6 +598,16 @@ export class datatable
                 }   
             }            
                
+            resolve();
+        });
+    }
+    save()
+    {
+        return new Promise(async resolve => 
+        {
+            await this.insert()
+            await this.update()
+            await this.delete();
             resolve();
         });
     }

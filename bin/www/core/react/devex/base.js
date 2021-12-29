@@ -1,6 +1,7 @@
 import React from 'react';
 import CustomStore from 'devextreme/data/custom_store';
 import { datatable } from '../../core.js';
+import { core } from '../../core.js';
 
 export default class NdBase extends React.Component
 {
@@ -39,13 +40,15 @@ export default class NdBase extends React.Component
         // DATATABLE DEĞİŞTİĞİNDE YA DA YENİ SATIR EKLENDİĞİNDE BU DEĞİŞİKLİK ELEMENT E YANSITILIYOR.                
         if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && typeof this.props.dt.field != 'undefined')
         {            
-            this.props.dt.data.on('onEdit',(e) =>
-            {                                
+            this.props.dt.data.on('onEdit',async (e) =>
+            {               
+                await core.instance.util.waitUntil(0)                 
                 if(Object.keys(e.data)[0] == this.props.dt.field)
                 {
                     if(typeof this.props.dt.filter == 'undefined')
                     {
-                        this.value = e.data[Object.keys(e.data)[0]]
+                        this.setState({value:e.data[Object.keys(e.data)[0]]})
+                        this.props.dt.row = e.rowData;
                     }   
                     else
                     {   
@@ -64,18 +67,21 @@ export default class NdBase extends React.Component
                         
                         if(typeof tmpD != 'undefined')
                         {
-                            this.value = tmpD[this.props.dt.field] 
+                            this.setState({value:tmpD[this.props.dt.field]})
+                            this.props.dt.row = tmpD;
                         }
                     }
                 }
             });
-            this.props.dt.data.on('onNew',(e) =>
-            {           
+            this.props.dt.data.on('onNew',async (e) =>
+            {        
+                await core.instance.util.waitUntil(0)   
                 if(typeof Object.keys(e).find(x => x === this.props.dt.field) != 'undefined')
                 {  
                     if(typeof this.props.dt.filter == 'undefined')
                     {
-                        this.value = e[this.props.dt.field] 
+                        this.setState({value:e[this.props.dt.field]})
+                        this.props.dt.row = e;
                     }   
                     else
                     {
@@ -92,22 +98,26 @@ export default class NdBase extends React.Component
                         tmpD = tmpD.find(x => x[Object.keys(this.props.dt.filter)[0]] === Object.values(this.props.dt.filter)[0]);
                         if(typeof tmpD != 'undefined')
                         {
-                            this.value = tmpD[this.props.dt.field] 
+                            this.setState({value:tmpD[this.props.dt.field]})
+                            this.props.dt.row = tmpD;
                         }
                     }
                 }
             });
-            this.props.dt.data.on('onRefresh',() =>
+            this.props.dt.data.on('onRefresh',async () =>
             {
+                await core.instance.util.waitUntil(0)
                 if(this.props.dt.data.length > 0)
                 {                 
                     if(typeof this.props.dt.filter == 'undefined')
                     {
-                        this.value = this.props.dt.data[0][this.props.dt.field]
+                        this.setState({value:this.props.dt.data[0][this.props.dt.field]})
+                        this.props.dt.row = this.props.dt.data[0];
                     }   
                     else
                     {
-                        this.value = this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]
+                        this.setState({value:this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]})
+                        this.props.dt.row = this.props.dt.data.where(this.props.dt.filter)[0];
                     }
                 }
             });
@@ -136,7 +146,7 @@ export default class NdBase extends React.Component
                     store : new CustomStore(
                     {
                         load: () =>
-                        {  
+                        {                              
                             return new Promise(async resolve => 
                             {      
                                 // EĞER FONKSİYONA PARAMETRE GÖNDERİLMEMİŞ İSE VE STATE DEĞİŞKENİNDE DAHA ÖNCEDEN ATANMIŞ DATA SOURCE VARSA GRİD REFRESH EDİLİYOR.
@@ -299,7 +309,6 @@ export default class NdBase extends React.Component
                         {
                             let x = {}
                             x[tmpThis.props.valueExpr] = e
-
                             // if(typeof tmpThis.props.defaultValue != 'undefined' && tmpThis.props.defaultValue != "")                        //defaultValue Dolu ise Datatable doldurma işlemi gerçekleştiriliyor.
                             // {
                                 await tmpThis.state.data.store.load().done(async function () 
