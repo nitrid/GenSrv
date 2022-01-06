@@ -234,6 +234,9 @@ export class dataset
 {    
     constructor(pName)
     {
+        this.listeners = Object();
+        this.sql = core.instance.sql;    
+        
         if(typeof pName == 'undefined')
             this.name = pName;
         else
@@ -241,6 +244,38 @@ export class dataset
         
         this.dts = [];
     }
+    //#region  "EVENT"
+    on(pEvt,pCallback) 
+    {
+        for(let i = 0;i < this.length; i++)
+        {
+            let tmpName = this.get(i).name;
+            if(typeof this.listeners[tmpName] == 'undefined')
+            {
+                this.listeners[tmpName] = {}
+            }
+
+            if (!this.listeners[tmpName].hasOwnProperty(pEvt))
+            {
+                this.listeners[tmpName][pEvt] = Array();
+                this.listeners[tmpName][pEvt].push(pCallback); 
+            }
+        }
+    }
+    emit(pEvt,pName,pParams)
+    {
+        let tmpListener = this.listeners[pName]
+        
+        if (typeof tmpListener != 'undefined' && pEvt in tmpListener) 
+        {
+            let callbacks = this.listeners[pName][pEvt];
+            for (var x in callbacks)
+            {
+                callbacks[x](pName,pParams);
+            }
+        } 
+    }
+    //#endregion
     get length()
     {
         return this.dts.length;
@@ -273,12 +308,75 @@ export class dataset
                 tmpDt = pTable;
             }
             
+            tmpDt.on('onNew',async (e)=>
+            {
+                await core.instance.util.waitUntil(0)
+                this.emit('onNew',tmpDt.name,e)
+            })
+            tmpDt.on('onAddRow',async (e)=>
+            {
+                await core.instance.util.waitUntil(0)
+                this.emit('onAddRow',tmpDt.name,e)
+            })
+            tmpDt.on('onEdit',async (e)=>
+            {
+                await core.instance.util.waitUntil(0)
+                this.emit('onEdit',tmpDt.name,e)
+            })
+            tmpDt.on('onRefresh',async ()=>
+            {
+                await core.instance.util.waitUntil(0)
+                this.emit('onRefresh',tmpDt.name)
+            })
+            tmpDt.on('onClear',async ()=>
+            {
+                await core.instance.util.waitUntil(0)
+                this.emit('onClear',tmpDt.name)
+            })
+            
             this.remove(tmpDt.name)
             this.dts.push(tmpDt)
+
         }
+    }
+    update()
+    {
+        return new Promise(async resolve => 
+        {
+            let tmpQuerys = [];
+            for (let i = 0; i < this.length; i++) 
+            {
+                let tmp = this.get(i).toCommands();
+                tmp.forEach(e => 
+                {
+                    tmpQuerys.push(e)    
+                });
+            }
+
+            let tmpResult = await this.sql.execute(tmpQuerys)
+            if(typeof tmpResult.result.err == 'undefined')
+            {
+                for (let i = 0; i < this.length; i++) 
+                {
+                    let tmp = this.get(i);
+                    tmp.forEach(e => 
+                    {
+                        Object.setPrototypeOf(e,{stat:''})   
+                    });
+                }
+                
+                resolve(0)
+            }
+            else
+            {
+                console.log(tmpResult.result.err)
+                resolve(1)
+            } 
+        });
     }
     remove(pName)
     {
+        
         //EĞER PARAMETRE BOŞ GÖNDERİLİRSE TÜM DATASET TEMİZLENİYOR.
         if(typeof pName != 'undefined')
         {
@@ -286,6 +384,7 @@ export class dataset
             {
                 if(this.dts[i].name == pName)
                 {
+                    this.listeners[pName] = {}
                     this.dts.splice(i,1);
                 }
             }
@@ -439,116 +538,92 @@ export class datatable
             resolve();
         });
     }
-    insert()
+    toCommands()
     {
-        return new Promise(async resolve => 
+        let tmpStat = ['new','edit']
+        let tmpQueryList = [];
+
+        if(typeof arguments[0] != 'undefined' && arguments[0] != '')
         {
-            if(typeof this.insertCmd != 'undefined')
+            tmpStat = arguments[0].split(',')
+        }
+
+        for (let i = 0; i < this.length; i++) 
+        {
+            if(typeof this[i].stat != 'undefined' && typeof tmpStat.find(x => x == this[i].stat))
             {
-                this.insertCmd.value = [];
-            }
-            for (let i = 0; i < this.length; i++) 
-            {
-                if(typeof this[i].stat != 'undefined')
+                let tmpQuery = undefined;
+                if(this[i].stat == 'new')
                 {
-                    if(this[i].stat == 'new')
-                    {    
-                        Object.setPrototypeOf(this[i],{stat:''})
-
-                        if(typeof this.insertCmd != 'undefined')
+                    tmpQuery = {...this.insertCmd}
+                }
+                else if(this[i].stat == 'edit')
+                {
+                    tmpQuery = {...this.updateCmd}
+                }
+            
+                if(typeof tmpQuery != 'undefined')
+                {
+                    tmpQuery.value = [];
+                } 
+                
+                if(typeof tmpQuery != 'undefined')
+                {
+                    if(typeof tmpQuery.param == 'undefined')
+                    {
+                        continue;
+                    }
+                    for (let m = 0; m < tmpQuery.param.length; m++) 
+                    {         
+                        if(typeof tmpQuery.dataprm == 'undefined')
                         {
-                            if(typeof this.insertCmd.param == 'undefined')
-                            {
-                                continue;
-                            }
-                            for (let m = 0; m < this.insertCmd.param.length; m++) 
-                            {         
-                                if(typeof this.insertCmd.dataprm == 'undefined')
-                                {
-                                    this.insertCmd.value.push(this[i][this.insertCmd.param[m].split(':')[0]]);
-                                }
-                                else
-                                {
-                                    this.insertCmd.value.push(this[i][this.insertCmd.dataprm[m]]);
-                                }                                                       
-                            }
+                            tmpQuery.value.push(this[i][tmpQuery.param[m].split(':')[0]]);
                         }
-
-                        if(typeof this.insertCmd != 'undefined' && typeof this.insertCmd.value != 'undefined' && this.insertCmd.value.length > 0)
-                        {             
-                            console.log(this.insertCmd)               
-                            let TmpInsertData = await this.sql.execute(this.insertCmd)
-
-                            if(typeof TmpInsertData.result.err == 'undefined')
-                            {
-                                this.insertCmd.value = [];
-                            }
-                            else
-                            {
-                                console.log(TmpInsertData.result.err)
-                            }   
-                        }
+                        else
+                        {
+                            tmpQuery.value.push(this[i][tmpQuery.dataprm[m]]);
+                        }                                                       
                     }
                 }
+                if(typeof tmpQuery != 'undefined' && typeof tmpQuery.value != 'undefined' && tmpQuery.value.length > 0)
+                {       
+                    tmpQuery.rowData = this[i]
+                    tmpQueryList.push(tmpQuery)
+                }
             }
-            
-            resolve();
-        });
+        }
+
+        return tmpQueryList;
     }
     update()
     {
         return new Promise(async resolve => 
         {
-            if(typeof this.updateCmd != 'undefined')
-            {
-                this.updateCmd.value = [];
-            }            
-            
-            for (let i = 0; i < this.length; i++) 
-            {
-                if(typeof this[i].stat != 'undefined')
-                {
-                    if(this[i].stat == 'edit')
-                    {
-                        Object.setPrototypeOf(this[i],{stat:''})
+            let tmpQuerys = undefined;
 
-                        if(typeof this.updateCmd != 'undefined')
-                        {
-                            if(typeof this.updateCmd.param == 'undefined')
-                            {
-                                continue;
-                            }
-                            for (let m = 0; m < this.updateCmd.param.length; m++) 
-                            {
-                                if(typeof this.updateCmd.dataprm == 'undefined')
-                                {
-                                    this.updateCmd.value.push(this[i][this.updateCmd.param[m].split(':')[0]]);
-                                }
-                                else
-                                {
-                                    this.updateCmd.value.push(this[i][this.updateCmd.dataprm[m]]);
-                                }
-                            }
-                        }
-                    }  
-                    
-                    if(typeof this.updateCmd != 'undefined' && typeof this.updateCmd.value != 'undefined' && this.updateCmd.value.length > 0)
-                    {
-                        let TmpUpdateData = await this.sql.execute(this.updateCmd)
-
-                        if(typeof TmpUpdateData.result.err == 'undefined')
-                        {
-                            this.updateCmd.value = [];
-                        }
-                        else
-                        {
-                            console.log(TmpUpdateData.result.err)
-                        }   
-                    }      
-                }
+            if(typeof arguments[0] == 'undefined' || arguments[0] == '')
+            {
+                tmpQuerys = this.toCommands();
             }
-                                 
-            resolve();
+            else
+            {
+                tmpQuerys = this.toCommands(arguments[0]);
+            }
+
+            let tmpResult = await this.sql.execute(tmpQuerys)
+            if(typeof tmpResult.result.err == 'undefined')
+            {
+                for (let i = 0; i < this.length; i++) 
+                {
+                    Object.setPrototypeOf(this[i],{stat:''})
+                }
+                resolve(0)
+            }
+            else
+            {
+                console.log(tmpResult.result.err)
+                resolve(1)
+            } 
         });
     }
     delete()
@@ -591,24 +666,15 @@ export class datatable
                 if(typeof TmpDeleteData.result.err == 'undefined')
                 {
                     this.deleteCmd.value = [];
+                    resolve(0)
                 }
                 else
                 {
                     console.log(TmpDeleteData.result.err)
+                    resolve(1)
                 }   
             }            
-               
-            resolve();
-        });
-    }
-    save()
-    {
-        return new Promise(async resolve => 
-        {
-            await this.insert()
-            await this.update()
-            await this.delete();
-            resolve();
+            resolve(1);
         });
     }
     toArray()
@@ -675,7 +741,7 @@ export class datatable
             }
             return r;
         },[])
-
+        
         let tmpDt = new datatable();
         tmpDt.import(tmpGrpData)
         return tmpDt
@@ -696,6 +762,7 @@ export class datatable
             let tmpDt = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
             tmpDt.clear()
             tmpDt.import(tmpData)
+            
             return tmpDt;
         }
     }

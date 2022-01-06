@@ -1,7 +1,9 @@
 import React from 'react';
 import DateBox from 'devextreme-react/date-box';
 import Base from './base.js';
+import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
 
+export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 export default class NdDatePicker extends Base
 {
     constructor(props)
@@ -17,6 +19,17 @@ export default class NdDatePicker extends Base
         
         this._onValueChanged = this._onValueChanged.bind(this)
         this._onEnterKey = this._onEnterKey.bind(this)
+
+        //PARAMETRE DEĞERİ SET EDİLİYOR.
+        if(typeof props.param != 'undefined')
+        {   
+            let tmpVal = props.param.getValue()
+            if(typeof props.param.getValue() == 'object')
+            {
+                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
+            }     
+            this.state.value = new Date(tmpVal);
+        }
     }
     //#region Private
     _onValueChanged(e) 
@@ -37,7 +50,7 @@ export default class NdDatePicker extends Base
     _dateView()
     {
         return (
-            <DateBox showClearButton={this.state.showClearButton} 
+            <DateBox id={this.props.id} showClearButton={this.state.showClearButton} 
             height='fit-content' 
             valueChangeEvent="keyup" 
             value={moment(this.state.value).format("YYYY-MM-DD") == '1970-01-01' ? null : this.state.value} 
@@ -45,7 +58,9 @@ export default class NdDatePicker extends Base
             type={this.state.type}
             dateSerializationFormat={"yyyy-MM-dd"}
             editorOptions={this.state.editorOptions}
-            onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}/>
+            onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}>
+                {this.props.children}
+            </DateBox>
         )
     }
     //#endregion

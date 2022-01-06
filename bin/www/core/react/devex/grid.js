@@ -1,9 +1,9 @@
 import React from 'react';
 import DataGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup} from 'devextreme-react/data-grid';
-import Toolbar from 'devextreme-react/toolbar';
+import Toolbar,{Item} from 'devextreme-react/toolbar';
 import Base from './base.js';
 
-export {Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup,Toolbar}
+export {Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup,Toolbar,Item}
 export default class NdGrid extends Base
 {
     constructor(props)

@@ -1,32 +1,27 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {TextBox,Button,Item} from 'devextreme-react/text-box';
+import {NumberBox} from 'devextreme-react/number-box';
 import Base from './base.js';
 import { core } from '../../core.js';
 import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
 
 export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
-export default class NdTextBox extends Base
+export default class NdNumberBox extends Base
 {
     constructor(props)
     {
         super(props)
         
-        this.dev = null;
-
-        this.state.value = typeof props.value != 'undefined' ? props.value : '' 
+        this.state.value = typeof props.value != 'undefined' ? props.value : 0 
         this.state.title = typeof props.title == 'undefined' ? '' : props.title
-        this.state.displayValue = typeof props.displayValue == 'undefined' ? '' : props.displayValue
         this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
         this.state.showClearButton = typeof props.showClearButton == 'undefined' ? false : props.showClearButton
         this.state.readOnly = typeof props.readOnly == 'undefined' ? false : props.readOnly        
 
-        this._onInitialized = this._onInitialized.bind(this);
-        this._onValueChanged = this._onValueChanged.bind(this);
-        this._onEnterKey = this._onEnterKey.bind(this);
-        this._onFocusIn = this._onFocusIn.bind(this);
-        this._onFocusOut = this._onFocusOut.bind(this);
-        this._onChange = this._onChange.bind(this);        
+        this._onValueChanged = this._onValueChanged.bind(this)
+        this._onEnterKey = this._onEnterKey.bind(this)
+        this._onFocusIn = this._onFocusIn.bind(this)
+        this._onFocusOut = this._onFocusOut.bind(this)
+        this._onChange = this._onChange.bind(this)        
 
         //PARAMETRE DEĞERİ SET EDİLİYOR.
         if(typeof props.param != 'undefined')
@@ -34,18 +29,14 @@ export default class NdTextBox extends Base
             let tmpVal = props.param.getValue()
             if(typeof props.param.getValue() == 'object')
             {
-                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
+                tmpVal = typeof props.param.getValue().value == 'undefined' ? 0 : props.param.getValue().value
             }     
             this.state.value = tmpVal;
         }
     }
     //#region Private
-    _onInitialized(e) 
-    {
-        this.dev = e.component;
-    }
     _onValueChanged(e) 
-    {           
+    {         
         this.value = e.value;
         if(typeof this.props.onValueChanged != 'undefined')
         {
@@ -80,144 +71,25 @@ export default class NdTextBox extends Base
             this.props.onChange();
         }
     }
-    _buttonView()
-    {
-        if(typeof this.props.button != 'undefined')
-        {
-            let tmp = []
-            let tmpStyle = undefined
-
-            if(typeof this.props.displayValue != 'undefined')
-            {
-                tmpStyle = {style:'z-index:2'}
-            }
-
-            for (let i = 0; i < this.props.button.length; i++) 
-            {
-                tmp.push (
-                    <Button key={i}
-                        name={"btn_" + this.props.button[i].id}
-                        location="after"                                               
-                        options=
-                        {
-                            {
-                                disabled:false,
-                                icon: this.props.button[i].icon,
-                                stylingMode: "text",
-                                onClick: this.props.button[i].onClick,
-                                elementAttr: tmpStyle 
-                            }
-                        }
-                    >                
-                    </Button>
-                )
-            }
-            return tmp
-        }
-    }
-    _displayView()
-    {               
-        if(typeof this.props.displayValue != 'undefined')
-        {
-            return (
-                <div id={"dsp" + this.props.id}  style={
-                    {
-                        position:'absolute',
-                        backgroundColor:'white',
-                        zIndex: 1,
-                        borderRadius:'4px',
-                        height:'100%',
-                        padding:'5px',
-                        margin:'2px',
-                        width:'100%',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden'
-                    }
-                }>{this.state.displayValue}</div>
-            )            
-        }
-    }
     _txtView()
-    {        
+    {
         return (
-            <TextBox id={this.props.id} showClearButton={this.state.showClearButton} height='fit-content' 
-                maxLength={this.props.maxLength}
+            <NumberBox showClearButton={this.state.showClearButton} height='fit-content' 
                 style={this.props.style}
                 valueChangeEvent="keyup" onValueChanged={this._onValueChanged} 
                 onEnterKey={this._onEnterKey} onFocusIn={this._onFocusIn} onFocusOut={this._onFocusOut}
                 onChange={this._onChange}
-                onInitialized={this._onInitialized}
-                value={this.state.value.toString()} 
+                value={this.state.value} 
                 readOnly={this.state.readOnly}
-                disabled={typeof this.props.editable == 'undefined' ? this.state.editable : this.props.editable}>                    
-                    {this._buttonView()}
+                disabled={typeof this.props.editable == 'undefined' ? this.state.editable : this.props.editable}
+                showSpinButtons={this.props.showSpinButtons}
+                step={this.props.step}
+                format={this.props.format}>                    
                     {this.props.children}
-                    {this._displayView()}
-            </TextBox>
+            </NumberBox>
         )
     }
-    componentDidMount()
-    {
-        if(typeof this.props.displayValue != 'undefined')
-        {
-            $("#" + this.props.id + " > .dx-texteditor-container > .dx-texteditor-input-container").append($("#" + this.props.id + " > #dsp" + this.props.id))
-        }
-    }
     //#endregion
-    get displayValue()
-    {
-        return this.state.displayValue;
-    }
-    set displayValue(e)
-    {
-        //TEXT DEĞİŞTİĞİNDE BU DEĞİŞİKLİK DATATABLE A YANSITMAK İÇİN YAPILDI.
-        if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && this.props.dt.data.length > 0 && typeof this.props.dt.field != 'undefined')
-        {            
-            if(typeof this.props.dt.filter == 'undefined')
-            {
-                if(typeof this.props.dt.row != 'undefined' && typeof this.props.dt.data.find(x => x === this.props.dt.row) != 'undefined')
-                {
-                    //TEXT DE DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
-                    if(typeof this.props.dt.display != 'undefined')
-                    {
-                        this.props.dt.data.find(x => x === this.props.dt.row)[this.props.dt.display] = e;
-                    }
-                }
-                else
-                {
-                    //TEXT DE DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
-                    if(typeof this.props.dt.display != 'undefined')
-                    {
-                        this.props.dt.data[this.props.dt.data.length-1][this.props.dt.display] = e
-                    }                    
-                }
-            }   
-            else
-            {
-                let tmpData = this.props.dt.data.where(this.props.dt.filter);
-                if(tmpData.length > 0)
-                {
-                    if(typeof this.props.dt.row != 'undefined' && typeof tmpData.find(x => x === this.props.dt.row) != 'undefined')
-                    {
-                        //TEXT DE DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
-                        if(typeof this.props.dt.display != 'undefined')
-                        {
-                            tmpData.find(x => x === this.props.dt.row)[this.props.dt.display] = e
-                        }
-                    }
-                    else
-                    {
-                        //TEXT DE DEĞİŞEN DEĞERİN DISPLAY DE DEĞERİNİ DATATABLE A YANSITILIYOR
-                        if(typeof this.props.dt.display != 'undefined')
-                        {
-                            tmpData[tmpData.length-1][this.props.dt.display] = e
-                        }
-                    }
-                }
-            }
-        }
-        this.setState({displayValue:e})        
-    }
     get value()
     {
         return this.state.value
@@ -255,7 +127,7 @@ export default class NdTextBox extends Base
             }
         }
         
-        this.setState({value:e.toString()})        
+        this.setState({value:e})        
     } 
     get readOnly()
     {

@@ -8,20 +8,22 @@ export default class NdButton extends Base
     {
         super(props)
 
-        this.state.text = typeof props.text == 'undefined' ? '' : props.text;
-        this.state.width = typeof props.width == 'undefined' ? undefined : props.width;
-        this.state.height = typeof props.height == 'undefined' ? undefined : props.height;
-        this.state.type = typeof props.type == 'undefined' ? 'normal' : props.type;
-        this.state.stylingMode = typeof props.stylingMode == 'undefined' ? 'contained' : props.stylingMode;
-        
+        this.state.text = props.text;
+        this.state.icon = props.icon;
+        this.state.width = props.width;
+        this.state.height = props.height;
+        this.state.type = props.type;
+        this.state.stylingMode = props.stylingMode;
+        this.state.disabled = props.disabled;
+
         this._onClick = this._onClick.bind(this);
     }
     //#region Private
-    _onClick()
+    _onClick(e)
     {
         if(typeof this.props.onClick != 'undefined')
         {
-            this.props.onClick();
+            this.props.onClick(e);
         }
     }
     //#endregion
@@ -34,8 +36,17 @@ export default class NdButton extends Base
         }
 
         return (
-            <Button text={this.state.text} width={this.state.width} height={this.state.height} type={this.state.type} stylingMode={this.state.stylingMode}
-                onClick={this._onClick}
+            <Button id={this.props.id} 
+            location={this.props.location}
+            text={this.state.text} 
+            width={this.state.width} 
+            height={this.state.height} 
+            type={this.state.type} 
+            stylingMode={this.state.stylingMode}
+            icon={this.state.icon}
+            onClick={this._onClick}
+            validationGroup={this.props.validationGroup}
+            disabled={this.state.disabled}
             />
         )
     }

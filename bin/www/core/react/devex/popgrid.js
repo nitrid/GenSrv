@@ -1,6 +1,6 @@
 import React from 'react';
 import NdPopUp from './popup.js';
-import NdGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup,Toolbar} from './grid.js';
+import NdGrid,{Column,ColumnChooser,ColumnFixing,Pager,Paging,Scrolling,Selection,Editing,FilterRow,SearchPanel,HeaderFilter,Popup,Toolbar,Item} from './grid.js';
 import NdButton from './button.js';
 import Base from './base.js';
 import { access,param } from '../../core.js';
@@ -89,6 +89,36 @@ export default class NdPopGrid extends Base
             }
         });
     }
+    _buttonView()
+    {
+        if(typeof this.props.button != 'undefined')
+        {
+            let tmp = []
+            for (let i = 0; i < this.props.button.length; i++) 
+            {
+                tmp.push (
+                    <Item key={i} location="after" locateInMenu="auto">
+                        <NdButton  id={"btn_" + this.props.button[i].id} location="after" 
+                        type="normal"
+                        icon={this.props.button[i].icon}
+                        stylingMode={"contained"}
+                        onClick={this.props.button[i].onClick}
+                        >
+                        </NdButton>
+                    </Item>
+                )
+            }   
+            return (
+            <div className="row">
+                <div className="col-12 py-2">
+                    <Toolbar>
+                        {tmp}
+                    </Toolbar>
+                </div>
+            </div> 
+            )
+        }
+    }
     _onSelectionChanged(e) 
     {
         if(typeof this.props.onSelectionChanged != 'undefined')
@@ -102,6 +132,7 @@ export default class NdPopGrid extends Base
         {
             this.props.onHiding();
         }
+        //this.hide();
     }
     _onClick()
     {
@@ -140,13 +171,21 @@ export default class NdPopGrid extends Base
     {
         this.setState({show:false})
     }
+    componentWillReceiveProps(pProps) 
+    {
+        this.setState(
+            {
+                show : pProps.visible,
+            }
+        )       
+    }  
     render()
     {
         return (
             <React.Fragment>
                 <NdPopUp parent={this} id={"pop_" + this.props.id} 
                     visible={this.state.show}
-                    onHiding={this._onHiding}
+                    onHiding={this._onHiding}                   
                     closeOnOutsideClick={this.state.closeOnOutsideClick}
                     showCloseButton={this.state.showCloseButton}
                     showTitle={this.state.showTitle}
@@ -156,6 +195,7 @@ export default class NdPopGrid extends Base
                     height={this.state.height}
                     position={this.state.position}
                 >
+                    {this._buttonView()}                 
                     <div className="row">
                         <div className="col-12 py-2">
                             <NdButton parent={this} id={"btn_" + this.props.id} text="Seç" width={'100%'} type={"default"}
@@ -165,7 +205,7 @@ export default class NdPopGrid extends Base
                             />
                         </div>
                     </div>
-                    <div className="row" style={{height:"92%"}}>
+                    <div className="row" style={{height:"89%"}}>
                         <div className="col-12">
                             <NdGrid parent={this} id={"grid_" + this.props.id} 
                             dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 

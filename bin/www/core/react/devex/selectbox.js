@@ -1,6 +1,9 @@
 import React from 'react';
 import SelectBox from 'devextreme-react/select-box';
 import Base from './base.js';
+import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
+
+export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 
 export default class NdSelectBox extends Base
 {
@@ -9,10 +12,21 @@ export default class NdSelectBox extends Base
         super(props)
         this.dev = null;
 
-        this.state.value = typeof props.value == 'undefined' ? '' : props.value;
+        this.state.value = typeof props.value != 'undefined' ? props.value : ''
 
         this._onInitialized = this._onInitialized.bind(this);
         this._onValueChanged = this._onValueChanged.bind(this);
+
+        //PARAMETRE DEĞERİ SET EDİLİYOR.
+        if(typeof props.param != 'undefined')
+        {   
+            let tmpVal = props.param.getValue()
+            if(typeof props.param.getValue() == 'object')
+            {
+                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
+            }     
+            this.state.value = tmpVal;
+        }
     }
     //#region Private
     _onInitialized(e) 
@@ -22,8 +36,8 @@ export default class NdSelectBox extends Base
     _selectBoxView()
     {
         return (
-            <SelectBox 
-            dataSource={typeof this.state.data == 'undefined' ? undefined : this.state.data.store} 
+            <SelectBox id={this.props.id}
+            dataSource={typeof this.state.data == 'undefined' ? typeof this.props.dataSource != 'undefined' ? this.props.dataSource : undefined : this.state.data.store} 
             displayExpr={this.props.displayExpr} 
             valueExpr={this.props.valueExpr}
             defaultValue={this.props.defaultValue}
@@ -38,7 +52,9 @@ export default class NdSelectBox extends Base
             height={this.props.height}
             style={this.props.style}
             value={this.state.value}
-            />
+            >
+            {this.props.children}
+            </SelectBox>
         )
     }
     _onValueChanged(e) 

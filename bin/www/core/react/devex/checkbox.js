@@ -1,16 +1,29 @@
 import React from 'react';
 import CheckBox from 'devextreme-react/check-box';
 import Base from './base.js';
+import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
 
+export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 export default class NdCheckBox extends Base
 {
     constructor(props)
     {
         super(props)
         
-        this.state.value = typeof props.value == 'undefined' ? false : props.value;
+        this.state.value = typeof props.value != 'undefined' ? props.value : false
 
-        this._onValueChanged = this._onValueChanged.bind(this);        
+        this._onValueChanged = this._onValueChanged.bind(this);       
+        
+        //PARAMETRE DEĞERİ SET EDİLİYOR.
+        if(typeof props.param != 'undefined')
+        {   
+            let tmpVal = props.param.getValue()
+            if(typeof props.param.getValue() == 'object')
+            {
+                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
+            }     
+            this.state.value = tmpVal;
+        }
     }
     _onValueChanged(e) 
     {
@@ -62,7 +75,9 @@ export default class NdCheckBox extends Base
     render()
     {
         return(
-            <CheckBox defaultValue={this.props.defaultValue} value={this.state.value} text={this.props.text} onValueChanged={this._onValueChanged}/>
+            <CheckBox id={this.props.id} defaultValue={this.props.defaultValue} value={this.state.value} text={this.props.text} onValueChanged={this._onValueChanged}>
+            {this.props.children}
+            </CheckBox>
         )
     }
 }

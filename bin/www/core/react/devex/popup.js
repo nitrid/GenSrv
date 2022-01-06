@@ -22,9 +22,6 @@ export default class NdPopUp extends Base
         this.state.width = typeof props.width == 'undefined' ? 'auto' : props.width
         this.state.height = typeof props.height == 'undefined' ? 'auto' : props.height
         this.state.position = typeof props.position == 'undefined' ? undefined : props.position
-        // this.state.at = typeof props.at == 'undefined' ? "center" : props.at
-        // this.state.my = typeof props.my == 'undefined' ? "center" : props.my
-        // this.state.of = typeof props.of == 'undefined' ? "" : props.of
         
         this.onHiding = this.onHiding.bind(this);
     }
@@ -61,7 +58,7 @@ export default class NdPopUp extends Base
         )       
     }  
     show()
-    {      
+    {  
         this.setState(
         {
             show: true
@@ -88,10 +85,7 @@ export default class NdPopUp extends Base
         {
             this.props.onHiding();
         }
-        this.setState(
-        {
-            show: false            
-        });
+        this.hide();
     }
     render()
     {   
