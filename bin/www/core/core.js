@@ -236,7 +236,7 @@ export class dataset
     {
         this.listeners = Object();
         this.sql = core.instance.sql;    
-        
+
         if(typeof pName == 'undefined')
             this.name = pName;
         else
@@ -406,7 +406,8 @@ export class datatable
 
         this._deleteList = [];
         this._groupList = [];
-
+        //EDİT SIRASINDA DEĞİŞTİĞİNİ ALGILAMAMASINI İSTEDİĞİN KOLON LİSTESİ.
+        this.noColumnEdit = []
         this.listeners = Object();
         this.sql = core.instance.sql;        
 
@@ -467,10 +468,17 @@ export class datatable
                 {
                     target[prop] = receiver
                     this.emit('onEdit',{data:{[prop]:receiver},rowIndex:this.findIndex(x => x === pItem),rowData:pItem});
-    
-                    if(target.stat != 'new')
+                    //EĞER EDİT EDİLDİĞİNDE STATE DURUMUNUN DEĞİŞMEMESİNİ İSTEDİĞİN KOLON VARSA BURDA KONTROL EDİLİYOR
+                    if(target.stat != 'new' && typeof this.noColumnEdit.find(x => x == prop) == 'undefined')
                     {
-                        Object.setPrototypeOf(target,{stat:'edit'})                    
+                        //EDİT EDİLMİŞ KOLON VARSA BURDA editColumn DEĞİŞKENİNE SET EDİLİYOR.
+                        let tmpColumn = []
+                        if(typeof target.editColumn != 'undefined')
+                        {
+                            tmpColumn = [...target.editColumn];
+                        }
+                        tmpColumn.push(prop)
+                        Object.setPrototypeOf(target,{stat:'edit',editColumn:tmpColumn})                    
                     }
                 }
                 //return target[prop];

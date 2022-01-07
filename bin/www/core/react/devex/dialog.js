@@ -33,8 +33,7 @@ export default class NdDialog extends Base
     async show()
     {
         this.result = null;
-
-        this.setState({show:true})
+        this["dia_" + this.props.id].setState({show:true})
         return new Promise(async resolve => 
         {
             this._onClick = function(e)
@@ -47,7 +46,7 @@ export default class NdDialog extends Base
     }
     hide()
     {
-        this.setState({show:false})
+        this["dia_" + this.props.id].setState({show:false})
     }
     _buttonView(props)
     {
@@ -118,8 +117,8 @@ export const dialog = function()
         let tmpObj = React.createRef();
         let tmpJsx = 
         (
-            <NdDialog ref={tmpObj} id={arguments[0].id} container={".dx-multiview-wrapper"}
-            position={{of:typeof arguments[0].position == 'undefined' ? '#page' : arguments[0].position}} 
+            <NdDialog ref={tmpObj} id={arguments[0].id} container={"#root"}
+            position={{of:typeof arguments[0].position == 'undefined' ? '#root' : arguments[0].position}} 
             showTitle={arguments[0].showTitle} 
             title={arguments[0].title} 
             showCloseButton={arguments[0].showCloseButton}
@@ -141,7 +140,7 @@ export const dialog = function()
                 </div>
             </NdDialog>
         )
-        
+
         ReactDOM.render(tmpJsx,document.body.appendChild(document.createElement('div',{id:'dialog'})));
         resolve(await tmpObj.current.show())
     });

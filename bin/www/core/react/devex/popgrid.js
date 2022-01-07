@@ -132,7 +132,7 @@ export default class NdPopGrid extends Base
         {
             this.props.onHiding();
         }
-        //this.hide();
+        this.hide();
     }
     _onClick()
     {
@@ -163,28 +163,30 @@ export default class NdPopGrid extends Base
     }    
     async show()
     {
-        this.setState({show:true})
+        //this.setState({show:true})
+        this["pop_" + this.props.id].show();
         this.grid = await this._isGrid();
         await this.grid.dataRefresh(this.state.data)
     }
     hide()
     {
-        this.setState({show:false})
+        this["pop_" + this.props.id].hide();
+        //this.setState({show:false})
     }
     componentWillReceiveProps(pProps) 
     {
-        this.setState(
-            {
-                show : pProps.visible,
-            }
-        )       
+        // this.setState(
+        //     {
+        //         show : pProps.visible,
+        //     }
+        // )       
     }  
     render()
     {
         return (
             <React.Fragment>
                 <NdPopUp parent={this} id={"pop_" + this.props.id} 
-                    visible={this.state.show}
+                    //visible={this.state.show}
                     onHiding={this._onHiding}                   
                     closeOnOutsideClick={this.state.closeOnOutsideClick}
                     showCloseButton={this.state.showCloseButton}

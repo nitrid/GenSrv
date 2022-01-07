@@ -166,19 +166,20 @@ export default class NdBase extends React.Component
                         }
                     }
                 }
+                //BURAYA TEKRAR BAKILACAK.
                 //YENI SATIR EKLENDİĞİNDE ELEMANIN PARAMETRE DEĞERİ VARSA UYGULANIYOR...
-                if(typeof this.props.param != 'undefined')
-                {   
-                    let tmpVal = this.props.param.getValue()
-                    if(typeof this.props.param.getValue() == 'object')
-                    {
-                        tmpVal = typeof this.props.param.getValue().value == 'undefined' ? '' : this.props.param.getValue().value
-                    }     
-                    this.value = tmpVal;
-                }
+                // if(typeof this.props.param != 'undefined')
+                // {   
+                //     let tmpVal = this.props.param.getValue()
+                //     if(typeof this.props.param.getValue() == 'object')
+                //     {
+                //         tmpVal = typeof this.props.param.getValue().value == 'undefined' ? '' : this.props.param.getValue().value
+                //     }     
+                //     this.value = tmpVal;
+                // }
             });
             this.props.dt.data.on('onRefresh',async () =>
-            {
+            {                
                 await core.instance.util.waitUntil(0)
                 if(this.props.dt.data.length > 0)
                 {                                     
@@ -256,7 +257,7 @@ export default class NdBase extends React.Component
                         load: () =>
                         {                              
                             return new Promise(async resolve => 
-                            {                                    
+                            {       
                                 // EĞER FONKSİYONA PARAMETRE GÖNDERİLMEMİŞ İSE VE STATE DEĞİŞKENİNDE DAHA ÖNCEDEN ATANMIŞ DATA SOURCE VARSA GRİD REFRESH EDİLİYOR.
                                 if(typeof e == 'undefined' && typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.source != 'undefined')
                                 {
@@ -277,7 +278,7 @@ export default class NdBase extends React.Component
                                 {
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = e.source;                                                                       
-                                    //await tmpThis.state.data.datatable.refresh();    
+                                    //await tmpThis.state.data.datatable.refresh();                                        
                                 }
                                 // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
                                 else if (typeof e != 'undefined' && typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
@@ -308,7 +309,7 @@ export default class NdBase extends React.Component
                                     {
                                         resolve({data: tmpThis.state.data.datatable.toArray(),totalCount:tmpThis.state.data.datatable.toArray().length});
                                     }
-
+                                    
                                     mresolve()
                                 }
                                 else

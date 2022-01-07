@@ -44,18 +44,18 @@ export default class NdPopUp extends Base
     }
     componentWillReceiveProps(pProps) 
     {
-        this.setState(
-            {
-                show : pProps.visible,
-                dragEnabled : pProps.dragEnabled,
-                showCloseButton : pProps.showCloseButton,
-                showTitle : pProps.showTitle,
-                title : pProps.title,
-                width : pProps.width,
-                height : pProps.height,
-                position : pProps.position
-            }
-        )       
+        // this.setState(
+        //     {
+        //         show : pProps.visible,
+        //         dragEnabled : pProps.dragEnabled,
+        //         showCloseButton : pProps.showCloseButton,
+        //         showTitle : pProps.showTitle,
+        //         title : pProps.title,
+        //         width : pProps.width,
+        //         height : pProps.height,
+        //         position : pProps.position
+        //     }
+        // )       
     }  
     show()
     {  
