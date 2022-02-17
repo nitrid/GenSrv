@@ -1,8 +1,7 @@
 import React from 'react';
 import {NumberBox} from 'devextreme-react/number-box';
-import Base from './base.js';
+import Base,{ Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from './base.js';
 import { core } from '../../core.js';
-import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
 
 export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 export default class NdNumberBox extends Base
@@ -22,17 +21,6 @@ export default class NdNumberBox extends Base
         this._onFocusIn = this._onFocusIn.bind(this)
         this._onFocusOut = this._onFocusOut.bind(this)
         this._onChange = this._onChange.bind(this)        
-
-        //PARAMETRE DEĞERİ SET EDİLİYOR.
-        if(typeof props.param != 'undefined')
-        {   
-            let tmpVal = props.param.getValue()
-            if(typeof props.param.getValue() == 'object')
-            {
-                tmpVal = typeof props.param.getValue().value == 'undefined' ? 0 : props.param.getValue().value
-            }     
-            this.state.value = tmpVal;
-        }
     }
     //#region Private
     _onValueChanged(e) 
@@ -86,6 +74,7 @@ export default class NdNumberBox extends Base
                 step={this.props.step}
                 format={this.props.format}>                    
                     {this.props.children}
+                    {this.validationView()}
             </NumberBox>
         )
     }
@@ -96,6 +85,10 @@ export default class NdNumberBox extends Base
     }
     set value(e)
     {        
+        if(typeof e == 'undefined')
+        {
+            return;
+        }
         //VALUE DEĞİŞTİĞİNDE BU DEĞİŞİKLİK DATATABLE A YANSITMAK İÇİN YAPILDI.
         if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && this.props.dt.data.length > 0 && typeof this.props.dt.field != 'undefined')
         {            
@@ -138,7 +131,7 @@ export default class NdNumberBox extends Base
         this.setState({readOnly:e})
     }
     render()
-    {        
+    {               
         // YETKİLENDİRMEDEN GELEN GÖRÜNÜR GÖRÜNMEZ DURUMU. DEĞER BASE DEN GELİYOR.
         if(this.state.visible == false)
         {

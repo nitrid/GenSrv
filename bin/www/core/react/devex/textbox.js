@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {TextBox,Button,Item} from 'devextreme-react/text-box';
-import Base from './base.js';
+import Base,{ Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from './base.js';
 import { core } from '../../core.js';
-import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
 
 export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 export default class NdTextBox extends Base
@@ -14,7 +13,7 @@ export default class NdTextBox extends Base
         
         this.dev = null;
 
-        this.state.value = typeof props.value != 'undefined' ? props.value : '' 
+        this.state.value = typeof props.value == 'undefined' ? ''  : props.value
         this.state.title = typeof props.title == 'undefined' ? '' : props.title
         this.state.displayValue = typeof props.displayValue == 'undefined' ? '' : props.displayValue
         this.state.titleAlign = typeof props.titleAlign == 'undefined' ? 'left' : props.titleAlign
@@ -26,23 +25,12 @@ export default class NdTextBox extends Base
         this._onEnterKey = this._onEnterKey.bind(this);
         this._onFocusIn = this._onFocusIn.bind(this);
         this._onFocusOut = this._onFocusOut.bind(this);
-        this._onChange = this._onChange.bind(this);        
-
-        //PARAMETRE DEĞERİ SET EDİLİYOR.
-        if(typeof props.param != 'undefined')
-        {   
-            let tmpVal = props.param.getValue()
-            if(typeof props.param.getValue() == 'object')
-            {
-                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
-            }     
-            this.state.value = tmpVal;
-        }
+        this._onChange = this._onChange.bind(this);     
     }
     //#region Private
     _onInitialized(e) 
     {
-        this.dev = e.component;
+        this.dev = e.component;        
     }
     _onValueChanged(e) 
     {           
@@ -138,7 +126,7 @@ export default class NdTextBox extends Base
         }
     }
     _txtView()
-    {        
+    {                        
         return (
             <TextBox id={this.props.id} showClearButton={this.state.showClearButton} height='fit-content' 
                 maxLength={this.props.maxLength}
@@ -150,9 +138,10 @@ export default class NdTextBox extends Base
                 value={this.state.value.toString()} 
                 readOnly={this.state.readOnly}
                 disabled={typeof this.props.editable == 'undefined' ? this.state.editable : this.props.editable}>                    
-                    {this._buttonView()}
                     {this.props.children}
+                    {this._buttonView()}                    
                     {this._displayView()}
+                    {this.validationView()}                    
             </TextBox>
         )
     }
@@ -162,6 +151,11 @@ export default class NdTextBox extends Base
         {
             $("#" + this.props.id + " > .dx-texteditor-container > .dx-texteditor-input-container").append($("#" + this.props.id + " > #dsp" + this.props.id))
         }
+        //BURAYA SONRA BAKILACAK - 16.02.2022 - KARACA
+        // if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && typeof this.props.dt.field != 'undefined')
+        // {
+        //     this.onRefresh() 
+        // }
     }
     //#endregion
     get displayValue()
@@ -223,7 +217,11 @@ export default class NdTextBox extends Base
         return this.state.value
     }
     set value(e)
-    {        
+    {   
+        if(typeof e == 'undefined')
+        {
+            return;
+        }        
         //VALUE DEĞİŞTİĞİNDE BU DEĞİŞİKLİK DATATABLE A YANSITMAK İÇİN YAPILDI.
         if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && this.props.dt.data.length > 0 && typeof this.props.dt.field != 'undefined')
         {            
@@ -254,7 +252,6 @@ export default class NdTextBox extends Base
                 }
             }
         }
-        
         this.setState({value:e.toString()})        
     } 
     get readOnly()

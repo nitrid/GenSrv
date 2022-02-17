@@ -1,7 +1,6 @@
 import React from 'react';
 import DateBox from 'devextreme-react/date-box';
-import Base from './base.js';
-import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
+import Base,{ Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from './base.js';
 
 export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 export default class NdDatePicker extends Base
@@ -19,17 +18,6 @@ export default class NdDatePicker extends Base
         
         this._onValueChanged = this._onValueChanged.bind(this)
         this._onEnterKey = this._onEnterKey.bind(this)
-
-        //PARAMETRE DEĞERİ SET EDİLİYOR.
-        if(typeof props.param != 'undefined')
-        {   
-            let tmpVal = props.param.getValue()
-            if(typeof props.param.getValue() == 'object')
-            {
-                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
-            }     
-            this.state.value = new Date(tmpVal);
-        }
     }
     //#region Private
     _onValueChanged(e) 
@@ -60,6 +48,7 @@ export default class NdDatePicker extends Base
             editorOptions={this.state.editorOptions}
             onEnterKey={this._onEnterKey} onValueChanged={this._onValueChanged}>
                 {this.props.children}
+                {this.validationView()}
             </DateBox>
         )
     }
@@ -70,6 +59,10 @@ export default class NdDatePicker extends Base
     }
     set value(e)
     {        
+        if(typeof e == 'undefined')
+        {
+            return;
+        }
         //VALUE DEĞİŞTİĞİNDE BU DEĞİŞİKLİK DATATABLE A YANSITMAK İÇİN YAPILDI.
         if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && this.props.dt.data.length > 0 && typeof this.props.dt.field != 'undefined')
         {            

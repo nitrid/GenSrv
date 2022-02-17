@@ -333,6 +333,11 @@ export class dataset
                 await core.instance.util.waitUntil(0)
                 this.emit('onClear',tmpDt.name)
             })
+            tmpDt.on('onDelete',async ()=>
+            {
+                await core.instance.util.waitUntil(0)
+                this.emit('onDelete',tmpDt.name)
+            })
             
             this.remove(tmpDt.name)
             this.dts.push(tmpDt)
@@ -373,6 +378,13 @@ export class dataset
                 resolve(1)
             } 
         });
+    }
+    async delete()
+    {
+        for (let i = 0; i < this.length; i++) 
+        {
+            await this.get(i).delete()
+        }
     }
     remove(pName)
     {
@@ -512,11 +524,13 @@ export class datatable
         {
             this._deleteList.push(this[tmpIndex]); 
             this.splice(tmpIndex,1);
+            this.emit('onDelete');
         }
     }
     clear()
     {
         this.splice(0,this.length);
+        this._deleteList.splice(0,this._deleteList.length);
         this.emit('onClear')
     }
     refresh()
@@ -638,42 +652,41 @@ export class datatable
     {
         return new Promise(async resolve => 
         {
-            if(typeof this.deleteCmd != 'undefined')
-            {
-                this.deleteCmd.value = [];
-            }  
-
+            let tmpQueryList = [];
             for (let i = 0; i < this._deleteList.length; i++) 
             {
                 if(typeof this.deleteCmd != 'undefined')
-                {
-                    if(typeof this.deleteCmd.param == 'undefined')
+                {                    
+                    let tmpQuery = undefined;
+                    tmpQuery = {...this.deleteCmd}
+                    tmpQuery.value = [];
+
+                    if(typeof tmpQuery.param == 'undefined')
                     {
                         continue;
                     }
-                    for (let m = 0; m < this.deleteCmd.param.length; m++) 
+                    for (let m = 0; m < tmpQuery.param.length; m++) 
                     {
-                        if(typeof this.deleteCmd.dataprm == 'undefined')
+                        if(typeof tmpQuery.dataprm == 'undefined')
                         {
-                            this.deleteCmd.value.push(this._deleteList[i][this.deleteCmd.param[m].split(':')[0]]);
+                            tmpQuery.value.push(this._deleteList[i][tmpQuery.param[m].split(':')[0]]);
                         }
                         else
                         {
-                            this.deleteCmd.value.push(this._deleteList[i][this.deleteCmd.dataprm[m]]);
+                            tmpQuery.value.push(this._deleteList[i][tmpQuery.dataprm[m]]);
                         }
                     }
-
-                    this._deleteList.splice(i,1);
+                    tmpQueryList.push(tmpQuery)                                        
                 }
             }
-
-            if(typeof this.deleteCmd != 'undefined' && typeof this.deleteCmd.value != 'undefined' && this.deleteCmd.value.length > 0)
+            
+            if(tmpQueryList.length > 0)
             {
-                let TmpDeleteData = await this.sql.execute(this.deleteCmd)
+                let TmpDeleteData = await this.sql.execute(tmpQueryList)
 
                 if(typeof TmpDeleteData.result.err == 'undefined')
                 {
-                    this.deleteCmd.value = [];
+                    this._deleteList.splice(0,this._deleteList.length);
                     resolve(0)
                 }
                 else
@@ -871,7 +884,6 @@ export class param extends datatable
                 param : ['PGUID:string|50','PTYPE:int','PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
                 dataprm : ['GUID','TYPE','ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
             } 
-            await this.insert();
             await this.update(); 
             resolve();
         });
@@ -914,7 +926,7 @@ export class param extends datatable
         return this;
     }
     getValue()
-    {        
+    {                     
         // DB İÇERİSİNDEKİ PARAMETRE DEĞERİ GERİ DÖNDÜRÜLÜYOR.
         if(this.length > 0)
         {
@@ -936,12 +948,12 @@ export class param extends datatable
             }                    
         }
         // DB İÇERİSİNDE KAYIT YOKSA META İÇERİSİNDEKİ DEĞER DÖNDÜRÜLÜYOR.
-        else if(this.length == 0 && this.meta != null && this.meta.length > 0)
-        {
+        else if(this.length == 0 && this.meta != null && this.meta.length > 0 && typeof this.meta[0].VALUE != 'undefined')
+        {               
             return JSON.parse(JSON.stringify(this.meta[0].VALUE))
         }
 
-        return '';
+        return undefined;
     }
     setValue()
     {
@@ -1053,7 +1065,6 @@ export class access extends datatable
                 param : ['PGUID:string|50','PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
                 dataprm : ['GUID','ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
             } 
-            await this.insert();
             await this.update(); 
             resolve();
         });
@@ -1103,7 +1114,7 @@ export class access extends datatable
             // EĞER PARAMETRE OLARAK HİÇBİRŞEY GELMEDİYSE SIFIRINCI SATIRI.
             if(arguments.length == 0)
             {
-                return JSON.parse(JSON.stringify(this[0].VALUE))
+                return JSON.parse(JSON.parse(JSON.stringify(this[0].VALUE)))
             }
             // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
             else if(arguments.length == 1 && typeof arguments[0] == 'number')

@@ -2,7 +2,9 @@ import React from 'react';
 import CustomStore from 'devextreme/data/custom_store';
 import { datatable } from '../../core.js';
 import { core } from '../../core.js';
+import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
 
+export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 export default class NdBase extends React.Component
 {
     constructor(props)
@@ -13,7 +15,6 @@ export default class NdBase extends React.Component
         {
             data : typeof props.data == 'undefined' ? undefined : props.data
         }
-        
         // GÖRÜNÜR DURUMU. YETKİLENDİRME.
         if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().visible != 'undefined')
         {   
@@ -25,7 +26,7 @@ export default class NdBase extends React.Component
         }
         // EDİT EDİLEBİLİRLİK DURUMU. YETKİLENDİRME.
         if(typeof this.props.access != 'undefined' && typeof this.props.access.getValue().editable != 'undefined')
-        {
+        {            
             this.state.editable = this.props.access.getValue().editable ? false : true
         }
         else
@@ -36,6 +37,9 @@ export default class NdBase extends React.Component
         if(typeof this.props.parent != 'undefined' && typeof this.props.id != 'undefined')
         {
             this.props.parent[this.props.id] = this
+            //DİL YAPISI ELEMENTLERE ATANIYOR.
+            this.lang = this.props.parent.lang
+            this.t = this.props.parent.t
         }
         // DATATABLE DEĞİŞTİĞİNDE YA DA YENİ SATIR EKLENDİĞİNDE BU DEĞİŞİKLİK ELEMENT E YANSITILIYOR.                
         if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && typeof this.props.dt.field != 'undefined')
@@ -179,58 +183,28 @@ export default class NdBase extends React.Component
                 // }
             });
             this.props.dt.data.on('onRefresh',async () =>
-            {                
-                await core.instance.util.waitUntil(0)
-                if(this.props.dt.data.length > 0)
-                {                                     
-                    if(typeof this.props.dt.filter == 'undefined')
-                    {
-                        //TEXTBOX DISPLAY DEĞERİ SET EDİLİYOR
-                        if(typeof this.props.dt.display != 'undefined')
-                        {
-                            if(this.constructor.name == 'NdTextBox')
-                            {
-                                this.setState({displayValue:this.props.dt.data[0][this.props.dt.display]})
-                            }                            
-                        }
-                        if(this.constructor.name == 'NdImageUpload')
-                        {
-                            this.setState({textVisible: false,isDropZoneActive: false,imageSource: this.props.dt.data[0][this.props.dt.field]});
-                        }
-                        else
-                        {
-                            this.setState({value:this.props.dt.data[0][this.props.dt.field]})
-                        }
-                        
-                        this.props.dt.row = this.props.dt.data[0];
-                    }   
-                    else
-                    {
-                        if(this.props.dt.data.where(this.props.dt.filter).length > 0)
-                        {
-                            //TEXTBOX DISPLAY DEĞERİ SET EDİLİYOR
-                            if(typeof this.props.dt.display != 'undefined')
-                            {
-                                if(this.constructor.name == 'NdTextBox')
-                                {
-                                    this.setState({displayValue:this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.display]})
-                                }
-                            }
-                            if(this.constructor.name == 'NdImageUpload')
-                            {
-                                this.setState({textVisible: false,isDropZoneActive: false,imageSource: this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]});
-                            }
-                            else
-                            {
-                                this.setState({value:this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]})
-                            }
-                            
-                            this.props.dt.row = this.props.dt.data.where(this.props.dt.filter)[0];
-                        }
-                    }
-                }
+            {      
+                await core.instance.util.waitUntil(0)          
+                this.onRefresh();
             });
         }
+
+        if(typeof this.props.parent != 'undefined' && typeof this.props.parent.on != 'undefined')
+        {
+            this.props.parent.on('onInit',(function()
+            {
+                //PARAMETRE DEĞERİ SET EDİLİYOR.
+                if(typeof props.param != 'undefined')
+                {   
+                    let tmpVal = props.param.getValue()
+                    if(typeof props.param.getValue() == 'object')
+                    {
+                        tmpVal = props.param.getValue().value
+                    }     
+                    this.value = tmpVal;
+                }
+            }).bind(this))
+        }        
     }
     get data()
     {
@@ -241,21 +215,73 @@ export default class NdBase extends React.Component
 
         return this.state.data;
     }
+    onRefresh()
+    {        
+        if(this.props.dt.data.length > 0)
+        {                                     
+            if(typeof this.props.dt.filter == 'undefined')
+            {
+                //TEXTBOX DISPLAY DEĞERİ SET EDİLİYOR
+                if(typeof this.props.dt.display != 'undefined')
+                {
+                    if(this.constructor.name == 'NdTextBox')
+                    {
+                        this.setState({displayValue:this.props.dt.data[0][this.props.dt.display]})
+                    }                            
+                }
+                if(this.constructor.name == 'NdImageUpload')
+                {
+                    this.setState({textVisible: false,isDropZoneActive: false,imageSource: this.props.dt.data[0][this.props.dt.field]});
+                }
+                else
+                {
+                    this.setState({value:this.props.dt.data[0][this.props.dt.field]})
+                }
+                
+                this.props.dt.row = this.props.dt.data[0];
+            }   
+            else
+            {
+                if(this.props.dt.data.where(this.props.dt.filter).length > 0)
+                {
+                    //TEXTBOX DISPLAY DEĞERİ SET EDİLİYOR
+                    if(typeof this.props.dt.display != 'undefined')
+                    {
+                        if(this.constructor.name == 'NdTextBox')
+                        {
+                            this.setState({displayValue:this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.display]})
+                        }
+                    }
+                    if(this.constructor.name == 'NdImageUpload')
+                    {
+                        this.setState({textVisible: false,isDropZoneActive: false,imageSource: this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]});
+                    }
+                    else
+                    {
+                        this.setState({value:this.props.dt.data.where(this.props.dt.filter)[0][this.props.dt.field]})
+                    }
+                    
+                    this.props.dt.row = this.props.dt.data.where(this.props.dt.filter)[0];
+                }
+            }
+        }
+    }
     dataRefresh(e)
     {  
         return new Promise(mresolve => 
         {
-            let tmpThis = this;            
+            let tmpThis = this; 
             this.setState(
             { 
                 data : 
                 {
                     source : typeof tmpThis.data == 'undefined' || typeof tmpThis.data.source == 'undefined' ? undefined : tmpThis.data.source,
                     datatable : typeof tmpThis.data == 'undefined' || typeof tmpThis.data.datatable == 'undefined' ? undefined : tmpThis.data.datatable,
+                    
                     store : new CustomStore(
                     {
-                        load: () =>
-                        {                              
+                        load: (loadOption) =>
+                        {      
                             return new Promise(async resolve => 
                             {       
                                 // EĞER FONKSİYONA PARAMETRE GÖNDERİLMEMİŞ İSE VE STATE DEĞİŞKENİNDE DAHA ÖNCEDEN ATANMIŞ DATA SOURCE VARSA GRİD REFRESH EDİLİYOR.
@@ -278,36 +304,71 @@ export default class NdBase extends React.Component
                                 {
                                     tmpThis.state.data.source = e.source;
                                     tmpThis.state.data.datatable = e.source;                                                                       
-                                    //await tmpThis.state.data.datatable.refresh();                                        
+                                    //await tmpThis.state.data.datatable.refresh();    
                                 }
                                 // EĞER DATA SOURCE A QUERY SET GÖNDERİLMİŞ İSE
                                 else if (typeof e != 'undefined' && typeof e.source != 'undefined' && typeof e.source == 'object' && typeof e.source.sql != 'undefined' && typeof e.source.select != 'undefined')
-                                {                
-                                    tmpThis.state.data.source = e.source;
-                                    tmpThis.state.data.datatable = new datatable();
-                                    tmpThis.state.data.datatable.sql = e.source.sql
-                                    tmpThis.state.data.datatable.selectCmd = e.source.select;
-                                    tmpThis.state.data.datatable.insertCmd = e.source.insert;
-                                    tmpThis.state.data.datatable.updateCmd = e.source.update;
-                                    tmpThis.state.data.datatable.deleteCmd = e.source.delete;
-
-                                    await tmpThis.state.data.datatable.refresh()
+                                {            
+                                    // BÜYÜK DATALARDA SÜREKLİ DATAYI GETİRMEMESİ İÇİN İF EKLENDİ
+                                    if(typeof tmpThis.state.data.datatable == 'undefined') //|| typeof tmpThis.props.pageSize == 'undefined')
+                                    {
+                                        tmpThis.state.data.source = e.source;
+                                        tmpThis.state.data.datatable = new datatable();
+                                        tmpThis.state.data.datatable.sql = e.source.sql
+                                        tmpThis.state.data.datatable.selectCmd = e.source.select;
+                                        tmpThis.state.data.datatable.insertCmd = e.source.insert;
+                                        tmpThis.state.data.datatable.updateCmd = e.source.update;
+                                        tmpThis.state.data.datatable.deleteCmd = e.source.delete;
+    
+                                        await tmpThis.state.data.datatable.refresh()
+                                    }   
+                                   
                                 }                                
                                 if(typeof tmpThis.state.data != 'undefined' && typeof tmpThis.state.data.datatable != 'undefined')
                                 {
                                     //GROUP BY İÇİN YAPILDI
                                     if(!e.source instanceof datatable && typeof e.source.groupBy != 'undefined' && e.source.groupBy.length > 0)
                                     {
-                                        let tmpDt = new datatable()
-                                        tmpDt.import(tmpThis.state.data.datatable.toArray())
+                                        let tmpData = new datatable()
+                                        tmpData.import(tmpThis.state.data.datatable.toArray())
                                         
-                                        tmpDt = tmpDt.groupBy(e.source.groupBy) 
+                                        tmpData = tmpData.groupBy(e.source.groupBy).toArray()
+                                        // SELECTBOXDA GÖZÜKMESİ İSTENEN SATIR SAYISI İÇİN YAPILDI
+                                        if(typeof tmpThis.props.pageSize != 'undefined')
+                                        {
+                                            tmpData = tmpData.slice(0,tmpThis.props.pageSize)
+                                        }
 
-                                        resolve({data: tmpDt.toArray(),totalCount:tmpDt.toArray().length});
+                                        resolve({data: tmpData,totalCount:tmpData.length});
                                     }
                                     else
                                     {
-                                        resolve({data: tmpThis.state.data.datatable.toArray(),totalCount:tmpThis.state.data.datatable.toArray().length});
+                                        if(typeof loadOption.searchValue != 'undefined' && loadOption.searchValue != null)
+                                        {
+                                            function filterByValue(array, string) 
+                                            {
+                                                return array.filter(o => Object.keys(o).some(k => o[k].toLowerCase().includes(string.toLowerCase())));
+                                            }
+                                            let tmpData = filterByValue(tmpThis.state.data.datatable.toArray(),loadOption.searchValue)
+                                            // SELECTBOXDA GÖZÜKMESİ İSTENEN SATIR SAYISI İÇİN YAPILDI
+                                            if(typeof tmpThis.props.pageSize != 'undefined')
+                                            {
+                                                tmpData = tmpData.slice(0,tmpThis.props.pageSize)
+                                            }
+                                            resolve({data: tmpData,totalCount:tmpData.length});
+                                        }
+                                        else
+                                        {
+                                            let tmpData = tmpThis.state.data.datatable.toArray()
+                                            // SELECTBOXDA GÖZÜKMESİ İSTENEN SATIR SAYISI İÇİN YAPILDI
+                                            if(typeof tmpThis.props.pageSize != 'undefined')
+                                            {
+                                                tmpData = tmpData.slice(0,tmpThis.props.pageSize)
+                                            }
+                                            resolve({data: tmpData,totalCount:tmpData.length});
+                                        }
+                                        
+                                        
                                     }
                                     
                                     mresolve()
@@ -317,6 +378,7 @@ export default class NdBase extends React.Component
                                     resolve({data: [],totalCount:0});
                                     mresolve()
                                 }
+                                tmpThis.search = typeof loadOption.searchOperation != 'undefined' ? loadOption : tmpThis.search
                             });
                         },
                         insert: (values) => 
@@ -402,14 +464,14 @@ export default class NdBase extends React.Component
                         },
                         onRemoved: function (key) 
                         {
-                            if(typeof tmpThis.props.data.onRemoved != 'undefined')
+                            if(typeof tmpThis.props.data != 'undefined' && typeof tmpThis.props.data.onRemoved != 'undefined')
                             {
                                 tmpThis.props.data.onRemoved(key)
                             }
                         },
                         onRemoving: function (key) 
                         {
-                            if(typeof tmpThis.props.data.onRemoving != 'undefined')
+                            if(typeof tmpThis.props.data != 'undefined' && typeof tmpThis.props.data.onRemoving != 'undefined')
                             {
                                 tmpThis.props.data.onRemoving(key,values)
                             }
@@ -431,10 +493,47 @@ export default class NdBase extends React.Component
                             // }
 
                             return x
-                        }   
-                    })
+                        },
+                    }),
+                   
                 }
             });
         });
+    }
+    validationView()
+    {        
+        let tmpValid = null;
+        if(typeof this.props.param != 'undefined')
+        {   
+            if(typeof this.props.param.getValue() == 'object' && typeof this.props.param.getValue().validation != 'undefined')
+            {
+                tmpValid = this.props.param.getValue().validation
+            }                     
+        }
+        if(tmpValid != null)
+        {
+            let tmp = []
+            for (let i = 0; i < tmpValid.val.length; i++) 
+            {
+                if(tmpValid.val[i].type == "required")
+                {
+                    tmp.push (<RequiredRule key={i} message={tmpValid.val[i].msg} />)
+                }
+                else if(tmpValid.val[i].type == "numeric")
+                {
+                    tmp.push (<NumericRule key={i} message={tmpValid.val[i].msg} />)
+                }
+                else if(tmpValid.val[i].type == "range")
+                {
+                    tmp.push (<RangeRule key={i} min={tmpValid.val[i].min} max={tmpValid.val[i].max} message={tmpValid.val[i].msg} />)
+                }
+            }
+
+            return (
+                <Validator validationGroup={tmpValid.grp}>
+                    {tmp}        
+                </Validator>
+            )
+        }
     }
 }

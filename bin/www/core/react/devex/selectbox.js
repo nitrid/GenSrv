@@ -1,7 +1,6 @@
 import React from 'react';
 import SelectBox from 'devextreme-react/select-box';
-import Base from './base.js';
-import { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from 'devextreme-react/validator';
+import Base,{ Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule } from './base.js';
 
 export { Validator, NumericRule, RequiredRule, CompareRule, EmailRule, PatternRule, StringLengthRule, RangeRule, AsyncRule }
 
@@ -16,17 +15,6 @@ export default class NdSelectBox extends Base
 
         this._onInitialized = this._onInitialized.bind(this);
         this._onValueChanged = this._onValueChanged.bind(this);
-
-        //PARAMETRE DEĞERİ SET EDİLİYOR.
-        if(typeof props.param != 'undefined')
-        {   
-            let tmpVal = props.param.getValue()
-            if(typeof props.param.getValue() == 'object')
-            {
-                tmpVal = typeof props.param.getValue().value == 'undefined' ? '' : props.param.getValue().value
-            }     
-            this.state.value = tmpVal;
-        }
     }
     //#region Private
     _onInitialized(e) 
@@ -53,7 +41,8 @@ export default class NdSelectBox extends Base
             style={this.props.style}
             value={this.state.value}
             >
-            {this.props.children}
+                {this.props.children}
+                {this.validationView()}
             </SelectBox>
         )
     }
@@ -64,7 +53,7 @@ export default class NdSelectBox extends Base
         {
             this.props.onValueChanged(e);
         }
-    }  
+    }
     //#endregion
     get value()
     {
@@ -72,6 +61,10 @@ export default class NdSelectBox extends Base
     }
     set value(e)
     {        
+        if(typeof e == 'undefined')
+        {
+            return;
+        }
         //VALUE DEĞİŞTİĞİNDE BU DEĞİŞİKLİK DATATABLE A YANSITMAK İÇİN YAPILDI.
         if(typeof this.props.dt != 'undefined' && typeof this.props.dt.data != 'undefined' && this.props.dt.data.length > 0 && typeof this.props.dt.field != 'undefined')
         {            
@@ -122,7 +115,7 @@ export default class NdSelectBox extends Base
                 }
             }
         }
-
+        
         this.setState({value:e == null ? '' : e})
     }
     get displayValue()
@@ -133,7 +126,7 @@ export default class NdSelectBox extends Base
     {
         if(typeof this.state.data != 'undefined')
         {
-            await this.dataRefresh(this.state.data)                 
+            await this.dataRefresh(this.state.data)                         
         }
     }
     render()
