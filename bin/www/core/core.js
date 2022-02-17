@@ -1,42 +1,32 @@
-export class core
+export class core 
 {        
     static instance = null;
 
-    constructor(pUrl)
+    constructor(pIo)
     {   
         if(!core.instance)
         {
             core.instance = this;
         }
         
-        if(typeof pUrl == 'object')
+        try
         {
-            try
-            {
-                this.socket = pUrl;
-            }
-            catch (error) {}
+            this.socket = pIo;
         }
-        else if(typeof pUrl == 'string')
-        {
-            try
-            {
-                this.socket = io(pUrl,{timeout:100000});
-            }
-            catch (error) {}
-        }
+        catch (error) {}
         if(typeof this.socket == 'undefined')
         {
             console.log("socket not defined")
             return;
         }
 
+        this.dataset = null;
         this.listeners = Object();        
         this.sql = new sql();
         this.auth = new auth();
         this.util = new util();
 
-        this.ioEvents();        
+        this.ioEvents();
     }    
     ioEvents()
     {
