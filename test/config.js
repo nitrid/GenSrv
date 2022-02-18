@@ -1,9 +1,9 @@
 export default 
 {
-	server: "192.168.100.12",
+	server: "DESKTOP-V3597T5",
 	database: "GENDB",
-	uid: "nitrogen",
-	pwd: "lp8462+",
+	uid: "piqpos",
+	pwd: "1122334455",
 	trustedConnection : false,
 	test : true,
 	debug: false,
