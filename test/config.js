@@ -1,6 +1,6 @@
 export default 
 {
-	server: "DESKTOP-V3597T5",
+	server: "13.37.217.245",
 	database: "GENDB",
 	uid: "piqpos",
 	pwd: "1122334455",

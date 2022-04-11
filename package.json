@@ -1,6 +1,6 @@
 {
   "name": "gensrv",
-  "version": "1.0.71",
+  "version": "1.0.72",
   "description": "GenSrv",
   "main": "index.js",
   "type": "module",
@@ -17,6 +17,7 @@
     "fs-extra": "^9.0.1",
     "gensrv": "^1.0.61",
     "moment": "^2.29.1",
+    "msnodesqlv8": "^2.4.7",
     "mssql": "^6.3.1",
     "node-machine-id": "^1.1.12",
     "node-windows": "^1.0.0-beta.5",
