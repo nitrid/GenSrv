@@ -8,5 +8,6 @@ export default
 	test : true,
 	debug: false,
 	db_path: "C:\\Data",
-	port: "80"
+	port: "80",
+	hostPath: "/www"
 }
