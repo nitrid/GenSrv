@@ -1,3 +1,4 @@
+import { isProxy } from 'is-proxy';
 export class core
 {        
     static instance = null;
@@ -20,11 +21,13 @@ export class core
             console.log("socket not defined")
             return;
         }
-
+        
+        this.offline = false;
         this.listeners = Object();        
         this.sql = new sql();
+        this.local = new local();
         this.auth = new auth();
-        this.util = new util();
+        this.util = new util();                
 
         this.ioEvents();        
     }    
@@ -41,6 +44,10 @@ export class core
         this.socket.on('error', (error) => 
         {
             this.emit('connect_error',()=>{})
+        });
+        this.socket.on('disconnect', () => 
+        {
+            this.emit('disconnect',()=>{})
         });
     }
     //#region  "EVENT"
@@ -68,7 +75,7 @@ export class sql
 {
     constructor()
     {
-        this.query = "";
+        this.query = "";        
     }
     try()
     {
@@ -92,8 +99,10 @@ export class sql
     }
     execute()
     {    
-        return new Promise(resolve => 
+        return new Promise(async resolve => 
         {
+            core.instance.emit('onExecuting');
+            
             let TmpQuery = ""
             if(typeof arguments[0] == 'undefined')
             {
@@ -103,32 +112,207 @@ export class sql
             {
                 TmpQuery = arguments[0];
             }
-            //PARAMETRE UNDEFINED CONTROL
-            if(typeof(TmpQuery.value) != 'undefined')
+            
+            //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
+            if(core.instance.offline)
             {
-                for (let i = 0; i < TmpQuery.value.length; i++) 
+                core.instance.emit('onExecuted');
+                resolve(await core.instance.local.execute(TmpQuery));                
+            }
+            else
+            {
+                //PARAMETRE UNDEFINED CONTROL
+                if(typeof(TmpQuery.value) != 'undefined')
                 {
-                    if(typeof TmpQuery.value[i] == 'undefined')
+                    for (let i = 0; i < TmpQuery.value.length; i++) 
                     {
-                        resolve({result : {err: "Parametre değerlerinde problem oluştu ! "}})
+                        if(typeof TmpQuery.value[i] == 'undefined')
+                        {
+                            core.instance.emit('onExecuted');
+                            resolve({result : {err: "Parametre değerlerinde problem oluştu ! "}})
+                        }
                     }
                 }
+                core.instance.socket.emit('sql',TmpQuery,(data) =>
+                {
+                    core.instance.emit('onExecuted');
+                    if(typeof data.auth_err == 'undefined')
+                    {
+                        resolve(data); 
+                    }
+                    else
+                    {
+                        //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
+                        console.log(data.auth_err);
+                        resolve([]);
+                    }
+                });
             }
-
-            core.instance.socket.emit('sql',TmpQuery,(data) =>
-            {
-                if(typeof data.auth_err == 'undefined')
-                {
-                    resolve(data); 
-                }
-                else
-                {
-                    //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
-                    console.log(data.auth_err);
-                    resolve([]);
-                }
-            });
         });
+    }
+}
+export class local
+{
+    constructor()
+    {
+        if(typeof JsStore != 'undefined')
+        {
+            this.conn = new JsStore.Connection(new Worker("../js/jsstore.worker.js"))
+        }
+    }
+    async init(pDb)
+    {
+        if(typeof this.conn != 'undefined')
+        {
+            let tmpResult = await this.conn.initDb(pDb)
+            
+            if(tmpResult)
+            {
+                console.log('Database created and connection is opened')
+                return true
+            }
+            else
+            {
+                console.log('Connection is opened')
+                return true
+            }
+        }
+        else
+        {
+            console.log('jsstore is undefined')
+        }
+        return false
+    }
+    async insert(pQuery)
+    {
+        return new Promise(async resolve => 
+        {
+            if(typeof this.conn != 'undefined')
+            {
+                //BURAYA ONLINE SORGUSU İLE QUERY GÖNDERİLEBİLİR ONUN İÇİN LOCAL KONTROL VAR. (pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                let tmpResult = await this.conn.insert(typeof pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                if(tmpResult > 0)
+                {
+                    resolve({result:{state:true}})
+                }
+            }
+            else
+            {
+                console.log('jsstore is undefined')
+            }
+            resolve({result:{state:false}})
+        });
+    }
+    async select(pQuery)
+    {
+        return new Promise(async resolve => 
+        {
+            if(typeof this.conn != 'undefined')
+            {
+                //BURAYA ONLINE SORGUSU İLE QUERY GÖNDERİLEBİLİR ONUN İÇİN LOCAL KONTROL VAR. (pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                let tmpResult = await this.conn.select(typeof pQuery.local != 'undefined' ? pQuery.local : pQuery); 
+                if(tmpResult.length > 0)
+                {
+                    resolve({result:tmpResult})
+                }
+            }
+            else
+            {
+                console.log('jsstore is undefined')
+            }
+            resolve({result:[]})
+        });
+    }
+    async update(pQuery)
+    {
+        return new Promise(async resolve => 
+        {
+            if(typeof this.conn != 'undefined')
+            {
+                //BURAYA ONLINE SORGUSU İLE QUERY GÖNDERİLEBİLİR ONUN İÇİN LOCAL KONTROL VAR. (pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                let tmpResult = await this.conn.update(typeof pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                if(tmpResult > 0)
+                {
+                    resolve({result:{state:true}})
+                }
+            }
+            else
+            {
+                console.log('jsstore is undefined')
+            }
+            resolve({result:{state:false}});
+        });
+    }
+    async remove(pQuery)
+    {
+        return new Promise(async resolve => 
+        {
+            if(typeof this.conn != 'undefined')
+            {
+                //BURAYA ONLINE SORGUSU İLE QUERY GÖNDERİLEBİLİR ONUN İÇİN LOCAL KONTROL VAR. (pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                let tmpResult = await this.conn.remove(typeof pQuery.local != 'undefined' ? pQuery.local : pQuery)
+                if(tmpResult > 0)
+                {
+                    resolve({result:{state:true}})
+                }
+            }
+            else
+            {
+                console.log('jsstore is undefined')
+            }
+            resolve({result:{state:false}});
+        });
+    }
+    async execute(pQuery)
+    {
+        return new Promise(async resolve => 
+        {
+            if(Array.isArray(pQuery))
+            {
+                for (let i = 0; i < pQuery.length; i++) 
+                {
+                    if(typeof pQuery[i].local != 'undefined')
+                    {
+                        if(pQuery[i].local.type == 'insert')
+                        {                                        
+                            await this.insert(pQuery[i].local);
+                        } 
+                        else if(pQuery[i].local.type == 'update')
+                        {                                        
+                            await this.update(pQuery[i].local);
+                        } 
+                        else if(pQuery[i].local.type == 'delete')
+                        {                                        
+                            await this.delete(pQuery[i].local);
+                        }      
+                    }
+                }
+                resolve({result:{state:true}})
+            }
+            else
+            {
+                if(typeof pQuery.local != 'undefined')
+                {
+                    if(pQuery.local.type == 'select')
+                    {
+                        resolve(await this.select(pQuery.local))
+                    }
+                    else if(pQuery.local.type == 'insert')
+                    {
+                        resolve(await this.insert(pQuery.local))
+                    } 
+                    else if(pQuery.local.type == 'update')
+                    {
+                        resolve(await this.update(pQuery.local))
+                    } 
+                    else if(pQuery.local.type == 'delete')
+                    {
+                        resolve(await this.delete(pQuery.local))
+                    }                       
+                }
+                resolve({result:{}});
+            }
+        });        
     }
 }
 export class auth 
@@ -150,7 +334,7 @@ export class auth
             {
                 TmpData.push(arguments[0],arguments[1],arguments[2])
             }
-
+            
             core.instance.socket.emit('login',TmpData,async (data) =>
             {
                 if(data.length > 0)
@@ -168,6 +352,24 @@ export class auth
                     
                     this.data = null
                     resolve(false)
+                }
+            });
+        })
+    }
+    getUserList()
+    {
+        return new Promise(resolve => 
+        {   
+            console.log('core-core')
+            core.instance.socket.emit('getUserList',async (data) =>
+            {
+                if(data.length > 0)
+                {
+                    resolve(data)
+                }
+                else 
+                {
+                    resolve([])
                 }
             });
         })
@@ -222,6 +424,25 @@ export class util
                 resolve()
             }, typeof arguments[0] == 'undefined' ? 0 : arguments[0]);
         })
+    }
+    isElectron() 
+    {
+        // Renderer process
+        if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+            return true;
+        }
+    
+        // Main process
+        if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+            return true;
+        }
+    
+        // Detect the user agent when the `nodeIntegration` option is set to true
+        if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+            return true;
+        }
+    
+        return false;
     }
 }
 export class dataset
@@ -351,7 +572,7 @@ export class dataset
                     tmpQuerys.push(e)    
                 });
             }
-
+            
             let tmpResult = await this.sql.execute(tmpQuerys)
             if(typeof tmpResult.result.err == 'undefined')
             {
@@ -461,53 +682,74 @@ export class datatable
     }
     //#endregion
     push(pItem,pIsNew)
-    {     
-        pItem = new Proxy(pItem, 
+    {            
+        if(!isProxy(pItem))
         {
-            get: function(target, prop, receiver) 
+            pItem = new Proxy(pItem, 
             {
-                return target[prop];
-            },
-            set: (function(target, prop, receiver) 
-            {            
-                if(target[prop] != receiver)
+                get: function(target, prop, receiver) 
                 {
-                    target[prop] = receiver
-                    this.emit('onEdit',{data:{[prop]:receiver},rowIndex:this.findIndex(x => x === pItem),rowData:pItem});
-                    //EĞER EDİT EDİLDİĞİNDE STATE DURUMUNUN DEĞİŞMEMESİNİ İSTEDİĞİN KOLON VARSA BURDA KONTROL EDİLİYOR
-                    if(target.stat != 'new' && typeof this.noColumnEdit.find(x => x == prop) == 'undefined')
+                    return target[prop];
+                },
+                set: (function(target, prop, receiver) 
+                {            
+                    if(target[prop] != receiver)
                     {
-                        //EDİT EDİLMİŞ KOLON VARSA BURDA editColumn DEĞİŞKENİNE SET EDİLİYOR.
-                        let tmpColumn = []
-                        if(typeof target.editColumn != 'undefined')
+                        target[prop] = receiver
+    
+                        if(typeof this.noColumnEdit.find(x => x == prop) == 'undefined')
                         {
-                            tmpColumn = [...target.editColumn];
+                            this.emit('onEdit',{data:{[prop]:receiver},rowIndex:this.findIndex(x => x === pItem),rowData:pItem});
+    
+                            //EĞER EDİT EDİLDİĞİNDE STATE DURUMUNUN DEĞİŞMEMESİNİ İSTEDİĞİN KOLON VARSA BURDA KONTROL EDİLİYOR
+                            if(target.stat != 'new')
+                            {
+                                //EDİT EDİLMİŞ KOLON VARSA BURDA editColumn DEĞİŞKENİNE SET EDİLİYOR.
+                                let tmpColumn = []
+                                if(typeof target.editColumn != 'undefined')
+                                {
+                                    tmpColumn = [...target.editColumn];
+                                }
+                                tmpColumn.push(prop)
+                                Object.setPrototypeOf(target,{stat:'edit',editColumn:tmpColumn})                    
+                            }
                         }
-                        tmpColumn.push(prop)
-                        Object.setPrototypeOf(target,{stat:'edit',editColumn:tmpColumn})                    
                     }
-                }
-                //return target[prop];
-                return true;
-            }).bind(this)
-        });
+                    //return target[prop];
+                    return true;
+                }).bind(this)
+            });
+        }
         
         if(typeof pIsNew == 'undefined' || pIsNew)
         {
             Object.setPrototypeOf(pItem,{stat:'new'})
-
             this.emit('onNew',pItem)
         }
-
         this.emit('onAddRow',pItem);
         super.push(pItem)
+    }
+    getIndexByKey(pKey)
+    {
+        let tmpArr = [];
+        for (let i = 0; i < this.length; i++) 
+        {
+            tmpArr.push(Object.assign({}, this[i]))
+        }
+        for (let i = 0; i < tmpArr.length; i++) 
+        {
+            if(JSON.stringify(tmpArr[i]) == JSON.stringify(Object.assign({}, pKey)))
+            {
+                return i
+            }
+        }
     }
     removeAt()
     {
         let tmpIndex = -1;
         if(arguments.length > 0 && typeof arguments[0] == 'object')
         {
-            tmpIndex = this.indexOf(arguments[0]);
+            tmpIndex = this.getIndexByKey(arguments[0]);
         }
         else if(arguments.length > 0 && typeof arguments[0] == 'number')
         {
@@ -548,6 +790,7 @@ export class datatable
                 }
                 else
                 {
+                    console.log(this.selectCmd)
                     console.log(TmpData.result.err)
                 }                
             }
@@ -568,14 +811,48 @@ export class datatable
         {
             if(typeof this[i].stat != 'undefined' && typeof tmpStat.find(x => x == this[i].stat))
             {
+
                 let tmpQuery = undefined;
                 if(this[i].stat == 'new')
                 {
                     tmpQuery = {...this.insertCmd}
+                    //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
+                    if(typeof tmpQuery.local != 'undefined' && typeof tmpQuery.local.values != 'undefined' && tmpQuery.local.values.length > 0)
+                    {
+                        for (let x = 0; x < Object.keys(tmpQuery.local.values[0]).length; x++) 
+                        {
+                            let tmpKey = Object.keys(tmpQuery.local.values[0])[x]
+                            let tmpMap = Object.values(tmpQuery.local.values[0])[x]
+                            tmpQuery.local.values[0][tmpKey] = this[i][tmpMap.map]
+                        }
+                    }
                 }
                 else if(this[i].stat == 'edit')
                 {
                     tmpQuery = {...this.updateCmd}
+                    // //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
+                    // if(typeof tmpQuery.local != 'undefined' && typeof tmpQuery.local.set != 'undefined')
+                    // {
+                    //     //SET
+                    //     for (let x = 0; x < Object.keys(tmpQuery.local.set).length; x++) 
+                    //     {
+                    //         let tmpKey = Object.keys(tmpQuery.local.set)[x]
+                    //         let tmpMap = Object.values(tmpQuery.local.set)[x]
+                    //         tmpQuery.local.set[tmpKey] = this[i][tmpMap.map]
+                    //     }
+                        
+                    // }
+                    // //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
+                    // if(typeof tmpQuery.local != 'undefined' && typeof tmpQuery.local.where != 'undefined')
+                    // {
+                    //     //WHERE
+                    //     for (let x = 0; x < Object.keys(tmpQuery.local.where).length; x++) 
+                    //     {
+                    //         let tmpKey = Object.keys(tmpQuery.local.where)[x]
+                    //         let tmpMap = Object.values(tmpQuery.local.where)[x]
+                    //         tmpQuery.local.where[tmpKey] = this[i][tmpMap.map]
+                    //     }
+                    // }
                 }
             
                 if(typeof tmpQuery != 'undefined')
@@ -616,7 +893,7 @@ export class datatable
         return new Promise(async resolve => 
         {
             let tmpQuerys = undefined;
-
+            
             if(typeof arguments[0] == 'undefined' || arguments[0] == '')
             {
                 tmpQuerys = this.toCommands();
@@ -625,7 +902,7 @@ export class datatable
             {
                 tmpQuerys = this.toCommands(arguments[0]);
             }
-
+            
             let tmpResult = await this.sql.execute(tmpQuerys)
             if(typeof tmpResult.result.err == 'undefined')
             {
@@ -653,6 +930,45 @@ export class datatable
                 {                    
                     let tmpQuery = undefined;
                     tmpQuery = {...this.deleteCmd}
+                    //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
+                    if(typeof tmpQuery.local != 'undefined' && tmpQuery.local.type == 'update')
+                    {
+                        if(typeof tmpQuery.local.set != 'undefined')
+                        {
+                            //SET
+                            for (let x = 0; x < Object.keys(tmpQuery.local.set).length; x++) 
+                            {
+                                let tmpKey = Object.keys(tmpQuery.local.set)[x]
+                                let tmpMap = Object.values(tmpQuery.local.set)[x]
+                                tmpQuery.local.set[tmpKey] = this._deleteList[i][tmpMap.map]
+                            }                            
+                        }
+                        if(typeof tmpQuery.local.where != 'undefined')
+                        {
+                            //WHERE
+                            for (let x = 0; x < Object.keys(tmpQuery.local.where).length; x++) 
+                            {
+                                let tmpKey = Object.keys(tmpQuery.local.where)[x]
+                                let tmpMap = Object.values(tmpQuery.local.where)[x]
+                                tmpQuery.local.where[tmpKey] = this._deleteList[i][tmpMap.map]
+                            }
+                        }
+                    }
+                    //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
+                    if(typeof tmpQuery.local != 'undefined' && tmpQuery.local.type == 'delete')
+                    {
+                        if(typeof tmpQuery.local.where != 'undefined')
+                        {
+                            //WHERE
+                            for (let x = 0; x < Object.keys(tmpQuery.local.where).length; x++) 
+                            {
+                                let tmpKey = Object.keys(tmpQuery.local.where)[x]
+                                let tmpMap = Object.values(tmpQuery.local.where)[x]
+                                tmpQuery.local.where[tmpKey] = this._deleteList[i][tmpMap.map]
+                            }
+                        }
+                    }
+
                     tmpQuery.value = [];
 
                     if(typeof tmpQuery.param == 'undefined')
@@ -769,9 +1085,31 @@ export class datatable
             
             if(Object.keys(arguments[0]).length > 0)
             {
+                let tmpOp = '='
                 let tmpKey = Object.keys(arguments[0])[0]
                 let tmpValue = Object.values(arguments[0])[0]
-                tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
+                if(typeof tmpValue === 'object')
+                {
+                    tmpOp = Object.keys(tmpValue)[0]
+                    tmpValue = Object.values(tmpValue)[0]
+                }
+
+                if(tmpOp == '=')
+                {
+                    tmpData = tmpData.filter(x => x[tmpKey] === tmpValue)
+                }
+                else if(tmpOp == '<>')
+                {
+                    tmpData = tmpData.filter(x => x[tmpKey] !== tmpValue)
+                }
+                else if(tmpOp == '>')
+                {
+                    tmpData = tmpData.filter(x => x[tmpKey] > tmpValue)
+                }
+                else if(tmpOp == '<')
+                {
+                    tmpData = tmpData.filter(x => x[tmpKey] < tmpValue)
+                }
             }
 
             let tmpDt = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
@@ -785,19 +1123,31 @@ export class datatable
     {
         let tmpVal = 0;
         if(arguments.length > 0)
-        {
+        {            
             tmpVal = this.reduce((a,b) =>
             {
-                return {[arguments[0]] : a[arguments[0]] + b[arguments[0]]}
+                return {[arguments[0]] : Number(a[arguments[0]]) + Number(b[arguments[0]])}
             },{[arguments[0]]:0})[arguments[0]]
 
             if(arguments.length == 2)
             {
-                tmpVal = parseFloat(tmpVal.toFixed(arguments[1]));
+                tmpVal = parseFloat(tmpVal).toFixed(arguments[1]);
             }
         }
 
         return tmpVal;
+    }
+    max()
+    {
+        let tmpVal = 0;
+        if(arguments.length > 0)
+        {       
+            if(this.length > 0)
+            {
+                tmpVal = this.reduce((a,b) =>(b[arguments[0]] > a[arguments[0]] ? b : a))[arguments[0]]
+            }     
+            return tmpVal;
+        }
     }
 }
 export class param extends datatable
@@ -845,16 +1195,10 @@ export class param extends datatable
             {
                 this.selectCmd = 
                 {
-                    query : "SELECT * FROM PARAM WHERE PAGE = @PAGE AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
-                            "((TYPE = @TYPE) OR (@TYPE = -1)) AND ((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT = @ELEMENT) OR (@ELEMENT = ''))" ,
-                    param : ['PAGE:string|25','APP:string|50','USERS:string|25','TYPE:int','SPECIAL:string|150','ELEMENT:string|250'],
+                    query : "SELECT * FROM PARAM WHERE ((APP = @APP) OR (@APP = ''))" ,
+                    param : ['APP:string|50'],
                     value : [
-                                typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE, 
                                 typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
-                                typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
-                                typeof arguments[0].TYPE == 'undefined' ? -1 : arguments[0].TYPE,
-                                typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
-                                typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT
                             ]
                 } 
                 await this.refresh();
@@ -902,6 +1246,7 @@ export class param extends datatable
     }
     filter()
     {
+        //BURAYA KESİN BAKILACAK
         if(arguments.length == 1 && typeof arguments[0] == 'object')
         {
             let tmpData = this.toArray();
@@ -1029,15 +1374,10 @@ export class access extends datatable
             {
                 this.selectCmd = 
                 {
-                    query : "SELECT * FROM ACCESS WHERE PAGE = @PAGE AND APP = @APP AND ((USERS = @USERS) OR (@USERS = '')) AND " +
-                            "((SPECIAL = @SPECIAL) OR (@SPECIAL = '')) AND ((ELEMENT = @ELEMENT) OR (@ELEMENT = ''))" ,
-                    param : ['PAGE:string|25','APP:string|50','USERS:string|25','SPECIAL:string|150','ELEMENT:string|250'],
+                    query : "SELECT * FROM ACCESS WHERE ((APP = @APP) OR (@APP = ''))" ,
+                    param : ['APP:string|50'],
                     value : [
-                                typeof arguments[0].PAGE == 'undefined' ? '' : arguments[0].PAGE, 
                                 typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
-                                typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
-                                typeof arguments[0].SPECIAL == 'undefined' ? '' : arguments[0].SPECIAL,
-                                typeof arguments[0].ELEMENT == 'undefined' ? '' : arguments[0].ELEMENT
                             ]
                 } 
                 await this.refresh();
@@ -1187,7 +1527,7 @@ Number.prototype.rateInc = function(pRate,pDigit)
     if(typeof pRate != 'undefined')
     {
         if(typeof pDigit != 'undefined')
-            return (this * (pRate / 100)).toFixed(pDigit)
+            return Number((this * (pRate / 100)).toFixed(pDigit))
         else
             return this * (pRate / 100)
     }
@@ -1199,7 +1539,7 @@ Number.prototype.rateExc = function(pRate,pDigit)
     if(typeof pRate != 'undefined')
     {
         if(typeof pDigit != 'undefined')
-            return (this * ((pRate / 100) + 1)).toFixed(pDigit)
+            return Number((this * ((pRate / 100) + 1)).toFixed(pDigit))
         else
             return this * ((pRate / 100) + 1)
     }
@@ -1211,9 +1551,25 @@ Number.prototype.rateInNum = function(pRate,pDigit)
     if(typeof pRate != 'undefined')
     {
         if(typeof pDigit != 'undefined')
-            return (this / ((pRate / 100) + 1)).toFixed(pDigit)
+            return Number((this / ((pRate / 100) + 1)).toFixed(pDigit))
         else
             return this / ((pRate / 100) + 1)
+    }
+    return 0
+}
+//* B SAYISININ A SAYISINA DAHİLİ ORANI ÖRN: 1.8 SAYISININ, 11.8 SAYISIN İÇERİSİNDEKİ ORANI %18 */
+Number.prototype.rate2In = function(pNum,pDigit)
+{
+    if(typeof pNum != 'undefined')
+    {
+        if(typeof pDigit != 'undefined')
+        {
+            return Number(((pNum / (this - pNum)) * 100).toFixed(pDigit))
+        }
+        else
+        {
+            return (pNum / (this - pNum)) * 100
+        }                 
     }
     return 0
 }
@@ -1224,12 +1580,43 @@ Number.prototype.rate2Num = function(pNum,pDigit)
     {
         if(typeof pDigit != 'undefined')
         {
-            return ((pNum / (this - pNum)) * 100).toFixed(pDigit)
+            return Number(((pNum / this) * 100).toFixed(pDigit))
         }
         else
         {
-            return (pNum / (this - pNum)) * 100
+            return (pNum / this) * 100
         }                 
     }
     return 0
+}
+//* STRING DEĞERİN SONUNA YADA BAŞINA BOŞLUK ATAR pLen = KARAKTER BOŞLUK SAYISI pType = s (BAŞINA) e (SONUNA) */
+String.prototype.space = function(pLen,pType)
+{
+    let tmpData = this
+    if(tmpData.length > pLen)
+    {
+        tmpData = tmpData.toString().substring(0,pLen);
+    }
+    if(typeof pType == 'undefined')
+    {
+        return tmpData.toString().padEnd(pLen,' ');
+    }
+    if(pType == "e")
+    {
+        return tmpData.toString().padEnd(pLen,' ');
+    }
+    else if(pType == "s")
+    {
+        return tmpData.toString().padStart(pLen,' ');
+    }
+}
+//* FORMAT CURRENCY */
+Number.prototype.currency = function()
+{
+    return new Intl.NumberFormat(localStorage.getItem('lang') == null ? 'en' : localStorage.getItem('lang'), { style: 'currency', currency: typeof Number.money.code == 'undefined' ? 'EUR' : Number.money.code }).format(this)
+}
+//* FORMAT DECIMAL */
+Number.prototype.decimal = function()
+{    
+    return new Intl.NumberFormat(localStorage.getItem('lang') == null ? 'en' : localStorage.getItem('lang'), { style: 'decimal',minimumIntegerDigits: 2,minimumFractionDigits: 2,maximumFractionDigits: 3}).format(this)
 }
