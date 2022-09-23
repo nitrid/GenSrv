@@ -1,6 +1,6 @@
 {
   "name": "gensrv",
-  "version": "1.0.83",
+  "version": "1.0.89",
   "description": "GenSrv",
   "main": "index.js",
   "type": "module",
@@ -22,7 +22,7 @@
     "node-machine-id": "^1.1.12",
     "node-windows": "^1.0.0-beta.5",
     "postinstall": "^0.7.0",
-    "socket.io": "^3.1.2",
-    "socket.io-client": "^3.0.4"
+    "socket.io": "^4.5.2",
+    "socket.io-client": "^4.5.2"
   }
 }
