@@ -1,6 +1,6 @@
 {
   "name": "gensrv",
-  "version": "1.0.89",
+  "version": "1.0.90",
   "description": "GenSrv",
   "main": "index.js",
   "type": "module",
@@ -17,6 +17,7 @@
     "fs-extra": "^9.0.1",
     "gensrv": "^1.0.61",
     "is-proxy": "^1.0.6",
+    "jsstore": "^4.4.3",
     "moment": "^2.29.1",
     "mssql": "^6.3.1",
     "node-machine-id": "^1.1.12",
