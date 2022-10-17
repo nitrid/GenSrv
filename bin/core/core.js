@@ -1,6 +1,8 @@
 import { isProxy } from 'is-proxy';
+//********* USE JSSTORE  *****************/
 //import {Connection} from 'jsstore';
 //import { jsworker } from './jsworker.js';
+//****************************************/
 import moment from 'moment';
 
 export class core
@@ -146,7 +148,7 @@ export class sql
                     }
                     else
                     {
-                        //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK.
+                        //BURADA HATA SAYFASINA YÖNLENDİRME ÇALIŞACAK. /edit r.k İNŞALLAH :)
                         console.log(data.auth_err);
                         resolve([]);
                     }
@@ -683,6 +685,7 @@ export class dataset
         return new Promise(async resolve => 
         {
             let tmpQuerys = [];
+
             for (let i = 0; i < this.length; i++) 
             {
                 let tmp = this.get(i).toCommands();
@@ -691,24 +694,39 @@ export class dataset
                     tmpQuerys.push(e)    
                 });
             }
-
+            
             let tmpResult = await this.sql.execute(tmpQuerys)
             if(typeof tmpResult.result.err == 'undefined')
-            {         
-                for (let i = 0; i < this.length; i++) 
+            {             
+                tmpQuerys.forEach(x =>
                 {
-                    let tmp = this.get(i);
-                    tmp.forEach(e => 
+                    if(x.rowData.stat == 'editing' || x.rowData.stat == 'newing')
                     {
-                        Object.setPrototypeOf(e,{stat:''})   
-                    });
-                }
+                        Object.setPrototypeOf(x.rowData,{stat:''})
+                    }
+                })        
+
+                // for (let i = 0; i < this.length; i++) 
+                // {
+                //     let tmp = this.get(i);
+                //     tmp.forEach(e => 
+                //     {      
+                //         Object.setPrototypeOf(e,{stat:''})   
+                //     });
+                // }
 
                 resolve(0)
             }
             else
             {
                 console.log(tmpResult.result.err)
+                tmpQuerys.forEach(x =>
+                {
+                    if(x.rowData.stat == 'editing' || x.rowData.stat == 'newing')
+                    {
+                        Object.setPrototypeOf(x.rowData,{stat:''})
+                    }
+                })  
                 resolve(1)
             } 
         });
@@ -953,6 +971,7 @@ export class datatable
                 if(this[i].stat == 'new')
                 {
                     tmpQuery = JSON.parse(JSON.stringify(this.insertCmd))
+                    Object.setPrototypeOf(this[i],{stat:'newing'})
                     //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
                     if(core.instance.offline && typeof tmpQuery.local != 'undefined' && typeof tmpQuery.local.values != 'undefined' && tmpQuery.local.values.length > 0)
                     {                        
@@ -982,6 +1001,7 @@ export class datatable
                 else if(this[i].stat == 'edit')
                 {
                     tmpQuery = JSON.parse(JSON.stringify(this.updateCmd))
+                    Object.setPrototypeOf(this[i],{stat:'editing'})
                     //LOCALDB İÇİN YAPILDI. ALI KEMAL KARACA 28.02.2022
                     if(core.instance.offline && typeof tmpQuery.local != 'undefined' && typeof tmpQuery.local.set != 'undefined')
                     {
@@ -1083,21 +1103,38 @@ export class datatable
             else
             {
                 tmpQuerys = this.toCommands(arguments[0]);
-            }  
+            }                        
 
             let tmpResult = await this.sql.execute(tmpQuerys)
-            
             if(typeof tmpResult.result.err == 'undefined')
-            {
-                for (let i = 0; i < this.length; i++) 
+            {     
+                tmpQuerys.forEach(x =>
                 {
-                    Object.setPrototypeOf(this[i],{stat:''})
-                }           
+                    if(x.rowData.stat == 'editing' || x.rowData.stat == 'newing')
+                    {
+                        Object.setPrototypeOf(x.rowData,{stat:''})
+                    }
+                })
+                // for (let i = 0; i < this.length; i++) 
+                // {
+                //     Object.setPrototypeOf(this[i],{stat:''})
+                // }
                 resolve(0)
             }
             else
             {
                 console.log(tmpResult.result.err)
+                tmpQuerys.forEach(x =>
+                {
+                    if(x.rowData.stat == 'newing')
+                    {
+                        Object.setPrototypeOf(x.rowData,{stat:'new'})
+                    }
+                    else if(x.rowData.stat == 'editing')
+                    {
+                        Object.setPrototypeOf(x.rowData,{stat:'edit'})
+                    }
+                })
                 resolve(1)
             } 
         });
@@ -1293,7 +1330,9 @@ export class datatable
             return r;
         },[])
         
-        let tmpDt = new datatable();
+        //let tmpDt = new datatable();
+        let tmpDt = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
+        tmpDt.clear()
         tmpDt.import(tmpGrpData)
         return tmpDt
     }
@@ -1337,16 +1376,27 @@ export class datatable
                     {
                         tmpData.filter(x => x[tmpKey] == e).forEach(m => 
                         {
-                            console.log(m)
                             tmpArr.push(m)
                         });
                     });
                     tmpData = tmpArr
                 }
+                else if(tmpOp == 'NIN' || tmpOp == 'nin')
+                {
+                    let tmpArr = []
+                    tmpData.forEach(e => 
+                    {
+                        if(tmpValue.filter(x => x == e[tmpKey]).length == 0)
+                        {
+                            tmpArr.push(e)
+                        }
+                    });
+                    tmpData = tmpArr
+                }
             }
-
+            
             let tmpDt = Object.assign(Object.create(Object.getPrototypeOf(this)), this)
-            tmpDt.clear()
+            tmpDt.splice(0,tmpDt.length);
             tmpDt.import(tmpData)
             
             return tmpDt;
@@ -1394,6 +1444,7 @@ export class param extends datatable
         {            
             this.meta = arguments[0]
         }
+
     }
     add()
     {
@@ -1428,10 +1479,12 @@ export class param extends datatable
             {
                 this.selectCmd = 
                 {
-                    query : "SELECT * FROM PARAM WHERE ((APP = @APP) OR (@APP = ''))" ,
-                    param : ['APP:string|50'],
+                    query : "SELECT * FROM PARAM WHERE ((APP = @APP) OR (@APP = '')) AND ((USERS = @USERS) OR (@USERS = '')) AND ((ID = @ID) OR (@ID = '')) " ,
+                    param : ['APP:string|50','USERS:string|50','ID:string|50'],
                     value : [
                                 typeof arguments[0].APP == 'undefined' ? '' : arguments[0].APP,
+                                typeof arguments[0].USERS == 'undefined' ? '' : arguments[0].USERS,
+                                typeof arguments[0].ID == 'undefined' ? '' : arguments[0].ID,
                             ]
                 } 
                 await this.refresh();
@@ -1568,6 +1621,7 @@ export class param extends datatable
             }
         }
     }
+
 }
 export class access extends datatable
 {
