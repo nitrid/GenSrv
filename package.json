@@ -1,6 +1,6 @@
 {
   "name": "gensrv",
-  "version": "1.0.97",
+  "version": "1.0.98",
   "description": "GenSrv",
   "main": "index.js",
   "type": "module",
