@@ -195,7 +195,7 @@ export class local
         this.db = null;  
         this.sqllite = null
         this.platform = ''
-
+        
         if(core.instance.util.isElectron())
         {
             this.sqllite = global.require('sqlite3').verbose()
@@ -210,13 +210,13 @@ export class local
     async init(pDb)
     {
         return new Promise(async resolve => 
-        {                        
+        {         
             if(this.sqllite == null)
             {
                 resolve(false);
                 return
             }
-
+            
             if(this.platform == 'electron')
             {
                 this.db = new this.sqllite.Database('./resources/' + pDb.name + '.db', async(err) => 
@@ -243,7 +243,6 @@ export class local
             else if(this.platform == 'cordova')
             {
                 this.db = this.sqllite.openDatabase({ name: pDb.name + '.db', location: 'default' });
-
                 this.db.transaction((tx) =>
                 {
                     for (var i = 0; i < pDb.tables.length; i++) 
@@ -339,8 +338,12 @@ export class local
                 {
                     tx.executeSql(tmpQuery.query, typeof tmpQuery.values == 'undefined' ? [] : tmpQuery.values, (tx, result) =>
                     {
-                        console.log(result)
-                        resolve({result:{state:true,recordset:result}})
+                        let tmpArr = []
+                        for (let i = 0; i < result.rows.length; i++) 
+                        {
+                            tmpArr.push(result.rows.item(i))
+                        }
+                        resolve({result:{state:true,recordset:tmpArr}})
                     }, (tx, err) =>
                     {
                         console.log(err + ' ' + tmpQuery.query)
@@ -712,15 +715,9 @@ export class util
             });
         });
     }
-    waitUntil()
+    async waitUntil()
     {
-        return new Promise(async resolve => 
-        {
-            setTimeout(() => 
-            {
-                resolve()
-            }, typeof arguments[0] == 'undefined' ? 0 : arguments[0]);
-        })
+        await new Promise(resolve => setTimeout(resolve, typeof arguments[0] == 'undefined' ? 0 : arguments[0]));
     }
     isElectron() 
     {
@@ -893,7 +890,7 @@ export class dataset
                     tmpQuerys.push(e)    
                 });
             }
-
+            
             let tmpResult = await this.sql.execute(tmpQuerys)
             
             if(typeof tmpResult.result.err == 'undefined')
@@ -1538,6 +1535,14 @@ export class datatable
                     });
                     tmpData = tmpArr
                 }
+                else if (tmpOp == 'LIKE' || tmpOp == 'like') 
+                {
+                    const regex = new RegExp(tmpValue);
+                    tmpData = tmpData.filter((x) => 
+                    {
+                        return regex.test(x[tmpKey])
+                    });
+                }
             }
             
             let tmpDt = new datatable();
@@ -1564,12 +1569,13 @@ export class datatable
         {            
             tmpVal = this.reduce((a,b) =>
             {
-                return {[arguments[0]] : Number(a[arguments[0]]).round(5) + Number(b[arguments[0]]).round(5)}
+                return {[arguments[0]] : Number(a[arguments[0]]) + Number(b[arguments[0]])}
             },{[arguments[0]]:0})[arguments[0]]
 
             if(arguments.length == 2)
             {
-                tmpVal = parseFloat(tmpVal).toFixed(arguments[1]);
+                tmpVal = Number(tmpVal).round(arguments[1]);
+                tmpVal = tmpVal.toFixed(arguments[1])
             }
         }
 
@@ -1598,6 +1604,21 @@ export class datatable
             }     
             return tmpVal;
         }
+    }
+    orderBy(pKey,pSort)
+    {
+        if(typeof pKey != 'undefined')
+        {
+            if(typeof pSort != 'undefined' && pSort == 'desc')
+            {
+                return this.sort((a, b) => b[pKey] - a[pKey])
+            }
+            else
+            {
+                return this.sort((a, b) => a[pKey] - b[pKey])
+            }
+        }
+        return this
     }
 }
 export class param extends datatable
@@ -1707,8 +1728,7 @@ export class param extends datatable
                 param : ['PGUID:string|50','PTYPE:int','PID:string|100','PVALUE:string|max','PSPECIAL:string|150','PUSERS:string|25','PPAGE:string|25','PELEMENT:string|250','PAPP:string|50'],
                 dataprm : ['GUID','TYPE','ID','VALUE','SPECIAL','USERS','PAGE','ELEMENT','APP']
             } 
-            await this.update(); 
-            resolve();
+            resolve(await this.update());
         });
     }
     filter()
@@ -1758,7 +1778,15 @@ export class param extends datatable
             if(arguments.length == 0)
             {
                // return JSON.parse(JSON.stringify(this[0].VALUE))
-               return JSON.parse(this[0].VALUE)
+               try
+               {
+                    return JSON.parse(this[0].VALUE)
+               }
+               catch(ex)
+               {
+                    return this[0].VALUE
+               }
+               
             }
             // EĞER PARAMETRE GELMİŞ İSE VE GELEN VERİ NUMBER İSE VERİLEN SATIR I DÖNDÜR.
             else if(arguments.length == 1 && typeof arguments[0] == 'number')
@@ -2171,9 +2199,9 @@ Number.prototype.rateInc = function(pRate,pDigit)
     if(typeof pRate != 'undefined')
     {
         if(typeof pDigit != 'undefined')
-            return Number((this * (pRate / 100)).toFixed(pDigit))
+            return isNaN(Number((this * (pRate / 100)).toFixed(pDigit))) ? 0 : Number((this * (pRate / 100)).toFixed(pDigit))
         else
-            return this * (pRate / 100)
+            return isNaN(this * (pRate / 100)) ? 0 : this * (pRate / 100)
     }
     return 0
 }
@@ -2183,9 +2211,9 @@ Number.prototype.rateExc = function(pRate,pDigit)
     if(typeof pRate != 'undefined')
     {
         if(typeof pDigit != 'undefined')
-            return Number((this * ((pRate / 100) + 1)).toFixed(pDigit))
+            return isNaN(Number((this * ((pRate / 100) + 1)).toFixed(pDigit))) ? 0 : Number((this * ((pRate / 100) + 1)).toFixed(pDigit))
         else
-            return this * ((pRate / 100) + 1)
+            return isNaN(this * ((pRate / 100) + 1)) ? 0 : this * ((pRate / 100) + 1)
     }
     return 0
 }
@@ -2195,9 +2223,9 @@ Number.prototype.rateInNum = function(pRate,pDigit)
     if(typeof pRate != 'undefined')
     {
         if(typeof pDigit != 'undefined')
-            return Number((this / ((pRate / 100) + 1)).toFixed(pDigit))
+            return isNaN(Number((this / ((pRate / 100) + 1)).toFixed(pDigit))) ? 0 : Number((this / ((pRate / 100) + 1)).toFixed(pDigit))
         else
-            return this / ((pRate / 100) + 1)
+            return isNaN(this / ((pRate / 100) + 1)) ? 0 : this / ((pRate / 100) + 1)
     }
     return 0
 }
@@ -2208,11 +2236,11 @@ Number.prototype.rate2In = function(pNum,pDigit)
     {
         if(typeof pDigit != 'undefined')
         {
-            return Number(((pNum / (this - pNum)) * 100).toFixed(pDigit))
+            return isNaN(Number(((pNum / (this - pNum)) * 100).toFixed(pDigit))) ? 0 : Number(((pNum / (this - pNum)) * 100).toFixed(pDigit))
         }
         else
         {
-            return (pNum / (this - pNum)) * 100
+            return isNaN((pNum / (this - pNum)) * 100) ? 0 : (pNum / (this - pNum)) * 100
         }                 
     }
     return 0
@@ -2224,11 +2252,11 @@ Number.prototype.rate2Num = function(pNum,pDigit)
     {
         if(typeof pDigit != 'undefined')
         {
-            return Number(((pNum / this) * 100).toFixed(pDigit))
+            return isNaN(Number(((pNum / this) * 100).toFixed(pDigit))) ? 0 : Number(((pNum / this) * 100).toFixed(pDigit))
         }
         else
         {
-            return (pNum / this) * 100
+            return isNaN((pNum / this) * 100) ? 0 : (pNum / this) * 100
         }                 
     }
     return 0
@@ -2279,5 +2307,8 @@ Number.prototype.round = function(pDigits)
         tmpNum = tmpNum + "0"
     }
     tmpNum = Number(tmpNum)
-    return Math.round((this + Number.EPSILON) * tmpNum) / tmpNum
+    
+    return isNaN(Number(Math.round(Number(this)+'e'+pDigits)+'e-'+pDigits)) ? 0 : Number(Math.round(Number(this)+'e'+pDigits)+'e-'+pDigits)
+    return Math.round((Number(this.toFixed(pDigits + 1)) + Number.EPSILON) * tmpNum) / tmpNum
+    //return Math.round((this + Number.EPSILON) * tmpNum) / tmpNum
 }
